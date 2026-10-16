@@ -1,0 +1,25 @@
+# shipreel workspaces (if you run it inside the repo)
+output/
+temp/
+shipreel.config.json
+
+# local agent installs / vendor skills (install them yourself, see README)
+.agents/
+.claude/
+
+# secrets
+.env
+.env.*
+
+# offensive / NSFW memes stay local; index entries for them are rating=nsfw and filtered out by default
+skills/shipreel/assets/memes/_flagged/
+
+# python / node / OS
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+Thumbs.db
+
+# built locally from Buzzer.cs on first use (no binaries in the repo)
+skills/shipreel/tools/buzzer/buzzer.exe

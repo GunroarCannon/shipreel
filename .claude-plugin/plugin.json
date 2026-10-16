@@ -1,0 +1,10 @@
+{
+  "name": "shipreel",
+  "version": "0.1.0",
+  "description": "Record your software and game projects and edit them into faceless TikToks and YouTube devlogs: captions, memes, SFX, arrows, freeze frames, human titles and descriptions, with cheap-model routing.",
+  "author": { "name": "OWNER" },
+  "homepage": "https://github.com/OWNER/shipreel",
+  "repository": "https://github.com/OWNER/shipreel",
+  "license": "MIT",
+  "keywords": ["tiktok", "youtube", "shorts", "devlog", "video", "ffmpeg", "godot", "screen-recording", "content"]
+}

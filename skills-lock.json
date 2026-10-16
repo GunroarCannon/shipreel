@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "skills": {
+    "tiktok-marketing": {
+      "source": "sergebulaev/tiktok-skills",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "767b0d92dacede7d5cb0a1f58347b35d81ad9e08b8708121b2fadd6b73155566"
+    },
+    "viral-captions-and-ctas": {
+      "source": "vyralcontent/content-skills",
+      "sourceType": "github",
+      "skillPath": "skills/viral-captions-and-ctas/SKILL.md",
+      "computedHash": "99062338e7c59fdbf34e80237ac7297bea8af4ea01597799c0597f9c38c0fa0c"
+    },
+    "viral-hooks": {
+      "source": "vyralcontent/content-skills",
+      "sourceType": "github",
+      "skillPath": "skills/viral-hooks/SKILL.md",
+      "computedHash": "bf062748873cb86547243857f1214e5b4713fe687b8d3ac350d972fb753872cc"
+    },
+    "viral-short-form-ideas": {
+      "source": "vyralcontent/content-skills",
+      "sourceType": "github",
+      "skillPath": "skills/viral-short-form-ideas/SKILL.md",
+      "computedHash": "25df48bd160902a5cc8aafa4aa519ad27ed18f3121625e18ccae6d1c64910320"
+    },
+    "viral-tiktok-content": {
+      "source": "vyralcontent/content-skills",
+      "sourceType": "github",
+      "skillPath": "skills/viral-tiktok-content/SKILL.md",
+      "computedHash": "fd7452d4c6e0800f8547d67ad24e69efe2828626a4735baba2b5266c51d92c05"
+    },
+    "viral-youtube-shorts": {
+      "source": "vyralcontent/content-skills",
+      "sourceType": "github",
+      "skillPath": "skills/viral-youtube-shorts/SKILL.md",
+      "computedHash": "b3a249e64c247c22733a767dd7c0cc54281c8c9c946d5937fc0fbf78ab4d1e45"
+    }
+  }
+}

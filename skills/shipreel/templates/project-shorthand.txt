@@ -1,0 +1,50 @@
+# .project-shorthand.txt — read this FIRST, before touching the repo. Keep it under ~80 lines.
+# Written by the scout (cheap model) once; refreshed only when `git log <scouted_sha>..HEAD` shows new work.
+# Lines starting with # are comments. Keep values short, no prose paragraphs.
+
+name: <display name>
+slug: <folder-safe-name>
+one_liner: <what it is, 12 words max, how a dev would say it to a friend>
+type: <web-app | game-godot | game-other | cli | library | mobile | desktop | api>
+stack: <e.g. Godot 4.4 GDScript | Next.js + Supabase | Rust CLI>
+status: <idea | prototype | alpha | beta | shipped>
+audience: <who would care: indie devs, gamers, designers, ...>
+repo: <path>  |  remote: <github url or none>  |  public: <yes/no/unknown>
+live_url: <vercel/netlify url or none>  (check it's up before linking)
+scouted_sha: <git sha at time of scouting>
+
+## how to run (exact commands, no edits to the project)
+run: <e.g. godot --path . | npm run dev (port 3000) | cargo run -- --demo>
+build_needed: <yes/no + cost, e.g. "npm i ~300MB, skip: use live_url">
+toggles: <env flags/CLI args that change what shows, e.g. DEBUG_OVERLAY=0, ?demo=1, --skip-intro>
+input: <how to drive it: keyboard WASD, mouse, touch, url params, autoplay scene>
+
+## audio
+product_audio: <none | sfx only | music + sfx>   music_where: <menu only / always / level 2>
+music_ok_to_keep: <yes/no/unknown>   # original music = safe for YouTube; keep it rather than adding a track
+
+## features (one per line: id | what it shows | how to capture | best length | wow factor 1-5)
+f1 | <feature> | <scene res://... or url path or command> | <8s> | <4>
+f2 |
+f3 |
+
+## eras (development stages worth showing; commits/tags, oldest first)
+e1 | <label e.g. "first prototype"> | <commit or tag> | <what looked different>
+e2 |
+e3 | current | HEAD |
+
+## visual hooks (moments that stop a scroll: explosions, before/after, satisfying loops, big numbers)
+- <...>
+
+## story angles (true things worth saying: struggles, numbers, decisions, bugs)
+- <e.g. "rewrote the renderer 3 times", "first 100 users", "it runs on a 2014 laptop">
+
+## assets usable in videos (logos, screenshots, trailers, gifs already in the repo)
+- <path> : <what>
+
+## never show (secrets, .env, personal data, paid assets, unfinished areas the owner hides)
+- .env*, API keys, emails, tokens, private dashboards
+- <...>
+
+## cross-project links (same channel; ok to reference in videos/thumbnails)
+- <other project slug> : <how it relates>

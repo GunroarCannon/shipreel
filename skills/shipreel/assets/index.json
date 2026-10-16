@@ -1,0 +1,3727 @@
+{
+ "version": 1,
+ "assets": [
+  {
+   "id": "meme:a-blessing-from-the-lord",
+   "type": "image",
+   "path": "memes/reaction/a-blessing-from-the-lord.png",
+   "pack": "reaction",
+   "moods": [
+    "relief",
+    "happy"
+   ],
+   "themes": [
+    "fix",
+    "success",
+    "finally-works"
+   ],
+   "text": "A blessing from the Lord!",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:always-has-been",
+   "type": "image",
+   "path": "memes/reaction/always-has-been.png",
+   "pack": "reaction",
+   "moods": [
+    "shocked",
+    "smug"
+   ],
+   "themes": [
+    "reveal",
+    "plot-twist"
+   ],
+   "text": "Always has been",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:apes-together-strong",
+   "type": "image",
+   "path": "memes/reaction/apes-together-strong.png",
+   "pack": "reaction",
+   "moods": [
+    "determined",
+    "hype"
+   ],
+   "themes": [
+    "teamwork",
+    "community"
+   ],
+   "text": "Apes together strong.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:batman-slaps-robin",
+   "type": "image",
+   "path": "memes/reaction/batman-slaps-robin.png",
+   "pack": "reaction",
+   "moods": [
+    "angry",
+    "disapprove"
+   ],
+   "themes": [
+    "bad-idea",
+    "correction"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:beautiful-as-the-day-i-lost-you",
+   "type": "image",
+   "path": "memes/reaction/beautiful-as-the-day-i-lost-you.png",
+   "pack": "reaction",
+   "moods": [
+    "wholesome",
+    "nostalgic"
+   ],
+   "themes": [
+    "nostalgia",
+    "old-version",
+    "comeback"
+   ],
+   "text": "You're as beautiful as the day I lost you",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:big-brain-chess",
+   "type": "image",
+   "path": "memes/wojak/big-brain-chess.jpg",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "big-brain",
+    "strategy"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:big-brain-mask-glasses",
+   "type": "image",
+   "path": "memes/wojak/big-brain-mask-glasses.png",
+   "pack": "wojak",
+   "moods": [
+    "smug",
+    "cope"
+   ],
+   "themes": [
+    "fake-smart"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:big-brain-wojak-throne",
+   "type": "image",
+   "path": "memes/wojak/big-brain-wojak-throne.png",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "big-brain",
+    "idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:boomer-sunglasses-pc",
+   "type": "image",
+   "path": "memes/wojak/boomer-sunglasses-pc.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "smug"
+   ],
+   "themes": [
+    "old-school"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:born-to-feel-flamethrower",
+   "type": "image",
+   "path": "memes/wojak/born-to-feel-flamethrower.jpg",
+   "pack": "wojak",
+   "moods": [
+    "angry",
+    "determined"
+   ],
+   "themes": [
+    "rage",
+    "destroy-bugs"
+   ],
+   "text": "BORN TO FEEL",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:born-to-feel-helmet",
+   "type": "image",
+   "path": "memes/wojak/born-to-feel-helmet.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "determined"
+   ],
+   "themes": [
+    "grind",
+    "war"
+   ],
+   "text": "BORN TO FEEL",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:both-is-good",
+   "type": "image",
+   "path": "memes/reaction/both-is-good.png",
+   "pack": "reaction",
+   "moods": [
+    "happy",
+    "approve"
+   ],
+   "themes": [
+    "choice",
+    "comparison"
+   ],
+   "text": "Both is good.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-drool-smirk",
+   "type": "image",
+   "path": "memes/wojak/brainlet-drool-smirk.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "smug"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-drooling",
+   "type": "image",
+   "path": "memes/wojak/brainlet-drooling.png",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-flat-head",
+   "type": "image",
+   "path": "memes/wojak/brainlet-flat-head.png",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-gold-tooth",
+   "type": "image",
+   "path": "memes/wojak/brainlet-gold-tooth.png",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-gold-tooth-2",
+   "type": "image",
+   "path": "memes/wojak/brainlet-gold-tooth-2.png",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-hollow-head-hello",
+   "type": "image",
+   "path": "memes/wojak/brainlet-hollow-head-hello.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "laughing"
+   ],
+   "themes": [
+    "empty-head",
+    "bad-idea"
+   ],
+   "text": "HELLO HELLO",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-melting",
+   "type": "image",
+   "path": "memes/wojak/brainlet-melting.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "sad"
+   ],
+   "themes": [
+    "broken"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:brainlet-offensive-symbol",
+   "type": "image",
+   "path": "memes/_flagged/brainlet-offensive-symbol.png",
+   "pack": "wojak",
+   "moods": [],
+   "themes": [
+    "hate-symbol"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:brainlet-tiny-head",
+   "type": "image",
+   "path": "memes/wojak/brainlet-tiny-head.jpg",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:buddha-wojak",
+   "type": "image",
+   "path": "memes/wojak/buddha-wojak.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "calm",
+    "zen"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:calling-911",
+   "type": "image",
+   "path": "memes/reaction/calling-911.png",
+   "pack": "reaction",
+   "moods": [
+    "panic",
+    "disapprove"
+   ],
+   "themes": [
+    "cursed-code",
+    "bug",
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:car-salesman-slaps-roof",
+   "type": "image",
+   "path": "memes/reaction/car-salesman-slaps-roof.png",
+   "pack": "reaction",
+   "moods": [
+    "smug",
+    "hype"
+   ],
+   "themes": [
+    "showcase",
+    "feature",
+    "upgrade"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:cereal-guy-angry",
+   "type": "image",
+   "path": "memes/ragecomic/cereal-guy-angry.png",
+   "pack": "ragecomic",
+   "moods": [
+    "angry",
+    "disapprove"
+   ],
+   "themes": [
+    "reaction"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:cereal-guy-spit",
+   "type": "image",
+   "path": "memes/ragecomic/cereal-guy-spit.png",
+   "pack": "ragecomic",
+   "moods": [
+    "shocked"
+   ],
+   "themes": [
+    "reaction",
+    "plot-twist"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:chad-stubble-wojak",
+   "type": "image",
+   "path": "memes/wojak/chad-stubble-wojak.png",
+   "pack": "wojak",
+   "moods": [
+    "smug",
+    "chill"
+   ],
+   "themes": [
+    "flex",
+    "confident"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:clown-to-clown-communication",
+   "type": "image",
+   "path": "memes/reaction/clown-to-clown-communication.png",
+   "pack": "reaction",
+   "moods": [
+    "cringe",
+    "laughing"
+   ],
+   "themes": [
+    "bad-idea",
+    "teamwork",
+    "miscommunication"
+   ],
+   "text": "Clown To Clown Communication",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:coincidence-i-think-not",
+   "type": "image",
+   "path": "memes/reaction/coincidence-i-think-not.png",
+   "pack": "reaction",
+   "moods": [
+    "sus",
+    "smug"
+   ],
+   "themes": [
+    "plot-twist",
+    "pattern",
+    "bug"
+   ],
+   "text": "Coincidence? I THINK NOT",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:confused-screaming",
+   "type": "image",
+   "path": "memes/reaction/confused-screaming.png",
+   "pack": "reaction",
+   "moods": [
+    "confused",
+    "panic"
+   ],
+   "themes": [
+    "bug",
+    "weird-behavior"
+   ],
+   "text": "*Confused screaming*",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:confused-unga-bunga",
+   "type": "image",
+   "path": "memes/reaction/confused-unga-bunga.png",
+   "pack": "reaction",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "learning",
+    "legacy-code",
+    "docs"
+   ],
+   "text": "(confused unga bunga)",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:crying-cat",
+   "type": "image",
+   "path": "memes/reaction/crying-cat.png",
+   "pack": "reaction",
+   "moods": [
+    "sad",
+    "crying"
+   ],
+   "themes": [
+    "fail",
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:crying-cat-thumbs-up",
+   "type": "image",
+   "path": "memes/reaction/crying-cat-thumbs-up.png",
+   "pack": "reaction",
+   "moods": [
+    "cope",
+    "sad"
+   ],
+   "themes": [
+    "it-works-kinda",
+    "fail",
+    "cope"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:crying-girl-explaining",
+   "type": "image",
+   "path": "memes/reaction/crying-girl-explaining.png",
+   "pack": "reaction",
+   "moods": [
+    "crying",
+    "sad"
+   ],
+   "themes": [
+    "explain",
+    "frustration"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:current-objective-survive",
+   "type": "image",
+   "path": "memes/reaction/current-objective-survive.png",
+   "pack": "reaction",
+   "moods": [
+    "determined",
+    "panic"
+   ],
+   "themes": [
+    "deadline",
+    "game",
+    "crunch"
+   ],
+   "text": "CURRENT OBJECTIVE: SURVIVE",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:daniel-before",
+   "type": "image",
+   "path": "memes/reaction/daniel-before.png",
+   "pack": "reaction",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "before-after",
+    "comparison",
+    "old-version"
+   ],
+   "text": "Daniel",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:dont-give-me-hope",
+   "type": "image",
+   "path": "memes/reaction/dont-give-me-hope.png",
+   "pack": "reaction",
+   "moods": [
+    "sad",
+    "doubt"
+   ],
+   "themes": [
+    "hope",
+    "it-works-maybe"
+   ],
+   "text": "Don't do that. Don't give me hope.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-4-panel-night",
+   "type": "image",
+   "path": "memes/wojak/doomer-4-panel-night.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "sad"
+   ],
+   "themes": [
+    "late-night",
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-bw-night-pc",
+   "type": "image",
+   "path": "memes/wojak/doomer-bw-night-pc.png",
+   "pack": "wojak",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-coffee-pc-night",
+   "type": "image",
+   "path": "memes/wojak/doomer-coffee-pc-night.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "late-night",
+    "burnout",
+    "coding"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-dark-tear",
+   "type": "image",
+   "path": "memes/wojak/doomer-dark-tear.png",
+   "pack": "wojak",
+   "moods": [
+    "sad",
+    "lonely"
+   ],
+   "themes": [
+    "burnout",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-days-without-sign",
+   "type": "image",
+   "path": "memes/_flagged/doomer-days-without-sign.png",
+   "pack": "wojak",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "self-harm"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:doomer-lying-bruised",
+   "type": "image",
+   "path": "memes/wojak/doomer-lying-bruised.png",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "sad"
+   ],
+   "themes": [
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-pantry-sitting",
+   "type": "image",
+   "path": "memes/wojak/doomer-pantry-sitting.png",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "lonely"
+   ],
+   "themes": [
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:doomer-sunlight-window",
+   "type": "image",
+   "path": "memes/wojak/doomer-sunlight-window.png",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "sad"
+   ],
+   "themes": [
+    "burnout",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:dr-manhattan-mars",
+   "type": "image",
+   "path": "memes/wojak/dr-manhattan-mars.png",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "chill"
+   ],
+   "themes": [
+    "alone",
+    "thinking"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:drake-no",
+   "type": "image",
+   "path": "memes/reaction/drake-no.png",
+   "pack": "reaction",
+   "moods": [
+    "disapprove"
+   ],
+   "themes": [
+    "comparison",
+    "choice",
+    "before-after"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:drake-yes",
+   "type": "image",
+   "path": "memes/reaction/drake-yes.png",
+   "pack": "reaction",
+   "moods": [
+    "approve",
+    "smug"
+   ],
+   "themes": [
+    "comparison",
+    "choice",
+    "before-after"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:expanding-brain-1-small",
+   "type": "image",
+   "path": "memes/reaction/expanding-brain-1-small.png",
+   "pack": "reaction",
+   "moods": [
+    "mindblown"
+   ],
+   "themes": [
+    "escalation",
+    "idea",
+    "overthinking"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:expanding-brain-2-glow",
+   "type": "image",
+   "path": "memes/reaction/expanding-brain-2-glow.png",
+   "pack": "reaction",
+   "moods": [
+    "mindblown"
+   ],
+   "themes": [
+    "escalation",
+    "idea",
+    "overthinking"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:expanding-brain-3-bright",
+   "type": "image",
+   "path": "memes/reaction/expanding-brain-3-bright.png",
+   "pack": "reaction",
+   "moods": [
+    "mindblown"
+   ],
+   "themes": [
+    "escalation",
+    "idea",
+    "overthinking"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:expanding-brain-4-galaxy",
+   "type": "image",
+   "path": "memes/reaction/expanding-brain-4-galaxy.png",
+   "pack": "reaction",
+   "moods": [
+    "mindblown",
+    "hype"
+   ],
+   "themes": [
+    "escalation",
+    "idea",
+    "big-brain"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:feel-retrowave-poster",
+   "type": "image",
+   "path": "memes/wojak/feel-retrowave-poster.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "nostalgic"
+   ],
+   "themes": [
+    "retro",
+    "aesthetic"
+   ],
+   "text": "FEEL",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:first-time",
+   "type": "image",
+   "path": "memes/reaction/first-time.png",
+   "pack": "reaction",
+   "moods": [
+    "chill",
+    "smug"
+   ],
+   "themes": [
+    "repeat-fail",
+    "experience",
+    "veteran"
+   ],
+   "text": "First time?",
+   "rating": "mild"
+  },
+  {
+   "id": "meme:forever-alone-never-alone",
+   "type": "image",
+   "path": "memes/ragecomic/forever-alone-never-alone.png",
+   "pack": "ragecomic",
+   "moods": [
+    "lonely"
+   ],
+   "themes": [
+    "solo-dev"
+   ],
+   "text": "Never alone",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:heavy-breathing-cat",
+   "type": "image",
+   "path": "memes/reaction/heavy-breathing-cat.png",
+   "pack": "reaction",
+   "moods": [
+    "hype",
+    "nervous"
+   ],
+   "themes": [
+    "reveal",
+    "anticipation",
+    "teaser"
+   ],
+   "text": "(heavy breathing)",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:i-know-that-feel-bro",
+   "type": "image",
+   "path": "memes/wojak/i-know-that-feel-bro.png",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "sad"
+   ],
+   "themes": [
+    "relatable",
+    "community"
+   ],
+   "text": "I KNOW THAT FEEL BRO",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:im-gonna-stop-you-right-there",
+   "type": "image",
+   "path": "memes/reaction/im-gonna-stop-you-right-there.png",
+   "pack": "reaction",
+   "moods": [
+    "disapprove"
+   ],
+   "themes": [
+    "correction",
+    "stop",
+    "bad-idea"
+   ],
+   "text": "I'm gonna stop you right there",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:joey-shocked",
+   "type": "image",
+   "path": "memes/reaction/joey-shocked.png",
+   "pack": "reaction",
+   "moods": [
+    "shocked"
+   ],
+   "themes": [
+    "before-after",
+    "plot-twist",
+    "punchline"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:joey-smiling",
+   "type": "image",
+   "path": "memes/reaction/joey-smiling.png",
+   "pack": "reaction",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "before-after",
+    "plot-twist",
+    "setup"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:kermit-hugging-phone",
+   "type": "image",
+   "path": "memes/reaction/kermit-hugging-phone.png",
+   "pack": "reaction",
+   "moods": [
+    "wholesome",
+    "happy"
+   ],
+   "themes": [
+    "notification",
+    "finally-works",
+    "love"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:leopard-do-you-realize",
+   "type": "image",
+   "path": "memes/reaction/leopard-do-you-realize.png",
+   "pack": "reaction",
+   "moods": [
+    "doubt",
+    "sus"
+   ],
+   "themes": [
+    "doomed",
+    "bad-idea"
+   ],
+   "text": "Do you realized how f***ed you are?",
+   "rating": "mild"
+  },
+  {
+   "id": "meme:loading-cat-buffering",
+   "type": "image",
+   "path": "memes/reaction/loading-cat-buffering.png",
+   "pack": "reaction",
+   "moods": [
+    "confused",
+    "tired"
+   ],
+   "themes": [
+    "waiting",
+    "loading",
+    "performance",
+    "compile"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:manga-wojak-arms-crossed",
+   "type": "image",
+   "path": "memes/wojak/manga-wojak-arms-crossed.png",
+   "pack": "wojak",
+   "moods": [
+    "doubt",
+    "chill"
+   ],
+   "themes": [
+    "waiting"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:meme-pack-collage",
+   "type": "image",
+   "path": "memes/ragecomic/meme-pack-collage.jpg",
+   "pack": "ragecomic",
+   "moods": [
+    "chaos",
+    "laughing"
+   ],
+   "themes": [
+    "intro",
+    "collage"
+   ],
+   "text": "PACK OF MEMES",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:mmmm-grayons-brainlet",
+   "type": "image",
+   "path": "memes/wojak/mmmm-grayons-brainlet.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "laughing"
+   ],
+   "themes": [
+    "bad-idea"
+   ],
+   "text": "Mmmm grayons",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:mother-of-god",
+   "type": "image",
+   "path": "memes/ragecomic/mother-of-god.png",
+   "pack": "ragecomic",
+   "moods": [
+    "mindblown",
+    "shocked"
+   ],
+   "themes": [
+    "reveal",
+    "scale"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:newspaper-guy-reading",
+   "type": "image",
+   "path": "memes/ragecomic/newspaper-guy-reading.png",
+   "pack": "ragecomic",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "reading-docs",
+    "changelog"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:newspaper-guy-rips-paper",
+   "type": "image",
+   "path": "memes/ragecomic/newspaper-guy-rips-paper.png",
+   "pack": "ragecomic",
+   "moods": [
+    "angry",
+    "disapprove"
+   ],
+   "themes": [
+    "docs",
+    "changelog",
+    "rage-quit"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:no-me-gusta",
+   "type": "image",
+   "path": "memes/ragecomic/no-me-gusta.png",
+   "pack": "ragecomic",
+   "moods": [
+    "disapprove"
+   ],
+   "themes": [
+    "bad-ui",
+    "cursed-code"
+   ],
+   "text": "NO ME GUSTA",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:not-bad-obama",
+   "type": "image",
+   "path": "memes/ragecomic/not-bad-obama.png",
+   "pack": "ragecomic",
+   "moods": [
+    "approve",
+    "proud"
+   ],
+   "themes": [
+    "success",
+    "impressed"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:nothing-to-do-here-jetpack",
+   "type": "image",
+   "path": "memes/ragecomic/nothing-to-do-here-jetpack.png",
+   "pack": "ragecomic",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "exit",
+    "leave",
+    "done"
+   ],
+   "text": "NOTHING TO DO HERE",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:now-all-of-china-knows",
+   "type": "image",
+   "path": "memes/reaction/now-all-of-china-knows.png",
+   "pack": "reaction",
+   "moods": [
+    "shocked",
+    "panic"
+   ],
+   "themes": [
+    "fail",
+    "loud-error",
+    "leak"
+   ],
+   "text": "Now all of China knows you're here.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:npc-wojak",
+   "type": "image",
+   "path": "memes/wojak/npc-wojak.png",
+   "pack": "wojak",
+   "moods": [
+    "doubt",
+    "chill"
+   ],
+   "themes": [
+    "npc",
+    "generic"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:okay-guy",
+   "type": "image",
+   "path": "memes/ragecomic/okay-guy.png",
+   "pack": "ragecomic",
+   "moods": [
+    "sad",
+    "cope"
+   ],
+   "themes": [
+    "acceptance",
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:okay-guy-text",
+   "type": "image",
+   "path": "memes/ragecomic/okay-guy-text.png",
+   "pack": "ragecomic",
+   "moods": [
+    "sad",
+    "cope"
+   ],
+   "themes": [
+    "acceptance",
+    "fail"
+   ],
+   "text": "Okay",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:pepe-kissing-wojak",
+   "type": "image",
+   "path": "memes/wojak/pepe-kissing-wojak.jpg",
+   "pack": "wojak",
+   "moods": [
+    "awkward",
+    "laughing"
+   ],
+   "themes": [
+    "random"
+   ],
+   "text": "",
+   "rating": "mild"
+  },
+  {
+   "id": "meme:pffftch-laugh",
+   "type": "image",
+   "path": "memes/ragecomic/pffftch-laugh.png",
+   "pack": "ragecomic",
+   "moods": [
+    "laughing"
+   ],
+   "themes": [
+    "fail",
+    "funny"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:pffftch-laugh-text",
+   "type": "image",
+   "path": "memes/ragecomic/pffftch-laugh-text.png",
+   "pack": "ragecomic",
+   "moods": [
+    "laughing"
+   ],
+   "themes": [
+    "fail",
+    "funny"
+   ],
+   "text": "PFFFTCHCH",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:pffftch-laugh-text-2",
+   "type": "image",
+   "path": "memes/ragecomic/pffftch-laugh-text-2.png",
+   "pack": "ragecomic",
+   "moods": [
+    "laughing"
+   ],
+   "themes": [
+    "fail",
+    "funny"
+   ],
+   "text": "PFFFTCHCH",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:polite-cat-smile",
+   "type": "image",
+   "path": "memes/reaction/polite-cat-smile.png",
+   "pack": "reaction",
+   "moods": [
+    "awkward",
+    "cope"
+   ],
+   "themes": [
+    "user-feedback",
+    "bug",
+    "cope"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:pop-cat",
+   "type": "image",
+   "path": "memes/reaction/pop-cat.png",
+   "pack": "reaction",
+   "moods": [
+    "happy",
+    "laughing"
+   ],
+   "themes": [
+    "click",
+    "ui",
+    "satisfying"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:press-x-to-doubt",
+   "type": "image",
+   "path": "memes/reaction/press-x-to-doubt.png",
+   "pack": "reaction",
+   "moods": [
+    "doubt",
+    "sus"
+   ],
+   "themes": [
+    "claim",
+    "benchmark"
+   ],
+   "text": "X Doubt",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:purple-dog-flopping",
+   "type": "image",
+   "path": "memes/reaction/purple-dog-flopping.png",
+   "pack": "reaction",
+   "moods": [
+    "tired",
+    "chill"
+   ],
+   "themes": [
+    "burnout",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-derp",
+   "type": "image",
+   "path": "memes/ragecomic/rage-derp.png",
+   "pack": "ragecomic",
+   "moods": [
+    "awkward",
+    "confused"
+   ],
+   "themes": [
+    "mistake"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-excited-on-cloud",
+   "type": "image",
+   "path": "memes/ragecomic/rage-excited-on-cloud.png",
+   "pack": "ragecomic",
+   "moods": [
+    "happy",
+    "hype"
+   ],
+   "themes": [
+    "success",
+    "excited"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-fuuu",
+   "type": "image",
+   "path": "memes/ragecomic/rage-fuuu.png",
+   "pack": "ragecomic",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "bug",
+    "crash",
+    "rage"
+   ],
+   "text": "FFFFUUUU",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-happy-tears",
+   "type": "image",
+   "path": "memes/ragecomic/rage-happy-tears.png",
+   "pack": "ragecomic",
+   "moods": [
+    "happy",
+    "relief",
+    "crying"
+   ],
+   "themes": [
+    "success",
+    "finally-works"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-lol-girl-scream",
+   "type": "image",
+   "path": "memes/ragecomic/rage-lol-girl-scream.png",
+   "pack": "ragecomic",
+   "moods": [
+    "shocked",
+    "laughing"
+   ],
+   "themes": [
+    "reaction"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-no",
+   "type": "image",
+   "path": "memes/ragecomic/rage-no.png",
+   "pack": "ragecomic",
+   "moods": [
+    "disapprove",
+    "angry"
+   ],
+   "themes": [
+    "rejection"
+   ],
+   "text": "NO.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-not-okay",
+   "type": "image",
+   "path": "memes/ragecomic/rage-not-okay.png",
+   "pack": "ragecomic",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "fail",
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-okay-guy",
+   "type": "image",
+   "path": "memes/ragecomic/rage-okay-guy.png",
+   "pack": "ragecomic",
+   "moods": [
+    "sad",
+    "cope"
+   ],
+   "themes": [
+    "fail",
+    "acceptance"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-squint-suspicious",
+   "type": "image",
+   "path": "memes/ragecomic/rage-squint-suspicious.png",
+   "pack": "ragecomic",
+   "moods": [
+    "sus",
+    "doubt"
+   ],
+   "themes": [
+    "bug",
+    "review"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-stick-figure-pointing",
+   "type": "image",
+   "path": "memes/ragecomic/rage-stick-figure-pointing.png",
+   "pack": "ragecomic",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "misc"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:rage-y-u-no",
+   "type": "image",
+   "path": "memes/ragecomic/rage-y-u-no.png",
+   "pack": "ragecomic",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "bug",
+    "why-not-working"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:roll-safe-think-about-it",
+   "type": "image",
+   "path": "memes/reaction/roll-safe-think-about-it.png",
+   "pack": "reaction",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "hack",
+    "idea",
+    "shortcut",
+    "big-brain"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:screaming-crying-cat",
+   "type": "image",
+   "path": "memes/reaction/screaming-crying-cat.png",
+   "pack": "reaction",
+   "moods": [
+    "panic",
+    "crying"
+   ],
+   "themes": [
+    "bug",
+    "fail",
+    "crash"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:side-eye-blanket-lady",
+   "type": "image",
+   "path": "memes/reaction/side-eye-blanket-lady.png",
+   "pack": "reaction",
+   "moods": [
+    "sus",
+    "doubt",
+    "disapprove"
+   ],
+   "themes": [
+    "user-feedback",
+    "claim"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:smirking-cat-waffle",
+   "type": "image",
+   "path": "memes/reaction/smirking-cat-waffle.png",
+   "pack": "reaction",
+   "moods": [
+    "smug",
+    "proud"
+   ],
+   "themes": [
+    "success",
+    "flex"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:sweating-bear",
+   "type": "image",
+   "path": "memes/reaction/sweating-bear.png",
+   "pack": "reaction",
+   "moods": [
+    "nervous"
+   ],
+   "themes": [
+    "deadline",
+    "demo",
+    "live-test"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:sweating-wiping-forehead",
+   "type": "image",
+   "path": "memes/reaction/sweating-wiping-forehead.png",
+   "pack": "reaction",
+   "moods": [
+    "nervous",
+    "panic"
+   ],
+   "themes": [
+    "choice",
+    "deadline",
+    "pressure"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:synthwave-wojak",
+   "type": "image",
+   "path": "memes/wojak/synthwave-wojak.png",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "nostalgic"
+   ],
+   "themes": [
+    "retro",
+    "aesthetic"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:that-feel-driving",
+   "type": "image",
+   "path": "memes/wojak/that-feel-driving.png",
+   "pack": "wojak",
+   "moods": [
+    "nostalgic",
+    "lonely"
+   ],
+   "themes": [
+    "late-night"
+   ],
+   "text": "That Feel",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:the-cooler-daniel-after",
+   "type": "image",
+   "path": "memes/reaction/the-cooler-daniel-after.png",
+   "pack": "reaction",
+   "moods": [
+    "smug",
+    "proud"
+   ],
+   "themes": [
+    "before-after",
+    "comparison",
+    "upgrade"
+   ],
+   "text": "The cooler Daniel",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:this-is-fine-dog",
+   "type": "image",
+   "path": "memes/reaction/this-is-fine-dog.png",
+   "pack": "reaction",
+   "moods": [
+    "chill",
+    "cope",
+    "chaos"
+   ],
+   "themes": [
+    "bug",
+    "production",
+    "burnout",
+    "fire"
+   ],
+   "text": "THIS IS FINE.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:this-is-unbearable-dog",
+   "type": "image",
+   "path": "memes/reaction/this-is-unbearable-dog.png",
+   "pack": "reaction",
+   "moods": [
+    "cringe",
+    "disapprove"
+   ],
+   "themes": [
+    "too-clean",
+    "too-happy"
+   ],
+   "text": "This is unbearable.",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:tiny-brain-zoom",
+   "type": "image",
+   "path": "memes/wojak/tiny-brain-zoom.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "laughing"
+   ],
+   "themes": [
+    "small-brain",
+    "bad-idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:trollface",
+   "type": "image",
+   "path": "memes/ragecomic/trollface.png",
+   "pack": "ragecomic",
+   "moods": [
+    "smug",
+    "troll"
+   ],
+   "themes": [
+    "prank",
+    "plot-twist",
+    "bait"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:vault-boy-excuse-me-wtf",
+   "type": "image",
+   "path": "memes/reaction/vault-boy-excuse-me-wtf.png",
+   "pack": "reaction",
+   "moods": [
+    "shocked",
+    "confused"
+   ],
+   "themes": [
+    "bug",
+    "weird-behavior"
+   ],
+   "text": "excuse me what the f***",
+   "rating": "mild"
+  },
+  {
+   "id": "meme:vault-boy-hold-up",
+   "type": "image",
+   "path": "memes/reaction/vault-boy-hold-up.png",
+   "pack": "reaction",
+   "moods": [
+    "sus",
+    "confused"
+   ],
+   "themes": [
+    "plot-twist",
+    "bug"
+   ],
+   "text": "hold up",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:vietnam-flashback-chihuahua",
+   "type": "image",
+   "path": "memes/reaction/vietnam-flashback-chihuahua.png",
+   "pack": "reaction",
+   "moods": [
+    "panic",
+    "nostalgic"
+   ],
+   "themes": [
+    "legacy-code",
+    "old-bug",
+    "flashback"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:whistling-walk-away-sunglasses",
+   "type": "image",
+   "path": "memes/ragecomic/whistling-walk-away-sunglasses.png",
+   "pack": "ragecomic",
+   "moods": [
+    "chill",
+    "smug"
+   ],
+   "themes": [
+    "ignoring-bug",
+    "walk-away"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-and-pepe-sitting",
+   "type": "image",
+   "path": "memes/wojak/wojak-and-pepe-sitting.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "sad"
+   ],
+   "themes": [
+    "friends"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-angry-pout",
+   "type": "image",
+   "path": "memes/wojak/wojak-angry-pout.png",
+   "pack": "wojak",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-angry-pout-2",
+   "type": "image",
+   "path": "memes/wojak/wojak-angry-pout-2.png",
+   "pack": "wojak",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-angry-squint",
+   "type": "image",
+   "path": "memes/wojak/wojak-angry-squint.jpg",
+   "pack": "wojak",
+   "moods": [
+    "angry",
+    "disapprove"
+   ],
+   "themes": [
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-at-computer-thinking",
+   "type": "image",
+   "path": "memes/wojak/wojak-at-computer-thinking.png",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "tired"
+   ],
+   "themes": [
+    "solo-dev",
+    "late-night",
+    "coding"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-back-town-square",
+   "type": "image",
+   "path": "memes/wojak/wojak-back-town-square.png",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "place"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-bar-painting",
+   "type": "image",
+   "path": "memes/wojak/wojak-bar-painting.jpg",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "sad"
+   ],
+   "themes": [
+    "nostalgia"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-beanie-snow-night",
+   "type": "image",
+   "path": "memes/wojak/wojak-beanie-snow-night.jpg",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "nostalgic"
+   ],
+   "themes": [
+    "winter",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-blinded-by-trollface-screen",
+   "type": "image",
+   "path": "memes/wojak/wojak-blinded-by-trollface-screen.jpg",
+   "pack": "wojak",
+   "moods": [
+    "shocked"
+   ],
+   "themes": [
+    "troll",
+    "plot-twist",
+    "bright"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-bloody-grin",
+   "type": "image",
+   "path": "memes/_flagged/wojak-bloody-grin.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chaos"
+   ],
+   "themes": [
+    "gore"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:wojak-blurry-fading",
+   "type": "image",
+   "path": "memes/wojak/wojak-blurry-fading.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "fading",
+    "disappear"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-blush-tear",
+   "type": "image",
+   "path": "memes/wojak/wojak-blush-tear.png",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "sad"
+   ],
+   "themes": [
+    "emotional",
+    "proud"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-blushing",
+   "type": "image",
+   "path": "memes/wojak/wojak-blushing.jpg",
+   "pack": "wojak",
+   "moods": [
+    "awkward",
+    "wholesome"
+   ],
+   "themes": [
+    "compliment"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-bodyslam",
+   "type": "image",
+   "path": "memes/wojak/wojak-bodyslam.png",
+   "pack": "wojak",
+   "moods": [
+    "chaos",
+    "laughing"
+   ],
+   "themes": [
+    "attack"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-brainlet-bottomless-pit",
+   "type": "image",
+   "path": "memes/wojak/wojak-brainlet-bottomless-pit.jpg",
+   "pack": "wojak",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "bad-idea",
+    "learning"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-bus-stop-night",
+   "type": "image",
+   "path": "memes/wojak/wojak-bus-stop-night.png",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "chill"
+   ],
+   "themes": [
+    "late-night",
+    "waiting"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-chubby-blush",
+   "type": "image",
+   "path": "memes/wojak/wojak-chubby-blush.png",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "happy"
+   ],
+   "themes": [
+    "proud"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-classic-feels",
+   "type": "image",
+   "path": "memes/wojak/wojak-classic-feels.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "relatable",
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-closeup-stare",
+   "type": "image",
+   "path": "memes/wojak/wojak-closeup-stare.jpg",
+   "pack": "wojak",
+   "moods": [
+    "awkward",
+    "doubt"
+   ],
+   "themes": [
+    "stare"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-couch-room",
+   "type": "image",
+   "path": "memes/wojak/wojak-couch-room.png",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "tired"
+   ],
+   "themes": [
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-creepy-smile",
+   "type": "image",
+   "path": "memes/wojak/wojak-creepy-smile.jpg",
+   "pack": "wojak",
+   "moods": [
+    "sus"
+   ],
+   "themes": [
+    "creepy"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-crown-of-thorns-girl",
+   "type": "image",
+   "path": "memes/wojak/wojak-crown-of-thorns-girl.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "martyr"
+   ],
+   "text": "",
+   "rating": "mild"
+  },
+  {
+   "id": "meme:wojak-crying-angry",
+   "type": "image",
+   "path": "memes/wojak/wojak-crying-angry.jpg",
+   "pack": "wojak",
+   "moods": [
+    "crying",
+    "angry"
+   ],
+   "themes": [
+    "bug",
+    "rage"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-crying-angry-2",
+   "type": "image",
+   "path": "memes/wojak/wojak-crying-angry-2.jpg",
+   "pack": "wojak",
+   "moods": [
+    "crying",
+    "angry"
+   ],
+   "themes": [
+    "bug",
+    "rage"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-crying-angry-3",
+   "type": "image",
+   "path": "memes/wojak/wojak-crying-angry-3.jpg",
+   "pack": "wojak",
+   "moods": [
+    "crying",
+    "angry"
+   ],
+   "themes": [
+    "bug",
+    "rage"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-crying-arm-over-eyes",
+   "type": "image",
+   "path": "memes/wojak/wojak-crying-arm-over-eyes.jpg",
+   "pack": "wojak",
+   "moods": [
+    "crying",
+    "sad"
+   ],
+   "themes": [
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-crying-gun-noose",
+   "type": "image",
+   "path": "memes/_flagged/wojak-crying-gun-noose.png",
+   "pack": "wojak",
+   "moods": [
+    "crying"
+   ],
+   "themes": [
+    "self-harm"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:wojak-dark-black",
+   "type": "image",
+   "path": "memes/wojak/wojak-dark-black.jpg",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "dark"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-dark-hollow",
+   "type": "image",
+   "path": "memes/wojak/wojak-dark-hollow.jpg",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "dark",
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-dinner-alone-wine",
+   "type": "image",
+   "path": "memes/wojak/wojak-dinner-alone-wine.jpg",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "sad"
+   ],
+   "themes": [
+    "solo-dev",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-drowning-calm",
+   "type": "image",
+   "path": "memes/wojak/wojak-drowning-calm.png",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "cope"
+   ],
+   "themes": [
+    "overwhelmed",
+    "burnout"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-eyes-closed-calm",
+   "type": "image",
+   "path": "memes/wojak/wojak-eyes-closed-calm.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "acceptance",
+    "calm"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-facepalm",
+   "type": "image",
+   "path": "memes/wojak/wojak-facepalm.png",
+   "pack": "wojak",
+   "moods": [
+    "cringe",
+    "disappointed"
+   ],
+   "themes": [
+    "mistake",
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-galaxy-face",
+   "type": "image",
+   "path": "memes/wojak/wojak-galaxy-face.jpg",
+   "pack": "wojak",
+   "moods": [
+    "mindblown"
+   ],
+   "themes": [
+    "big-brain",
+    "idea",
+    "space"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-girl-glasses",
+   "type": "image",
+   "path": "memes/wojak/wojak-girl-glasses.png",
+   "pack": "wojak",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "misc"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-grin-ghost",
+   "type": "image",
+   "path": "memes/wojak/wojak-grin-ghost.jpg",
+   "pack": "wojak",
+   "moods": [
+    "awkward",
+    "cope"
+   ],
+   "themes": [
+    "nervous-smile"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-gun-to-head",
+   "type": "image",
+   "path": "memes/_flagged/wojak-gun-to-head.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "self-harm"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:wojak-hands-over-face",
+   "type": "image",
+   "path": "memes/wojak/wojak-hands-over-face.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cringe"
+   ],
+   "themes": [
+    "mistake"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-hands-over-face-tear",
+   "type": "image",
+   "path": "memes/wojak/wojak-hands-over-face-tear.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cringe",
+    "sad"
+   ],
+   "themes": [
+    "mistake"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-hands-over-face-tear-2",
+   "type": "image",
+   "path": "memes/wojak/wojak-hands-over-face-tear-2.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cringe",
+    "sad"
+   ],
+   "themes": [
+    "mistake"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-happy-red-thing",
+   "type": "image",
+   "path": "memes/wojak/wojak-happy-red-thing.png",
+   "pack": "wojak",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "misc"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-head-in-sink",
+   "type": "image",
+   "path": "memes/wojak/wojak-head-in-sink.png",
+   "pack": "wojak",
+   "moods": [
+    "confused",
+    "tired"
+   ],
+   "themes": [
+    "cringe",
+    "drowning"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-headphones-bed",
+   "type": "image",
+   "path": "memes/wojak/wojak-headphones-bed.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill",
+    "tired"
+   ],
+   "themes": [
+    "late-night",
+    "music"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-headphones-gaming",
+   "type": "image",
+   "path": "memes/wojak/wojak-headphones-gaming.png",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "gaming",
+    "playtest"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-hiker-backpack",
+   "type": "image",
+   "path": "memes/wojak/wojak-hiker-backpack.png",
+   "pack": "wojak",
+   "moods": [
+    "happy",
+    "determined"
+   ],
+   "themes": [
+    "journey",
+    "progress"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-in-bed",
+   "type": "image",
+   "path": "memes/wojak/wojak-in-bed.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "chill"
+   ],
+   "themes": [
+    "late-night",
+    "sleep"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-laughing",
+   "type": "image",
+   "path": "memes/wojak/wojak-laughing.jpg",
+   "pack": "wojak",
+   "moods": [
+    "laughing",
+    "happy"
+   ],
+   "themes": [
+    "fail",
+    "funny"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-laughing-crying",
+   "type": "image",
+   "path": "memes/wojak/wojak-laughing-crying.png",
+   "pack": "wojak",
+   "moods": [
+    "laughing",
+    "crying"
+   ],
+   "themes": [
+    "fail",
+    "funny"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-messy-hair-smug",
+   "type": "image",
+   "path": "memes/wojak/wojak-messy-hair-smug.png",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "flex"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-messy-room",
+   "type": "image",
+   "path": "memes/wojak/wojak-messy-room.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired",
+    "chill"
+   ],
+   "themes": [
+    "burnout",
+    "chaos"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-neutral-smile",
+   "type": "image",
+   "path": "memes/wojak/wojak-neutral-smile.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "neutral"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-noose-tear",
+   "type": "image",
+   "path": "memes/_flagged/wojak-noose-tear.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "self-harm"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:wojak-norf-fc-angry",
+   "type": "image",
+   "path": "memes/wojak/wojak-norf-fc-angry.png",
+   "pack": "wojak",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "rage"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-offensive-shirt",
+   "type": "image",
+   "path": "memes/_flagged/wojak-offensive-shirt.png",
+   "pack": "wojak",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "crude"
+   ],
+   "text": "",
+   "rating": "nsfw"
+  },
+  {
+   "id": "meme:wojak-old-exhausted",
+   "type": "image",
+   "path": "memes/wojak/wojak-old-exhausted.jpg",
+   "pack": "wojak",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "burnout",
+    "ageing"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-on-fire-rage",
+   "type": "image",
+   "path": "memes/wojak/wojak-on-fire-rage.jpg",
+   "pack": "wojak",
+   "moods": [
+    "angry",
+    "chaos"
+   ],
+   "themes": [
+    "rage",
+    "fire"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-peeking-door",
+   "type": "image",
+   "path": "memes/wojak/wojak-peeking-door.jpg",
+   "pack": "wojak",
+   "moods": [
+    "sus",
+    "nervous"
+   ],
+   "themes": [
+    "sneak-peek",
+    "teaser"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-rash-face",
+   "type": "image",
+   "path": "memes/wojak/wojak-rash-face.png",
+   "pack": "wojak",
+   "moods": [
+    "sad",
+    "cringe"
+   ],
+   "themes": [
+    "sick",
+    "broken"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-red-angry-steam",
+   "type": "image",
+   "path": "memes/wojak/wojak-red-angry-steam.png",
+   "pack": "wojak",
+   "moods": [
+    "angry"
+   ],
+   "themes": [
+    "rage",
+    "bug"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-running-night",
+   "type": "image",
+   "path": "memes/wojak/wojak-running-night.jpg",
+   "pack": "wojak",
+   "moods": [
+    "determined"
+   ],
+   "themes": [
+    "grind",
+    "progress"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sea-railing-back",
+   "type": "image",
+   "path": "memes/wojak/wojak-sea-railing-back.png",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "chill"
+   ],
+   "themes": [
+    "reflection"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-shocked-worried",
+   "type": "image",
+   "path": "memes/wojak/wojak-shocked-worried.jpg",
+   "pack": "wojak",
+   "moods": [
+    "shocked",
+    "nervous"
+   ],
+   "themes": [
+    "bug",
+    "surprise"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-shower-thoughts",
+   "type": "image",
+   "path": "memes/wojak/wojak-shower-thoughts.jpg",
+   "pack": "wojak",
+   "moods": [
+    "mindblown"
+   ],
+   "themes": [
+    "idea",
+    "shower-thought"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sketch-sad",
+   "type": "image",
+   "path": "memes/wojak/wojak-sketch-sad.png",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-skinny-body",
+   "type": "image",
+   "path": "memes/wojak/wojak-skinny-body.png",
+   "pack": "wojak",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "weak",
+    "before-after"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-small-sad",
+   "type": "image",
+   "path": "memes/wojak/wojak-small-sad.jpg",
+   "pack": "wojak",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smelling",
+   "type": "image",
+   "path": "memes/wojak/wojak-smelling.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "smell"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smiley-mask-tear",
+   "type": "image",
+   "path": "memes/wojak/wojak-smiley-mask-tear.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cope",
+    "sad"
+   ],
+   "themes": [
+    "fake-happy",
+    "cope"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smiling-mask",
+   "type": "image",
+   "path": "memes/wojak/wojak-smiling-mask.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cope"
+   ],
+   "themes": [
+    "cope",
+    "fake-happy"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smiling-mask-crying",
+   "type": "image",
+   "path": "memes/wojak/wojak-smiling-mask-crying.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cope"
+   ],
+   "themes": [
+    "fake-happy",
+    "cope"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smudged-smile",
+   "type": "image",
+   "path": "memes/wojak/wojak-smudged-smile.jpg",
+   "pack": "wojak",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "misc"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smug-hand-chin",
+   "type": "image",
+   "path": "memes/wojak/wojak-smug-hand-chin.png",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "thinking",
+    "big-brain"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smug-stubble",
+   "type": "image",
+   "path": "memes/wojak/wojak-smug-stubble.jpg",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "flex"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-smug-thinking",
+   "type": "image",
+   "path": "memes/wojak/wojak-smug-thinking.png",
+   "pack": "wojak",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "thinking",
+    "idea"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sniffing-blurry",
+   "type": "image",
+   "path": "memes/wojak/wojak-sniffing-blurry.jpg",
+   "pack": "wojak",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "smell"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sobbing",
+   "type": "image",
+   "path": "memes/wojak/wojak-sobbing.png",
+   "pack": "wojak",
+   "moods": [
+    "crying",
+    "sad"
+   ],
+   "themes": [
+    "fail"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sunset-back",
+   "type": "image",
+   "path": "memes/wojak/wojak-sunset-back.jpg",
+   "pack": "wojak",
+   "moods": [
+    "nostalgic",
+    "chill"
+   ],
+   "themes": [
+    "ending",
+    "reflection"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sunset-tear-colorful",
+   "type": "image",
+   "path": "memes/wojak/wojak-sunset-tear-colorful.png",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "nostalgic"
+   ],
+   "themes": [
+    "emotional",
+    "ending"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-sunset-tear-colorful-2",
+   "type": "image",
+   "path": "memes/wojak/wojak-sunset-tear-colorful-2.png",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "nostalgic"
+   ],
+   "themes": [
+    "emotional",
+    "ending"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-tired-bags-mask",
+   "type": "image",
+   "path": "memes/wojak/wojak-tired-bags-mask.png",
+   "pack": "wojak",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "burnout",
+    "late-night"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-trollface-mask-crying",
+   "type": "image",
+   "path": "memes/wojak/wojak-trollface-mask-crying.png",
+   "pack": "wojak",
+   "moods": [
+    "cope"
+   ],
+   "themes": [
+    "fake-happy"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-waving-window-rain",
+   "type": "image",
+   "path": "memes/wojak/wojak-waving-window-rain.jpg",
+   "pack": "wojak",
+   "moods": [
+    "lonely"
+   ],
+   "themes": [
+    "goodbye"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-window-painting",
+   "type": "image",
+   "path": "memes/wojak/wojak-window-painting.jpg",
+   "pack": "wojak",
+   "moods": [
+    "lonely",
+    "chill"
+   ],
+   "themes": [
+    "nostalgia",
+    "waiting"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojak-winking-mask-crying",
+   "type": "image",
+   "path": "memes/wojak/wojak-winking-mask-crying.jpg",
+   "pack": "wojak",
+   "moods": [
+    "cope"
+   ],
+   "themes": [
+    "fake-happy",
+    "cope"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojaks-comforting-friend",
+   "type": "image",
+   "path": "memes/wojak/wojaks-comforting-friend.jpg",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "sad"
+   ],
+   "themes": [
+    "support",
+    "community"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:wojaks-hugging-crying",
+   "type": "image",
+   "path": "memes/wojak/wojaks-hugging-crying.jpg",
+   "pack": "wojak",
+   "moods": [
+    "wholesome",
+    "crying"
+   ],
+   "themes": [
+    "relief",
+    "teamwork"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "meme:you-dont-say-cage",
+   "type": "image",
+   "path": "memes/ragecomic/you-dont-say-cage.png",
+   "pack": "ragecomic",
+   "moods": [
+    "smug",
+    "doubt"
+   ],
+   "themes": [
+    "obvious",
+    "sarcasm"
+   ],
+   "text": "",
+   "rating": "clean"
+  },
+  {
+   "id": "sfx:2000-years-later",
+   "type": "sfx",
+   "path": "sfx/2000-years-later.mp3",
+   "moods": [
+    "tired"
+   ],
+   "themes": [
+    "waiting",
+    "compile",
+    "time-skip"
+   ],
+   "text": "SPONGEBOB 2000 YEARS LATER",
+   "rating": "clean",
+   "dur": 3.55,
+   "source": "https://www.myinstants.com/media/sounds/spongebob-2000-years-later-2019-download-link.mp3"
+  },
+  {
+   "id": "sfx:airhorn",
+   "type": "sfx",
+   "path": "sfx/airhorn.mp3",
+   "moods": [
+    "hype",
+    "laughing"
+   ],
+   "themes": [
+    "success",
+    "flex"
+   ],
+   "text": "MLG Airhorn",
+   "rating": "clean",
+   "dur": 1.58,
+   "source": "https://www.myinstants.com/media/sounds/airhorn.mp3"
+  },
+  {
+   "id": "sfx:among-us-reveal",
+   "type": "sfx",
+   "path": "sfx/among-us-reveal.mp3",
+   "moods": [
+    "sus"
+   ],
+   "themes": [
+    "reveal",
+    "plot-twist"
+   ],
+   "text": "Among Us role reveal sound",
+   "rating": "clean",
+   "dur": 4.57,
+   "source": "https://www.myinstants.com/media/sounds/among-us-role-reveal-sound.mp3"
+  },
+  {
+   "id": "sfx:applause",
+   "type": "sfx",
+   "path": "sfx/applause.mp3",
+   "moods": [
+    "proud",
+    "happy"
+   ],
+   "themes": [
+    "success",
+    "release"
+   ],
+   "text": "Disney Applause",
+   "rating": "clean",
+   "dur": 3.52,
+   "source": "https://www.myinstants.com/media/sounds/disney-applause.mp3"
+  },
+  {
+   "id": "sfx:boing",
+   "type": "sfx",
+   "path": "sfx/boing.mp3",
+   "moods": [
+    "laughing"
+   ],
+   "themes": [
+    "bounce",
+    "physics",
+    "funny"
+   ],
+   "text": "Cartoon boing sfx",
+   "rating": "clean",
+   "dur": 1.56,
+   "source": "https://www.myinstants.com/media/sounds/cartoon-boing_7vRWDlc.mp3"
+  },
+  {
+   "id": "sfx:bruh",
+   "type": "sfx",
+   "path": "sfx/bruh.mp3",
+   "moods": [
+    "disappointed",
+    "cringe"
+   ],
+   "themes": [
+    "fail",
+    "mistake"
+   ],
+   "text": "BRUH",
+   "rating": "clean",
+   "dur": 0.82,
+   "source": "https://www.myinstants.com/media/sounds/movie_1.mp3"
+  },
+  {
+   "id": "sfx:buzzer-wrong",
+   "type": "sfx",
+   "path": "sfx/buzzer-wrong.mp3",
+   "moods": [
+    "panic"
+   ],
+   "themes": [
+    "alert",
+    "wrong"
+   ],
+   "text": "family fortunes Wrong Buzzer",
+   "rating": "clean",
+   "dur": 0.91,
+   "source": "https://www.myinstants.com/media/sounds/family-fortunes-wrong-buzzer.mp3"
+  },
+  {
+   "id": "sfx:camera-shutter",
+   "type": "sfx",
+   "path": "sfx/camera-shutter.mp3",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "screenshot",
+    "before-after"
+   ],
+   "text": "Camera shutter",
+   "rating": "clean",
+   "dur": 0.88,
+   "source": "https://www.myinstants.com/media/sounds/camera_zLdd1zp.mp3"
+  },
+  {
+   "id": "sfx:crickets",
+   "type": "sfx",
+   "path": "sfx/crickets.mp3",
+   "moods": [
+    "awkward"
+   ],
+   "themes": [
+    "silence",
+    "no-users",
+    "nothing-happens"
+   ],
+   "text": "Crickets Chirping",
+   "rating": "clean",
+   "dur": 5.0,
+   "source": "https://www.myinstants.com/media/sounds/crickets-chirping.mp3"
+  },
+  {
+   "id": "sfx:ding",
+   "type": "sfx",
+   "path": "sfx/ding.mp3",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "success",
+    "notification",
+    "point"
+   ],
+   "text": "ding sound effect",
+   "rating": "clean",
+   "dur": 2.95,
+   "source": "https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3"
+  },
+  {
+   "id": "sfx:drum-roll",
+   "type": "sfx",
+   "path": "sfx/drum-roll.mp3",
+   "moods": [
+    "hype",
+    "nervous"
+   ],
+   "themes": [
+    "reveal",
+    "anticipation"
+   ],
+   "text": "Drum Roll Sound Effect",
+   "rating": "clean",
+   "dur": 4.16,
+   "source": "https://www.myinstants.com/media/sounds/drum-roll-gaming-sound-effect-hd.mp3"
+  },
+  {
+   "id": "sfx:dun-dun-dunnn",
+   "type": "sfx",
+   "path": "sfx/dun-dun-dunnn.mp3",
+   "moods": [
+    "shocked"
+   ],
+   "themes": [
+    "reveal",
+    "plot-twist"
+   ],
+   "text": "dun dun dunnnnnnnn",
+   "rating": "clean",
+   "dur": 5.12,
+   "source": "https://www.myinstants.com/media/sounds/dun-dun-dun-sound-effect-brass_8nFBccR.mp3"
+  },
+  {
+   "id": "sfx:emotional-damage",
+   "type": "sfx",
+   "path": "sfx/emotional-damage.mp3",
+   "moods": [
+    "sad",
+    "laughing"
+   ],
+   "themes": [
+    "fail",
+    "roast"
+   ],
+   "text": "Emotional Damage Meme",
+   "rating": "clean",
+   "dur": 3.32,
+   "source": "https://www.myinstants.com/media/sounds/emotional-damage-meme.mp3"
+  },
+  {
+   "id": "sfx:error",
+   "type": "sfx",
+   "path": "sfx/error.mp3",
+   "moods": [
+    "panic"
+   ],
+   "themes": [
+    "bug",
+    "error"
+   ],
+   "text": "Error SOUNDSS",
+   "rating": "clean",
+   "dur": 0.99,
+   "source": "https://www.myinstants.com/media/sounds/error_CDOxCYm.mp3"
+  },
+  {
+   "id": "sfx:fbi-open-up",
+   "type": "sfx",
+   "path": "sfx/fbi-open-up.mp3",
+   "moods": [
+    "panic",
+    "chaos"
+   ],
+   "themes": [
+    "bug",
+    "caught"
+   ],
+   "text": "FBI OPEN UP (with explosion)",
+   "rating": "clean",
+   "dur": 7.06,
+   "source": "https://www.myinstants.com/media/sounds/fbi-open-up_dwLhIFf.mp3"
+  },
+  {
+   "id": "sfx:hallelujah",
+   "type": "sfx",
+   "path": "sfx/hallelujah.mp3",
+   "moods": [
+    "relief",
+    "happy"
+   ],
+   "themes": [
+    "fix",
+    "finally-works"
+   ],
+   "text": "Hallelujah",
+   "rating": "clean",
+   "dur": 2.05,
+   "source": "https://www.myinstants.com/media/sounds/hallelujahshort.swf.mp3"
+  },
+  {
+   "id": "sfx:huh-cat",
+   "type": "sfx",
+   "path": "sfx/huh-cat.mp3",
+   "moods": [
+    "confused"
+   ],
+   "themes": [
+    "weird-behavior",
+    "bug"
+   ],
+   "text": "Huh Cat",
+   "rating": "clean",
+   "dur": 7.29,
+   "source": "https://www.myinstants.com/media/sounds/huh-cat.mp3"
+  },
+  {
+   "id": "sfx:keyboard-typing",
+   "type": "sfx",
+   "path": "sfx/keyboard-typing.mp3",
+   "moods": [
+    "chill",
+    "determined"
+   ],
+   "themes": [
+    "coding",
+    "typing"
+   ],
+   "text": "Keyboard Typing Sound",
+   "rating": "clean",
+   "dur": 10.06,
+   "source": "https://www.myinstants.com/media/sounds/keyboard-typing-sound-effect.mp3"
+  },
+  {
+   "id": "sfx:mario-coin",
+   "type": "sfx",
+   "path": "sfx/mario-coin.mp3",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "success",
+    "point",
+    "collect"
+   ],
+   "text": "Super Mario World Coin",
+   "rating": "clean",
+   "dur": 0.84,
+   "source": "https://www.myinstants.com/media/sounds/mario-coin-sound-effect.mp3"
+  },
+  {
+   "id": "sfx:metal-pipe",
+   "type": "sfx",
+   "path": "sfx/metal-pipe.mp3",
+   "moods": [
+    "chaos",
+    "shocked"
+   ],
+   "themes": [
+    "fail",
+    "crash",
+    "punchline"
+   ],
+   "text": "jixaw metal pipe falling sound",
+   "rating": "clean",
+   "dur": 3.17,
+   "source": "https://www.myinstants.com/media/sounds/jixaw-metal-pipe-falling-sound.mp3"
+  },
+  {
+   "id": "sfx:minecraft-level-up",
+   "type": "sfx",
+   "path": "sfx/minecraft-level-up.mp3",
+   "moods": [
+    "happy",
+    "proud"
+   ],
+   "themes": [
+    "success",
+    "progress",
+    "upgrade"
+   ],
+   "text": "Minecraft Level Up Sound",
+   "rating": "clean",
+   "dur": 3.75,
+   "source": "https://www.myinstants.com/media/sounds/levelup.mp3"
+  },
+  {
+   "id": "sfx:mouse-click",
+   "type": "sfx",
+   "path": "sfx/mouse-click.mp3",
+   "moods": [
+    "chill"
+   ],
+   "themes": [
+    "ui",
+    "click"
+   ],
+   "text": "Mouse Click Sound",
+   "rating": "clean",
+   "dur": 3.06,
+   "source": "https://www.myinstants.com/media/sounds/mouse-click-sound.mp3"
+  },
+  {
+   "id": "sfx:notification",
+   "type": "sfx",
+   "path": "sfx/notification.mp3",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "notification"
+   ],
+   "text": "Android Notification Bass Boosted",
+   "rating": "clean",
+   "dur": 1.63,
+   "source": "https://www.myinstants.com/media/sounds/android-sound-effect-meme_tcbuori.mp3"
+  },
+  {
+   "id": "sfx:oh-no-no-no",
+   "type": "sfx",
+   "path": "sfx/oh-no-no-no.mp3",
+   "moods": [
+    "panic"
+   ],
+   "themes": [
+    "bug",
+    "fail"
+   ],
+   "text": "oh no no no laugh",
+   "rating": "clean",
+   "dur": 10.89,
+   "source": "https://www.myinstants.com/media/sounds/oh-no-no-no-no-laugh.mp3"
+  },
+  {
+   "id": "sfx:pop",
+   "type": "sfx",
+   "path": "sfx/pop.mp3",
+   "moods": [
+    "happy"
+   ],
+   "themes": [
+    "ui",
+    "click",
+    "appear"
+   ],
+   "text": "bubble poping",
+   "rating": "clean",
+   "dur": 0.26,
+   "source": "https://www.myinstants.com/media/sounds/bubble-pop.mp3"
+  },
+  {
+   "id": "sfx:record-scratch",
+   "type": "sfx",
+   "path": "sfx/record-scratch.mp3",
+   "moods": [
+    "shocked",
+    "awkward"
+   ],
+   "themes": [
+    "freeze-frame",
+    "plot-twist",
+    "rewind"
+   ],
+   "text": "Record scratch sound effect",
+   "rating": "clean",
+   "dur": 6.45,
+   "source": "https://www.myinstants.com/media/sounds/record-scratch_1.mp3"
+  },
+  {
+   "id": "sfx:rizz",
+   "type": "sfx",
+   "path": "sfx/rizz.mp3",
+   "moods": [
+    "smug"
+   ],
+   "themes": [
+    "flex",
+    "showcase"
+   ],
+   "text": "rizz sound effect",
+   "rating": "clean",
+   "dur": 1.93,
+   "source": "https://www.myinstants.com/media/sounds/rizz-sound-effect.mp3"
+  },
+  {
+   "id": "sfx:roblox-oof",
+   "type": "sfx",
+   "path": "sfx/roblox-oof.mp3",
+   "moods": [
+    "sad",
+    "laughing"
+   ],
+   "themes": [
+    "fail",
+    "death"
+   ],
+   "text": "ROBLOX oof",
+   "rating": "clean",
+   "dur": 1.0,
+   "source": "https://www.myinstants.com/media/sounds/roblox-death-sound_1.mp3"
+  },
+  {
+   "id": "sfx:sad-trombone",
+   "type": "sfx",
+   "path": "sfx/sad-trombone.mp3",
+   "moods": [
+    "sad",
+    "disappointed"
+   ],
+   "themes": [
+    "fail"
+   ],
+   "text": "Sad Trombone",
+   "rating": "clean",
+   "dur": 3.63,
+   "source": "https://www.myinstants.com/media/sounds/sadtrombone.swf.mp3"
+  },
+  {
+   "id": "sfx:sad-violin",
+   "type": "sfx",
+   "path": "sfx/sad-violin.mp3",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "fail",
+    "cope"
+   ],
+   "text": "Sad Violin (the meme one)",
+   "rating": "clean",
+   "dur": 4.55,
+   "source": "https://www.myinstants.com/media/sounds/tf_nemesis.mp3"
+  },
+  {
+   "id": "sfx:taco-bell-bong",
+   "type": "sfx",
+   "path": "sfx/taco-bell-bong.mp3",
+   "moods": [
+    "shocked"
+   ],
+   "themes": [
+    "reveal",
+    "punchline"
+   ],
+   "text": "Taco Bell Bong",
+   "rating": "clean",
+   "dur": 1.91,
+   "source": "https://www.myinstants.com/media/sounds/taco-bell-bong-sfx.mp3"
+  },
+  {
+   "id": "sfx:tada",
+   "type": "sfx",
+   "path": "sfx/tada.mp3",
+   "moods": [
+    "happy",
+    "proud"
+   ],
+   "themes": [
+    "reveal",
+    "success",
+    "release"
+   ],
+   "text": "Tudun tadau",
+   "rating": "clean",
+   "dur": 19.49,
+   "source": "https://www.myinstants.com/media/sounds/tudun-tadau_BJviW12.mp3"
+  },
+  {
+   "id": "sfx:to-be-continued",
+   "type": "sfx",
+   "path": "sfx/to-be-continued.mp3",
+   "moods": [
+    "hype"
+   ],
+   "themes": [
+    "cliffhanger",
+    "ending",
+    "series"
+   ],
+   "text": "To be Continued (jojo)",
+   "rating": "clean",
+   "dur": 10.92,
+   "source": "https://www.myinstants.com/media/sounds/untitled_1071.mp3"
+  },
+  {
+   "id": "sfx:vine-boom",
+   "type": "sfx",
+   "path": "sfx/vine-boom.mp3",
+   "moods": [
+    "shocked",
+    "sus"
+   ],
+   "themes": [
+    "reveal",
+    "punchline",
+    "plot-twist"
+   ],
+   "text": "VINE BOOM SOUND",
+   "rating": "clean",
+   "dur": 1.25,
+   "source": "https://www.myinstants.com/media/sounds/vine-boom.mp3"
+  },
+  {
+   "id": "sfx:whoosh",
+   "type": "sfx",
+   "path": "sfx/whoosh.mp3",
+   "moods": [
+    "hype"
+   ],
+   "themes": [
+    "transition",
+    "swipe"
+   ],
+   "text": "whoosh sfx",
+   "rating": "clean",
+   "dur": 0.97,
+   "source": "https://www.myinstants.com/media/sounds/whoosh-sfx.mp3"
+  },
+  {
+   "id": "sfx:windows-xp-error",
+   "type": "sfx",
+   "path": "sfx/windows-xp-error.mp3",
+   "moods": [
+    "panic"
+   ],
+   "themes": [
+    "bug",
+    "error"
+   ],
+   "text": "Windows XP Error",
+   "rating": "clean",
+   "dur": 0.99,
+   "source": "https://www.myinstants.com/media/sounds/erro.mp3"
+  },
+  {
+   "id": "sfx:windows-xp-shutdown",
+   "type": "sfx",
+   "path": "sfx/windows-xp-shutdown.mp3",
+   "moods": [
+    "sad"
+   ],
+   "themes": [
+    "crash",
+    "ending",
+    "rage-quit"
+   ],
+   "text": "windows xp shutdown",
+   "rating": "clean",
+   "dur": 3.24,
+   "source": "https://www.myinstants.com/media/sounds/preview_4.mp3"
+  },
+  {
+   "id": "sfx:wow-owen-wilson",
+   "type": "sfx",
+   "path": "sfx/wow-owen-wilson.mp3",
+   "moods": [
+    "shocked",
+    "approve"
+   ],
+   "themes": [
+    "reveal",
+    "showcase"
+   ],
+   "text": "wow - owen wilson",
+   "rating": "clean",
+   "dur": 0.81,
+   "source": "https://www.myinstants.com/media/sounds/wao.mp3"
+  }
+ ]
+}

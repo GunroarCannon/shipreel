@@ -1,0 +1,50 @@
+{
+  "_doc": "Defaults. The questionnaire writes overrides to <workspace>/shipreel.config.json (same keys). See references/questionnaire.md.",
+  "projects": [],
+  "channel": {
+    "name": "",
+    "same_channel": true,
+    "handles": { "tiktok": "", "youtube": "", "instagram": "", "x": "", "linkedin": "", "github": "" },
+    "link_policy": "github-if-public, live-site-if-up, socials-only-if-provided",
+    "tool_mentions": {}
+  },
+  "models": {
+    "plan": "balanced",
+    "director": "current session model",
+    "scout": "haiku",
+    "writer": "sonnet",
+    "editor": "haiku",
+    "reviewer": "sonnet",
+    "youtube_writer": "sonnet",
+    "notes": "plans: balanced | quality (writer=opus) | budget (writer=haiku+director polish) | single (no subagents)"
+  },
+  "quota": {
+    "first_pass": { "tiktok": 10 },
+    "later_passes": { "youtube": 2, "tiktok": 2 },
+    "max_passes": 3
+  },
+  "mix": {
+    "clickbait_share": 0.2,
+    "meme_share": 0.3,
+    "fancy_per_batch": 2,
+    "music_share_short": 0.4,
+    "meme_intensity": "medium"
+  },
+  "music": {
+    "tiktok": "in-app",
+    "youtube": "library-or-product",
+    "product_music_policy": "keep-if-good"
+  },
+  "render": { "fps": 30, "preset": "medium", "split_by_format": false },
+  "permissions": {
+    "launch_apps": true,
+    "simulate_input": true,
+    "old_commits_via_worktree": true,
+    "env_toggles": true,
+    "edit_project_files": false,
+    "shorthand_in_repo": false
+  },
+  "limits": { "min_free_gb": 5, "max_recording_s": 360 },
+  "godot_bin": "",
+  "buzz_seconds": 2
+}
