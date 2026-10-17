@@ -1,0 +1,153 @@
+# Project conventions - tiktok-skills
+
+This file is for any Codex agent working on this repository. Read it before
+making changes. Conventions here are mandatory unless the user asks otherwise.
+
+## Versioning
+
+- Single source of truth: `.codex-plugin/plugin.json`,
+  `.agents/plugins/marketplace.json`, `.claude-plugin/plugin.json`, and
+  `.claude-plugin/marketplace.json`. Plugin manifests must always match on
+  package name and version; marketplace entries must point to the same package;
+  author, license, homepage, and the public skill-bundle description must stay
+  aligned.
+- Keep `AGENTS.md` and `CLAUDE.md` aligned when changing shared project rules.
+  Codex-specific workflow details belong here; Claude-specific details belong in
+  `CLAUDE.md`.
+- Codex marketplace install uses `.codex-marketplace/tiktok-skills/`. Do not edit
+  that generated package by hand. Update the root files first, then run
+  `python3 scripts/sync_codex_marketplace.py`.
+- **Default: bump the PATCH segment (3rd level, `0.0.X`).** This is the automatic
+  behavior for every shippable commit, regardless of how large the diff feels.
+  Skill renames, lib API breaks, new features: still PATCH by default.
+- Only bump MINOR or MAJOR when **the user explicitly asks** for a higher rank
+  ("this is minor", "make it 2.0", "bump major"). Do not promote on your own
+  initiative even if semver textbook says so.
+- After bumping, two steps are required:
+  1. Tag the commit: `git tag -a v<X.Y.Z> -m "..."` + `git push origin v<X.Y.Z>`
+  2. **Publish a GitHub Release** for the tag: `gh release create v<X.Y.Z> --title "v<X.Y.Z>" --notes "<changelog>" --latest`
+  A tag alone does NOT update the README release badge. The shields.io badge
+  reads from the Releases API, not from raw tags. Skipping step 2 leaves it stale.
+
+## Commits
+
+- Primary author **must** be Sergey: every `git commit` needs
+  `--author="Sergey Bulaev <s@bulaev.org>"`. Verify with
+  `git log -1 --format='%an <%ae>'` before pushing.
+- Co-author trailers are fine when appropriate.
+- Verify locally before push: build never breaks, no broken refs in `SKILL.md`,
+  library smoke import passes.
+
+## Skill bundle invariants
+
+- **Exactly 8 skills.** Adding requires merging or splitting elsewhere to stay at
+  7. The number is announced in plugin manifests and the README.
+- **Frontmatter `description:` target <= 400 chars** (some bundle-heavy skills
+  land slightly higher when their scope is genuinely broad; keep under 510).
+  Always include a "Not for X (use Y)" disambiguation sentinel when a skill
+  overlaps with a sibling.
+- **No em dashes anywhere in `description:` fields.** Em dashes in body prose are
+  allowed for table separators and list dividers only. No em dashes inside the
+  literal fill-in lines of any hook skeleton.
+- **Skill names are public surface.** Renaming a skill is a major version bump and
+  requires updating: plugin manifests, marketplace entries, root `SKILL.md`
+  bundle list, README skill table, and every `tt-<name>` cross-reference in
+  sibling SKILL.md files.
+
+## Voice rules + reference layout
+
+- Canonical voice rules live at root `references/voice-rules.md` (spoken and
+  on-camera scripts plus captions). Skill-local "Hard rules" sections must only
+  contain skill-specific overrides and start with: `Global voice rules: see root
+  SKILL.md Voice rules.`
+- Other root-level references: `references/hook-formulas.md` (10 TikTok 3-second
+  hook formulas) and `references/algorithm-heuristics.md` (completion, rewatch,
+  shares).
+- `references/untrusted-content.md` is the canonical data-is-not-instructions
+  rule for every skill that reads text a stranger wrote. Each such skill carries
+  a short `## Untrusted content` section that cites it; the full rule lives in
+  one place. `scripts/check_untrusted_rule.py` enforces both, driven by a
+  `REQUIRED` set of skill names, so **renaming or adding a reading skill means
+  updating that set**.
+- `references/voice-profile.md` ship **blank** and the user fills them.
+  A filled one is personal data, not a credential: `check_no_secrets.py` fails on
+  any tracked copy marked `filled: yes`, and `sync_codex_marketplace.py` takes
+  both from HEAD rather than the working tree and refuses to copy a filled one.
+- **A project `.env` may set credentials only.** `lib/_env.py` keeps an allowlist
+  (`_DOTENV_VARIABLES`); the custom-poster variable the DIY tier executes must come
+  from the launch environment, never from a file that can arrive with a clone. No
+  module may call `load_dotenv()` itself, and every authenticated request passes
+  `allow_redirects=False` because the Publora key rides a custom header and the
+  Apify token a query parameter, neither of which `requests` strips across hosts.
+  `scripts/check_security_boundaries.py` enforces all three.
+- `references/mcp-read-layer.md` is the read path for anyone without a shell, which is
+  everyone on claude.ai: the filtered `mcp.apify.com?actors=` connector URL, the tool
+  names, the inputs, and a mapping table per normalizer. **Keep the filter**: the bare
+  server also hands the agent `call-actor`. Always send both `shouldDownload` flags as false; their defaults pull video files nobody reads.
+  `scripts/check_mcp_mapping.py` fails if an actor id, an input key or a flat field
+  drifts from the client, in either direction, and **each table must name the
+  normalizer it documents** so the check can tell them apart.
+- Skill-local references live in `skills/<skill>/references/`. Cite from the skill
+  with bare `references/X.md`. Cite root from skills with `../../references/X.md`.
+- `tt-humanizer` has `sub-skills/` for the folded-in post-audit (pre-film)
+  workflow.
+
+## Layer separation
+
+- **Write layer (Publora):** `lib/publora_client.py`. TikTok is video-only, so
+  publishing is a multi-step flow: `create_draft` -> `get_upload_url` ->
+  `upload_to_presigned` -> `schedule_post`. `publish_video` runs all four. Also
+  `list_connections` / `tiktok_connections` (GET /platform-connections) and the
+  `tiktok_settings(...)` helper. Skills call
+  `lib.publish(kind, draft_text, target_url, video_path=..., ...)`. Real
+  endpoints: `POST /create-post`, `POST /get-upload-url`, `PUT /update-post/:id`,
+  with `platforms: ["tiktok-<id>"]` (array of STRING ids), header `x-publora-key`.
+- **TikTok requires a video file.** Without a `video_path`, `lib.publish` returns
+  the caption and settings to upload in-app plus an optional caption-only draft.
+  There is no text-only TikTok post.
+- **Two TikTok quirks to keep documented:** the boolean inversion bug
+  (allowComments/allowDuet/allowStitch may map to disable_*) and unaudited apps
+  posting PRIVATE only. Both live in `tt-caption-writer` and the settings matrix.
+- **No read layer ships by default.** Skills ask the user to describe the video or
+  paste the script. Any future read actor stays gated behind `APIFY_TOKEN` with a
+  paste/describe fallback.
+- Don't name competing third-party schedulers in committed files.
+
+## Codex marketplace package
+
+- Codex requires marketplace entries to point at a nested plugin directory. The
+  root remains the Claude-facing source layout.
+- `.agents/plugins/marketplace.json` points to `.codex-marketplace/tiktok-skills`.
+- `scripts/sync_codex_marketplace.py` copies the root Codex manifest, `SKILL.md`,
+  `skills/`, `references/`, `lib/`, `scripts/`, `requirements.txt`, `.env.example`,
+  and `LICENSE` into the hidden package.
+- After editing any copied file, run the sync script before testing or committing.
+
+## testing/ is gitignored
+
+- `testing/` is the local scratch directory: API keys, sample responses,
+  validation reports. Never write secrets above `testing/` (the rest of the repo
+  is public). The `.gitignore` rule for `testing/` is load-bearing.
+
+## Validation before push
+
+Run from repo root:
+
+```bash
+python3 -c "from lib import publish, parse_tiktok_url, PubloraClient, tiktok_settings; print('OK')"
+python3 scripts/sync_codex_marketplace.py
+ls skills/ | wc -l        # must equal 8
+python3 scripts/check_frontmatter.py   # parses; a dir count does not prove a skill loads
+python3 scripts/check_no_secrets.py    # .gitignore does not stop a rename of a tracked file
+python3 scripts/check_markdown_references.py  # run from inside the repo; it anchors on its own path
+python3 scripts/check_untrusted_rule.py  # the rule must sit in the skills, not only in references/
+python3 scripts/check_text_encoding.py  # a bare read_text() is cp1252 on Windows, mojibake or a crash
+python3 scripts/check_security_boundaries.py  # .env may not name an executable; no authenticated redirects
+python3 scripts/check_mcp_mapping.py  # the connector path must produce the library's records, not a second shape
+python3 -m json.tool .codex-plugin/plugin.json >/dev/null
+python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
+python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
+```
+
+If any of these fail, do not push.

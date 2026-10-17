@@ -3,7 +3,7 @@ output/
 temp/
 shipreel.config.json
 
-# local agent installs / vendor skills (install them yourself, see README)
+# local agent installs (the vendored copies live in skills/, see README)
 .agents/
 .claude/
 

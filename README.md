@@ -14,16 +14,16 @@ Default run: **10 TikToks per project**, project after project. Then each later 
 
 ### As a Claude Code plugin (recommended: includes the myinstants MCP)
 ```
-/plugin marketplace add OWNER/shipreel
+/plugin marketplace add GunroarCannon/clipskill
 /plugin install shipreel@shipreel
 ```
 
 ### As a plain skill
 ```
-git clone https://github.com/OWNER/shipreel
+git clone https://github.com/GunroarCannon/clipskill
 # then copy or link skills/shipreel into ~/.claude/skills/ (or your project's .claude/skills/)
 ```
-or `npx skills add OWNER/shipreel`.
+or `npx skills add GunroarCannon/clipskill`.
 
 ### Requirements
 - **ffmpeg** with libass + libx264 (`winget install Gyan.FFmpeg` / `brew install ffmpeg` / `apt install ffmpeg`)
@@ -34,9 +34,10 @@ or `npx skills add OWNER/shipreel`.
 
 Check with `python skills/shipreel/scripts/clip.py doctor`.
 
-### Optional companions
-The skill already distills what it needs from these, but the writer will use them for extra depth if they're installed:
-`npx skills add vyralcontent/content-skills` (viral-hooks, viral-captions-and-ctas, viral-tiktok-content, viral-youtube-shorts, viral-short-form-ideas) and `npx skills add sergebulaev/tiktok-skills` (tiktok-marketing).
+### Bundled companions
+The writer uses these for extra depth, and they ship in `skills/`, so one install gets everything:
+- **viral-hooks, viral-captions-and-ctas, viral-tiktok-content, viral-youtube-shorts, viral-short-form-ideas**: from [vyralcontent/content-skills](https://github.com/vyralcontent/content-skills) (MIT, Copyright (c) 2026 Vyral). See `skills/viral-*/LICENSE`.
+- **tiktok-marketing**: from [sergebulaev/tiktok-skills](https://github.com/sergebulaev/tiktok-skills) (MIT, Copyright (c) 2026 Sergey Bulaev). See `skills/tiktok-marketing/LICENSE`.
 
 ## Use
 In Claude Code, from the folder where you want `output/` and `temp/` (or set `SHIPREEL_HOME`):
