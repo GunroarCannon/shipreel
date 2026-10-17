@@ -1,5 +1,7 @@
 # Copy rules (titles, on-screen text, descriptions, hashtags)
 
+Why hooks, structure, pillars and sounds work on TikTok: `tiktok-strategy.md`.
+
 Distilled from the vendor skills `viral-hooks`, `viral-captions-and-ctas`, `viral-tiktok-content`, `viral-youtube-shorts`, `viral-short-form-ideas` and `tiktok-marketing` (humanizer and voice rules), adapted for faceless, voiceless dev content. These are patterns that tend to work, not guarantees.
 
 ## The voice

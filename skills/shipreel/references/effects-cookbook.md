@@ -24,6 +24,18 @@ Effects exist to **point the eye** and **mark a beat**. One effect per beat; let
 | `mirror`, `reverse` | | rewind gags ("let me explain"), loop endings |
 | `fadein:0.4` / `fadeout:0.5` | | YouTube openers and endings only; never fade a TikTok in |
 
+## Getting the thing into view (camera work)
+
+Real TikToks don't talk about the enemies while the camera sits on the player: they move to the enemies, or zoom the health bar, while it's mentioned. A caption that names something the frame doesn't show is a bug (`recording-gate.md`). Fix it, cheapest first:
+
+1. **Different `focus` per clip.** Cut the same recording into two or three clips and give each its own `focus` (`[0.2,0.5]` on the player, `[0.85,0.3]` on the enemies, `[0.1,0.08]` on the HUD). A cut is the most common look.
+2. **`track`: a glide.** `"track":[{"t":0,"x":0.3,"y":0.6},{"t":2.5,"x":0.85,"y":0.3,"move":0.8}]` starts on the player and drifts to the enemies as the caption lands, then holds. Time it so the camera arrives about 0.3 s before the word appears. Hold at least 1 s on each stop.
+3. **`zoomin:1.6@x,y` / `zoom:1.5@x,y`** pushes in on a HUD element or a small sprite; combine with a `ring` or `arrow` on the same spot.
+4. **Change the recording.** If it's never on screen, the footage is wrong: use an autoplay `call`/`set` to spawn the enemies, open the panel, take damage so the health bar moves, or pick a different camera mode, then re-record.
+5. **Change the caption** to what is shown. Never leave the mismatch.
+
+Find x,y with `clip.py sheet <rec.mp4> --grid`: it draws a 10% grid labelled 1 to 9 (yellow = x along the bottom, cyan = y down the right). Read the thing's position as tenths, e.g. enemies at x 8, y 3 → `[0.8, 0.3]`. After rendering, open the final's sheet and check the subject is actually in frame.
+
 ## Overlays (in `overlays[]`)
 
 - **Arrow at the thing**: `{"type":"arrow","t":4.5,"d":2,"x":0.62,"y":0.41,"angle":150,"color":"yellow"}`. x,y = what the tip touches; angle 0 = pointing right, 90 = down, 180 = left. Pair it with `ring` on the same spot and an SFX (`ding`, `pop`, `vine-boom`).
@@ -51,4 +63,4 @@ Effects exist to **point the eye** and **mark a beat**. One effect per beat; let
 
 ## Caption presets ↔ vibe
 
-`pop` (TikTok Sans, default, friendly), `hormozi` (Montserrat Black caps + green highlight, punchy facts), `clean` (subtle, for pretty footage), `meme` (Anton, impact style), `comic` (Bangers, yellow, games), `cartoon` (Luckiest Guy, playful games), `dev` (JetBrains Mono, code-y), `marker` (Permanent Marker, hand-made feel), `bold` (Poppins + pink highlight), `cinema` (Bebas Neue, trailers, YouTube titles). Rotate. `clip.py check` warns when one preset covers more than 60% of a batch.
+`pop` (TikTok Classic: semibold white, thin black outline, yellow accent; the default), `label` (black text in a white box; best over busy footage), `punch` (the old extra-heavy look, for loud moments), `hormozi` (Montserrat Black caps + green highlight, punchy facts), `clean` (subtle, for pretty footage), `meme` (Anton, impact style), `comic` (Bangers, yellow, games), `cartoon` (Luckiest Guy, playful games), `dev` (JetBrains Mono, code-y), `marker` (Permanent Marker, hand-made feel), `bold` (Poppins + pink highlight), `cinema` (Bebas Neue, trailers, YouTube titles). Rotate. `clip.py check` warns when one preset covers more than 60% of a batch.

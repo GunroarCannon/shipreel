@@ -3089,6 +3089,366 @@
    "rating": "clean"
   },
   {
+   "id": "music:benny-hill",
+   "type": "music",
+   "path": "music/benny-hill.mp3",
+   "moods": [
+    "chaos",
+    "laughing"
+   ],
+   "themes": [
+    "bug",
+    "funny",
+    "chase"
+   ],
+   "text": "Benny Hill Chase",
+   "rating": "clean",
+   "dur": 16.23,
+   "source": "https://www.myinstants.com/media/sounds/benny-hill-chase_PewVC8I.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:careless-whisper",
+   "type": "music",
+   "path": "music/careless-whisper.mp3",
+   "moods": [
+    "smug",
+    "sad"
+   ],
+   "themes": [
+    "fail",
+    "ending",
+    "cope"
+   ],
+   "text": "Careless Whisper",
+   "rating": "clean",
+   "dur": 14.11,
+   "source": "https://www.myinstants.com/media/sounds/careless_whispers.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:cool-chill-lofi",
+   "type": "music",
+   "path": "music/cool-chill-lofi.mp3",
+   "moods": [
+    "chill",
+    "tired"
+   ],
+   "themes": [
+    "late-night",
+    "coding",
+    "burnout"
+   ],
+   "text": "cool chill lofi ;)",
+   "rating": "clean",
+   "dur": 8.0,
+   "source": "https://www.myinstants.com/media/sounds/cool-chill-lofi.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:crab-rave",
+   "type": "music",
+   "path": "music/crab-rave.mp3",
+   "moods": [
+    "hype",
+    "chaos"
+   ],
+   "themes": [
+    "success",
+    "flex",
+    "showcase"
+   ],
+   "text": "Crab Rave",
+   "rating": "clean",
+   "dur": 17.37,
+   "source": "https://www.myinstants.com/media/sounds/original_zeowGW1.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:curb-your-enthusiasm",
+   "type": "music",
+   "path": "music/curb-your-enthusiasm.mp3",
+   "moods": [
+    "awkward",
+    "cringe"
+   ],
+   "themes": [
+    "fail",
+    "mistake",
+    "punchline"
+   ],
+   "text": "Curb Your Enthusiasm",
+   "rating": "clean",
+   "dur": 14.26,
+   "source": "https://www.myinstants.com/media/sounds/curb-your-enthusiasm.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:elevator-music",
+   "type": "music",
+   "path": "music/elevator-music.mp3",
+   "moods": [
+    "chill",
+    "tired",
+    "awkward"
+   ],
+   "themes": [
+    "waiting",
+    "loading",
+    "docs"
+   ],
+   "text": "Elevator Music Background",
+   "rating": "clean",
+   "dur": 10.68,
+   "source": "https://www.myinstants.com/media/sounds/musica-elevador-short.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:gas-gas-gas",
+   "type": "music",
+   "path": "music/gas-gas-gas.mp3",
+   "moods": [
+    "hype",
+    "chaos"
+   ],
+   "themes": [
+    "speed",
+    "escalation",
+    "showcase"
+   ],
+   "text": "Gas Gas Gas - Manuel (Short)",
+   "rating": "clean",
+   "dur": 8.1,
+   "source": "https://www.myinstants.com/media/sounds/gas-gas-gaslqshort.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:hampster-dance",
+   "type": "music",
+   "path": "music/hampster-dance.mp3",
+   "moods": [
+    "happy",
+    "laughing",
+    "chaos"
+   ],
+   "themes": [
+    "funny",
+    "celebration"
+   ],
+   "text": "The Hampster Dance Song",
+   "rating": "clean",
+   "dur": 14.44,
+   "source": "https://www.myinstants.com/media/sounds/the-hampster-dance-song_9ggadcK.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:megalovania",
+   "type": "music",
+   "path": "music/megalovania.mp3",
+   "moods": [
+    "hype",
+    "determined"
+   ],
+   "themes": [
+    "escalation",
+    "boss",
+    "showcase"
+   ],
+   "text": "undertale - megalovania",
+   "rating": "clean",
+   "dur": 15.99,
+   "source": "https://www.myinstants.com/media/sounds/megalovania.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:mii-channel",
+   "type": "music",
+   "path": "music/mii-channel.mp3",
+   "moods": [
+    "chill",
+    "nostalgic",
+    "wholesome"
+   ],
+   "themes": [
+    "solo-dev",
+    "showcase",
+    "calm"
+   ],
+   "text": "Mii Channel Music",
+   "rating": "clean",
+   "dur": 17.04,
+   "source": "https://www.myinstants.com/media/sounds/mii-channel-music.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:minecraft-theme",
+   "type": "music",
+   "path": "music/minecraft-theme.mp3",
+   "moods": [
+    "nostalgic",
+    "wholesome"
+   ],
+   "themes": [
+    "nostalgia",
+    "old-version",
+    "sandbox"
+   ],
+   "text": "minecraft theme",
+   "rating": "clean",
+   "dur": 9.17,
+   "source": "https://www.myinstants.com/media/sounds/minecraft-theme_q5K6toI.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:mission-impossible",
+   "type": "music",
+   "path": "music/mission-impossible.mp3",
+   "moods": [
+    "determined",
+    "nervous"
+   ],
+   "themes": [
+    "heist",
+    "big-brain",
+    "showcase"
+   ],
+   "text": "Mission Impossible Theme Short",
+   "rating": "clean",
+   "dur": 7.06,
+   "source": "https://www.myinstants.com/media/sounds/mission-impossible-theme-short.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:nyan-cat",
+   "type": "music",
+   "path": "music/nyan-cat.mp3",
+   "moods": [
+    "happy",
+    "chaos"
+   ],
+   "themes": [
+    "funny",
+    "retro"
+   ],
+   "text": "Nyan cat",
+   "rating": "clean",
+   "dur": 15.7,
+   "source": "https://www.myinstants.com/media/sounds/nyan-cat_1.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:phonk-yara",
+   "type": "music",
+   "path": "music/phonk-yara.mp3",
+   "moods": [
+    "hype",
+    "angry"
+   ],
+   "themes": [
+    "rage",
+    "flex",
+    "showcase"
+   ],
+   "text": "Yara Yara Phonk",
+   "rating": "clean",
+   "dur": 11.75,
+   "source": "https://www.myinstants.com/media/sounds/yara-yara-phonk.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:pink-panther",
+   "type": "music",
+   "path": "music/pink-panther.mp3",
+   "moods": [
+    "sus",
+    "smug"
+   ],
+   "themes": [
+    "weird-behavior",
+    "sneaky"
+   ],
+   "text": "Pink Panther",
+   "rating": "clean",
+   "dur": 45.28,
+   "source": "https://www.myinstants.com/media/sounds/the-pink-panther-theme-song-original-version.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:rickroll",
+   "type": "music",
+   "path": "music/rickroll.mp3",
+   "moods": [
+    "troll",
+    "smug"
+   ],
+   "themes": [
+    "punchline",
+    "reveal"
+   ],
+   "text": "Never gonna give you up rickroll",
+   "rating": "clean",
+   "dur": 18.53,
+   "source": "https://www.myinstants.com/media/sounds/never-gonna-give-you-up-rickroll.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:running-in-the-90s",
+   "type": "music",
+   "path": "music/running-in-the-90s.mp3",
+   "moods": [
+    "hype",
+    "determined"
+   ],
+   "themes": [
+    "deadline",
+    "grind",
+    "escalation"
+   ],
+   "text": "running in the 90s",
+   "rating": "clean",
+   "dur": 12.2,
+   "source": "https://www.myinstants.com/media/sounds/running.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:sneaky-snitch",
+   "type": "music",
+   "path": "music/sneaky-snitch.mp3",
+   "moods": [
+    "sus",
+    "nervous"
+   ],
+   "themes": [
+    "bug",
+    "weird-behavior",
+    "plot-twist"
+   ],
+   "text": "Sneaky Snitch",
+   "rating": "clean",
+   "dur": 22.18,
+   "source": "https://www.myinstants.com/media/sounds/untitled_897.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
+   "id": "music:wii-shop-channel",
+   "type": "music",
+   "path": "music/wii-shop-channel.mp3",
+   "moods": [
+    "chill",
+    "nostalgic"
+   ],
+   "themes": [
+    "coding",
+    "progress",
+    "devlog"
+   ],
+   "text": "Wii shop channel",
+   "rating": "clean",
+   "dur": 35.63,
+   "source": "https://www.myinstants.com/media/sounds/wii-shop-channel.mp3",
+   "license": "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+  },
+  {
    "id": "sfx:2000-years-later",
    "type": "sfx",
    "path": "sfx/2000-years-later.mp3",

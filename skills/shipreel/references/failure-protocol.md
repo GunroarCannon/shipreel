@@ -1,6 +1,38 @@
 # Failure protocol: buzz, then ask
 
-The run is meant to be unattended, so a question is expensive: the user may be away. Before asking, try **one** cheap fix yourself (wrong path, missing `npm i` the shorthand mentions, a port in use). If that fails, or the fix would touch the user's project, ask.
+A wrong guess costs more than a question: a batch of videos filmed from the wrong screen wastes an hour of renders and the user's trust, while a question costs them ten seconds. **When in doubt, ask.** The user chose this plan knowing they'd be buzzed; they never asked for silence. Try **one** cheap fix first only for purely mechanical problems (wrong path, a port in use, a missing `npm i` the shorthand mentions). Everything below is a trigger to ask instead of pushing on.
+
+## When to ask (any one is enough)
+
+- A recording failed twice, or its sheet doesn't show the feature it's named for (`recording-gate.md`).
+- You can't get past a blocker (login, paywall, data you don't have, a tutorial that won't dismiss, an app that won't start).
+- You're about to **fake it**, skip a feature, drop a video, or substitute a different feature or angle than the slate.
+- A caption wants to name something that isn't on any recording and you'd have to guess, invent or re-time around it.
+- Two reasonable framings, angles or tones and you can't tell which the user would pick (portrait vs `blurpad`, serious vs jokey, which version counts as "old").
+- A claim in a title or caption (a count, a date, "first", "fastest") isn't backed by the shorthand or git history.
+- Something might be private (names, emails, keys, unreleased work) and the shorthand's `never show` list doesn't settle it.
+- The user's request has a gap you filled with an assumption. Say the assumption in the question and offer the alternative.
+- You notice you're about to write "probably", "should be fine", "I assume" about something that changes the output. Ask instead.
+
+Never silently pick the easy path. A "faked" or "assumed" step that the user wasn't told about is the failure this protocol exists to stop.
+
+Also ask when: a project has its own music and the licence or intent is unclear (keep it, mute it under a meme bed, or drop the bed?).
+
+## Ask level (`config.ask.level`, set in the questionnaire)
+
+- `often`: also check in at the **slate** (features × angles per project), after the **first recording sheet** of each project, and after the **first rendered video** of each project (show the sheet path, ask "ship the style, or change X?").
+- `when_unsure` (default): ask on the triggers above.
+- `rarely`: ask only on hard blocks (exit 3, `NEED_ENV`, nothing recordable). Even then, never fake a feature without telling the user in the summary.
+
+If the user says "ask me more" or "stop asking" mid-run, switch level and write it to `shipreel.config.json`.
+
+## Subagents can't ask: they escalate
+
+Scout, editor, writer and reviewer return a report to the director; they have no way to question the user. When they hit any trigger above they must **not** pick a workaround. They stop that item and put this line first in their return:
+
+`NEEDS_USER: <one-sentence problem> | options: skip / fix (~N min) / fake it (what exactly) / <their own idea> | recommend: <one>`
+
+The director collects every `NEEDS_USER` line, buzzes once, and asks them in one AskUserQuestion call (max 4). A subagent report that says `ok` while its own notes say "couldn't verify", "seems stuck", or "used placeholder" counts as a `NEEDS_USER` the director must raise.
 
 ## 1. Buzz
 
@@ -23,7 +55,7 @@ Header: the project name. Question: what failed, in one sentence, plus the last 
 
 Put the recommended option first, marked `(Recommended)`. Usually: skip if the batch has plenty of other material, fix if it's cheap and high-value.
 
-**Don't block the run**: while waiting, continue with other videos or projects that don't depend on the answer (render what's planned, scout the next project). Ask with AskUserQuestion only when you've run out of independent work, or batch several open questions into one call (max 4).
+**Asking doesn't have to stall the run**: buzz and ask right away (AskUserQuestion shows immediately), then while waiting continue only with work that doesn't depend on the answer. Batch several open questions into one call (max 4). Do not defer a question until you've "run out of other work": ask when the trigger happens.
 
 ## 3. Env values the user pastes
 

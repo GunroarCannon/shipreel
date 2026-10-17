@@ -11,14 +11,14 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 | `title` | str | human title, it becomes the file name. See copy-rules |
 | `tags` | [str] | 3 to 5 niche hashtags without `#`. Also go in the file name |
 | `series` | {name, part} | optional → `name-part-N_title_#tags` |
-| `style` | caption preset | `pop` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
+| `style` | caption preset | `pop` (default, TikTok Classic look) `label` (white box) `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
 | `hook_type` | str | for the ledger: `contrarian`, `before-after`, `number`, `question`, `pov`, `fail`, `flex`, `tutorial`, `clickbait`... |
 | `header` | str or {text, t, until} | persistent white-box text at the top (TikTok's "persistent caption") |
 | `clips` | [clip] | in order. Total length = the sum |
 | `captions` | [caption] | burned in (not in the textless file) |
 | `overlays` | [overlay] | in the textless file too |
 | `sfx` | [{asset, t, vol=0.8, start, dur}] | |
-| `music` | asset or {asset, vol=0.16, start, duck=true} | ducked under product audio |
+| `music` | asset or {asset, vol=0.16, start, duck=true} | meme/library bed, ducked under product audio. The project's own music in `rec:` clips is auto-muted (`product_music:"keep"` opts out) |
 | `product_volume` | float | global product-audio gain (1.0) |
 | `description` | str | caption or description body. Omit → empty extensionless marker file |
 | `links` | [str] | lines appended to the description |
@@ -40,7 +40,8 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 - `still: true`: freeze the frame at `in` for `dur`.
 - `card: "text"` + `dur` + `bg`: a full-screen text card on a color. Use sparingly (≤1 per TikTok).
 - `fit`: `cover` (crop to fill, default for video), `contain` (letterbox), `blurpad` (blurred fill behind, default for images), `crop:x,y,w,h` (choose a region, then cover).
-- `focus`: [x, y] for `cover` and zooms.
+- `focus`: [x, y] for `cover` and zooms: where the crop window sits. Different clips of the same recording can use different `focus` values (a cut to the enemies, a cut to the health bar).
+- `track`: a **moving camera** over the source frame: `[{"t":0,"x":0.2,"y":0.6}, {"t":3,"x":0.8,"y":0.3,"move":0.8}, {"t":6,"x":0.9,"y":0.1}]`. The first key is where the camera starts; each later key says "at `t` seconds (as the clip plays) glide to this point over `move` seconds (default 0.6), then hold". x,y = the point to centre on, as fractions of the **source** frame (get them from `clip.py sheet <rec> --grid`). Needs a source bigger than the window (a landscape recording in a portrait video); it replaces `fit`. `zoom` (≥1, default 1) tightens the window for the whole clip.
 - `speed`: 0.25 to 4 (audio pitch kept).
 - `audio`: `keep` | `mute` | a number (gain).
 - `fx`: see effects-cookbook. Syntax `name[:arg][@x,y]`.
@@ -52,10 +53,14 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 {"t": 0, "d": 2.2, "text": "it took 3 rewrites", "style": "hook", "words": true, "per": 2}
 ```
 
-- `style`: `hook` (big, top third), `cap` (default, lower-middle above the UI), `mid` (center), `callout` (yellow, center or `x,y`), `card`, `code` (mono box), `lower` (lower third, YouTube), `title` (big center), `meme-top`, `meme-bottom` (classic impact).
+- `style`: `box` (black text on a white box, readable on anything), `plate` (white text on a dark plate), `hook` (big, top third), `cap` (default, lower-middle above the UI), `mid` (center), `callout` (yellow, center or `x,y`), `card`, `code` (mono box), `lower` (lower third, YouTube), `title` (big center), `meme-top`, `meme-bottom` (classic impact).
 - Animation: default `pop` for hook/cap/mid/callout, `fade` for others; `"anim": "none"`.
 - Modes: `words: true` (2 to 3 word groups popping, `per`), `karaoke: true` (line stays, active word highlighted), `type: true` (typewriter).
-- `x`, `y` (position the center), `color`, `upper` (override the preset's uppercase).
+- `x`, `y` (position the center), `color`, `upper` (override the preset's uppercase), `hi` (accent colour for `*starred*` words), `contrast: false` (opt out of the auto-fix below).
+- **Accent words and lines**: wrap them in asterisks, `"it took *3 rewrites*"`, or put a second line in the accent colour with `
+`: `"Top 10 most viewed videos
+*#10: 4.2 million views*"`. One accent per caption.
+- **Auto-contrast**: at render, shipreel looks at the footage under each `hook`/`cap`/`mid` caption. Busy background → a dark plate behind the text; tinted text or accent that matches the background → white or a colour that doesn't. The render result lists what it changed in `contrast_fixed`. Turn it off per video with `auto_contrast: false`.
 - Emoji are stripped from burned text. Keep emoji for descriptions.
 - TikTok safe zone: the styles already keep clear of the top 13%, the bottom 25 to 30% and the right 15%. Custom `x,y`: keep y in 0.12 to 0.70 and x ≤ 0.80.
 
@@ -80,4 +85,5 @@ All have `t`, `d`.
 ## Audio
 
 - `sfx`: `{"asset": "sfx:vine-boom", "t": 4.4, "vol": 0.7}`, plus `start`/`dur` to trim. Start an SFX 0.05 to 0.1 s **before** the visual beat.
-- `music`: `{"asset": "music:lofi-1", "vol": 0.14, "duck": true}`. Product audio drives ducking. The final mix is loudnormed to -14 LUFS.
+- `music`: `{"asset": "music:sneaky-snitch", "vol": 0.14, "duck": true}` (find tracks with `assets.py find --type music`). Product audio drives ducking. The final mix is loudnormed to -14 LUFS. It loops and fades by itself.
+- `product_music`: `"mute"` (default) or `"keep"`. With `music` set, `rec:` clips whose audio looks like music are muted automatically (`product_music_muted` in the render result) so two musics never play. `"keep"` leaves them alone.

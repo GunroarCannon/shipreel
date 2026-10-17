@@ -1,6 +1,6 @@
 # First-run questionnaire
 
-Goal: one sitting of questions, then an unattended run. Before each round, buzz the user: `python S/scripts/buzz.py "shipreel: answer 3 quick questions" -t 2`. Use AskUserQuestion (max 4 questions per call, so 3 rounds). Put the recommended option first. Skip anything the user already answered in their request. Write the answers to `<workspace>/shipreel.config.json`, which uses the same keys as `config/defaults.json` and only needs the overrides.
+Goal: get the setup answers in one sitting so the run mostly flows, while staying free to ask again whenever something is unclear (`failure-protocol.md`, "When to ask"). Before each round, buzz the user: `python S/scripts/buzz.py "shipreel: answer 3 quick questions" -t 2`. Use AskUserQuestion (max 4 questions per call, so 3 rounds). Put the recommended option first. Skip anything the user already answered in their request. Write the answers to `<workspace>/shipreel.config.json`, which uses the same keys as `config/defaults.json` and only needs the overrides.
 
 ## Round 1: cost and scope
 
@@ -12,6 +12,10 @@ Goal: one sitting of questions, then an unattended run. Before each round, buzz 
 2. **Projects** (header "Projects"; free text via Other): the paths to each project, in priority order. If the user points at a parent folder, list the repos it contains and confirm.
 3. **First pass size** (header "Pass 1"): `10 TikToks per project (Recommended)` / `5` / `3 to test the look first`.
 4. **Meme level** (header "Memes"): `medium (Recommended)`: a meme or meme SFX in about 1 in 3 videos / `heavy`: most videos / `light`: rare, clean only.
+
+(Add a fifth question in the next round if you have room, otherwise put it in Round 2 and drop "Same channel for all projects?" to the default.)
+
+**How often to ask** (header "Check-ins"): `when I'm unsure or stuck (Recommended)`: asks on blockers, fakes, guesses and unverifiable claims / `often`: also check in at each project's slate, first recording and first video / `rarely`: only when blocked. Maps to `ask.level` = `when_unsure` / `often` / `rarely`. Tell the user they can change it any time by saying "ask me more" or "stop asking".
 
 ## Round 2: channel and links
 
@@ -27,7 +31,7 @@ Goal: one sitting of questions, then an unattended run. Before each round, buzz 
    - `simulate input (scripted clicks, keys, autoplay) (Recommended)`
    - `check out old commits in temp worktrees (Recommended)`
    - `edit project files (minimal, reverted after)`: off by default
-10. **Music** (header "Music"): `TikTok: add sound in-app, YouTube: product music or none (Recommended)` / `burn in library music everywhere` / `no music, SFX only`.
+10. **Music** (header "Music"): `TikTok: meme-music bed + trending sound in-app, YouTube: product music or none (Recommended)` / `burn in meme music everywhere (Content ID risk on YouTube)` / `no music, SFX only`. Maps to `music.meme_bed` = `"tiktok"` / `"all"` / `"off"`. Also ask when a project turns out to have its own music: keep it, or mute it under the meme bed?
 11. **Where to write** (header "Output"): `this folder (Recommended)` / `another drive (tell me the path)`. If doctor showed low disk, recommend another drive first.
 12. **Shorthand file location** (header "Shorthand"): `temp/<project>/ (Recommended, repo untouched)` / `in each repo as .project-shorthand.txt` (handy if the user commits it).
 
@@ -42,11 +46,12 @@ Goal: one sitting of questions, then an unattended run. Before each round, buzz 
   "models": {"plan": "balanced", "scout": "haiku", "writer": "sonnet", "editor": "haiku", "reviewer": "sonnet"},
   "quota": {"first_pass": {"tiktok": 10}},
   "mix": {"clickbait_share": 0.2, "meme_intensity": "medium"},
+  "ask": {"level": "when_unsure"},
   "permissions": {"launch_apps": true, "simulate_input": true, "old_commits_via_worktree": true, "edit_project_files": false}
 }
 ```
 
 - `clip.py init <name> --path <repo>` for each project (add `--shorthand-in-repo` if the user picked that).
-- Tell the user in 3 lines: the plan, the expected output count and that you'll buzz when you need them. Then start the loop without asking for confirmation.
+- Tell the user in 3 lines: the plan, the expected output count and that you'll buzz when you need them (and how to change the check-in level). Then start the loop without asking for confirmation.
 
 Never ask for API keys up front. Ask only when a step needs one (failure protocol). Most runs never need one.

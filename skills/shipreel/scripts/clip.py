@@ -75,12 +75,29 @@ def save_data(project, d):
     os.replace(p + ".tmp", p)
 
 
+def still_spans(file, dur, min_s=2.0):
+    """Frozen stretches [[start, end], ...] in seconds. A recording nobody drove (title card, tutorial modal) is one long span."""
+    p = run(["ffmpeg", "-hide_banner", "-nostats", "-i", file, "-an", "-vf", f"scale=320:-2,freezedetect=n=0.003:d={min_s}", "-f", "null", "-"], check=False)
+    starts = [float(x) for x in re.findall(r"freeze_start: ([\d.]+)", p.stderr)]
+    ends = [float(x) for x in re.findall(r"freeze_end: ([\d.]+)", p.stderr)]
+    return [[round(s, 1), round(ends[i] if i < len(ends) else dur, 1)] for i, s in enumerate(starts)][:20]
+
+
 def register_rec(project, rid, file, **meta):
     d = load_data(project)
     info = ffprobe(file)
     rel = os.path.relpath(file, pdir("temp", project)).replace("\\", "/")
     entry = {"id": rid, "file": rel, "dur": info["dur"], "w": (info["video"] or {}).get("w"), "h": (info["video"] or {}).get("h"),
              "has_audio": bool(info["audio"]), "created": now(), **{k: v for k, v in meta.items() if v not in (None, "")}}
+    if meta.get("how") != "file" and info["video"] and info["dur"]:
+        # exit code 0 and "ok" only mean ffmpeg wrote a file. Frozen footage is the most common silent failure, so measure it here.
+        spans = still_spans(file, info["dur"])
+        still = round(sum(e - s for s, e in spans), 1)
+        entry["still"] = spans
+        entry["still_pct"] = round(100 * still / info["dur"])
+        if entry["still_pct"] >= 30 or any(e - s >= 3 for s, e in spans):
+            entry["warn"] = (f"STILL {entry['still_pct']}% ({still}s frozen: {spans[:4]}). Nothing moved. Run clip.py sheet on this file and look. "
+                             "Likely a title screen, tutorial/consent modal or no input: fix the steps/autoplay and re-record; do not use it as is.")
     d["recordings"] = [r for r in d["recordings"] if r["id"] != rid] + [entry]
     save_data(project, d)
     return entry
@@ -217,6 +234,36 @@ def audio_stats(path, dur):
             "music_likely": bool(mean) and sil_pct < 8 and gaps <= max(1, int(dur / 20)) and float(mean.group(1)) > -35}
 
 
+_MUSIC_CACHE = {}
+
+
+def product_has_music(src):
+    """True when a clip's own audio probably carries music (continuous, non-silent). Cached per file."""
+    k = (src, os.path.getmtime(src))
+    if k not in _MUSIC_CACHE:
+        info = ffprobe(src)
+        _MUSIC_CACHE[k] = bool(info["audio"]) and audio_stats(src, info["dur"])["music_likely"]
+    return _MUSIC_CACHE[k]
+
+
+def product_music_clips(v, project):
+    """Indexes of clips whose own audio would fight a library music bed. Only matters when the video has `music`
+    and the plan didn't opt out with product_music:"keep". A clip with audio:"mute" is already fine."""
+    if not v.get("music") or v.get("product_music", "mute") == "keep" or float(v.get("product_volume", 1.0)) <= 0.05:
+        return []
+    hits = []
+    for i, c in enumerate(v["clips"]):
+        if "card" in c or c.get("still") or c.get("audio") == "mute" or not str(c.get("src", "")).startswith("rec:"):
+            continue
+        try:
+            src = resolve_src(c["src"], project)
+            if os.path.splitext(src)[1].lower() not in IMG_EXT and product_has_music(src):
+                hits.append(i)
+        except Exception:
+            pass
+    return hits
+
+
 def cmd_probe(a):
     info = ffprobe(a.file)
     if info["audio"] and not a.fast:
@@ -244,7 +291,14 @@ def cmd_sheet(a):
     inputs, parts = [], []
     for i, t in enumerate(times):
         inputs += ["-ss", str(t), "-i", a.file]
-        parts.append(f"[{i}:v]scale={cw}:-2,drawtext=fontfile='{ffesc(os.path.join(FONTS, 'Montserrat-Bold.ttf'))}':text='{t}s':x=6:y=6:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6,setsar=1[f{i}]")
+        grid = ""
+        if a.grid:  # tenths grid with labels: read an x,y (0 to 1) straight off the sheet for focus / track / overlays
+            fs = max(10, cw // 28)
+            fnt = ffesc(os.path.join(FONTS, 'Montserrat-Bold.ttf'))
+            grid = ",drawgrid=w=iw/10:h=ih/10:t=1:c=white@0.45," + ",".join(
+                [f"drawtext=fontfile='{fnt}':text='{j}':x=w*{j}/10+2:y=h-{fs + 4}:fontsize={fs}:fontcolor=yellow:borderw=2:bordercolor=black" for j in range(1, 10)] +
+                [f"drawtext=fontfile='{fnt}':text='{j}':x=w-{fs + 4}:y=h*{j}/10+2:fontsize={fs}:fontcolor=cyan:borderw=2:bordercolor=black" for j in range(1, 10)])
+        parts.append(f"[{i}:v]scale={cw}:-2{grid},drawtext=fontfile='{ffesc(os.path.join(FONTS, 'Montserrat-Bold.ttf'))}':text='{t}s':x=6:y=6:fontsize=22:fontcolor=white:box=1:boxcolor=black@0.6,setsar=1[f{i}]")
     if len(times) > 1:
         layout = "|".join(f"{'+'.join(['w0'] * (i % cols)) or 0}_{'+'.join(['h0'] * (i // cols)) or 0}" for i in range(len(times)))
         fc = ";".join(parts) + ";" + "".join(f"[f{i}]" for i in range(len(times))) + f"xstack=inputs={len(times)}:layout={layout}:fill=black[o]"
@@ -264,7 +318,8 @@ def cmd_rec(a):
     if a.action == "list":
         for r in load_data(a.project)["recordings"]:
             extras = " ".join(f"{k}={r[k]}" for k in ("feature", "era", "commit", "orient", "music") if r.get(k))
-            print(f"{r['id']} | {r['dur']}s {r.get('w')}x{r.get('h')} audio={int(r.get('has_audio', 0))} | {extras} | {r.get('notes', '')[:80]}")
+            flag = f" !!STILL {r['still_pct']}%" if r.get("warn") else ""
+            print(f"{r['id']} | {r['dur']}s {r.get('w')}x{r.get('h')} audio={int(r.get('has_audio', 0))}{flag} | {extras} | {r.get('notes', '')[:80]}")
         return
     if a.action == "find":
         q = (a.query or "").lower().split()
@@ -415,7 +470,11 @@ def ass_color(c, alpha=0):
 # Caption presets. Sizes are for the short side = 1080; scaled for other sizes.
 PRESETS = {
     #           font,                      size, fill,     outline, ol,  shadow, upper, highlight
-    "pop":     {"font": "TikTok Sans ExtraBold", "size": 96, "fill": "white", "outline": "black", "ol": 6, "sh": 2, "upper": False, "hi": "yellow"},
+    # pop = TikTok's own "Classic" caption look: semibold white, thin crisp black outline, no glow, one yellow accent word/line
+    "pop":     {"font": "TikTok Sans SemiBold", "size": 82, "fill": "white", "outline": "black", "ol": 5, "sh": 0, "upper": False, "hi": "yellow"},
+    # label = TikTok's "background" look: black text on a white box (stays readable on any footage)
+    "label":   {"font": "TikTok Sans SemiBold", "size": 70, "fill": "black", "outline": "white", "ol": 12, "sh": 0, "upper": False, "hi": "red", "box": True},
+    "punch":   {"font": "TikTok Sans ExtraBold", "size": 96, "fill": "white", "outline": "black", "ol": 6, "sh": 2, "upper": False, "hi": "yellow"},
     "hormozi": {"font": "Montserrat Black", "size": 100, "fill": "white", "outline": "black", "ol": 7, "sh": 0, "upper": True, "hi": "green"},
     "clean":   {"font": "TikTok Sans SemiBold", "size": 80, "fill": "white", "outline": "black", "ol": 3, "sh": 3, "upper": False, "hi": "cyan"},
     "meme":    {"font": "Anton", "size": 112, "fill": "white", "outline": "black", "ol": 6, "sh": 0, "upper": True, "hi": "yellow"},
@@ -455,9 +514,14 @@ def build_ass(v, W, H, total, path):
     P = preset
     side = 0.08 * W
     right = (0.15 if portrait else 0.08) * W  # TikTok right rail
-    style("hook", P["font"], P["size"] * 1.18, P["fill"], P["outline"], P["ol"] + 1, P["sh"], 8, side, right, (0.15 if portrait else 0.08) * H)
-    style("cap", P["font"], P["size"], P["fill"], P["outline"], P["ol"], P["sh"], 2, side, right, (0.30 if portrait else 0.10) * H)
-    style("mid", P["font"], P["size"], P["fill"], P["outline"], P["ol"], P["sh"], 5, side, right, 0)
+    bx = bool(P.get("box"))
+    hook_mv = ((0.23 if v.get("header") else 0.15) if portrait else 0.08) * H  # sit under a persistent header, never on it
+    for nm, sz, al, mv in (("hook", P["size"] * 1.18, 8, hook_mv), ("cap", P["size"], 2, (0.30 if portrait else 0.10) * H), ("mid", P["size"], 5, 0)):
+        style(nm, P["font"], sz, P["fill"], P["outline"], P["ol"] + (1 if nm == "hook" and not bx else 0), P["sh"], al, side, right, mv, box=bx, back=P["outline"] if bx else "black")
+        # auto-contrast fallback (see auto_contrast): same geometry on a dark plate, for busy or colour-clashing footage
+        style(nm + "_plate", P["font"], sz, "white", "black", 12, 0, al, side, right, mv, box=True, back="black", back_alpha=0x58)
+    style("box", "TikTok Sans SemiBold", 70, "black", "white", 12, 0, 2, side, right, (0.30 if portrait else 0.10) * H, box=True, back="white")
+    style("plate", "TikTok Sans SemiBold", 70, "white", "black", 12, 0, 2, side, right, (0.30 if portrait else 0.10) * H, box=True, back="black", back_alpha=0x58)
     style("callout", "Montserrat Black", 80, "yellow", "black", 6, 0, 5, 0, 0, 0)
     style("header", "TikTok Sans ExtraBold", 66, "black", "white", 14, 0, 8, side, right, (0.115 if portrait else 0.05) * H, box=True, back="white")
     style("card", P["font"], P["size"] * 1.35, "white", "black", 6, 0, 5, side, side, 0)
@@ -468,7 +532,12 @@ def build_ass(v, W, H, total, path):
     style("meme-bottom", "Anton", 96, "white", "black", 6, 0, 2, side, side, 0.28 * H if portrait else 0.05 * H)
 
     hi = ass_color(P["hi"])
+    fill_c = ass_color(P["fill"])
     upper_default = P["upper"]
+
+    def mark(txt, hic, back):
+        """*word* -> accent colour, then back to the style colour (a reset would also cancel the pop animation)."""
+        return re.sub(r"\*([^*]+)\*", lambda m: "{\\1c" + hic + "}" + m.group(1) + "{\\1c" + back + "}", txt)
 
     def add(t0, t1, st, text, tags=""):
         events.append(f"Dialogue: 0,{ts(t0)},{ts(t1)},{st},,0,0,0,,{tags}{text}")
@@ -492,7 +561,16 @@ def build_ass(v, W, H, total, path):
         a_tag = POP if anim == "pop" else FADE if anim == "fade" else ""
         if c.get("color"):
             pos += f"{{\\c{ass_color(c['color'])}}}"
-        words = c["text"].split()
+        hic = ass_color(c["hi"]) if c.get("hi") else hi
+        if c.get("color"):
+            back_c = ass_color(c["color"])
+        elif st in ("box",) or (bx and st in ("hook", "cap", "mid")):
+            back_c = ass_color("black")
+        elif st in ("plate",) or st.endswith("_plate"):
+            back_c = ass_color("white")
+        else:
+            back_c = fill_c
+        words = c["text"].replace("*", "").split()
         if c.get("words") and len(words) > 1:  # word-by-word groups, each popping in
             n = int(c.get("per", 2 if len(words) <= 8 else 3))
             groups = [" ".join(words[i:i + n]) for i in range(0, len(words), n)]
@@ -519,7 +597,7 @@ def build_ass(v, W, H, total, path):
                 te = t0 + (t1 - t0) * 0.6 * i / steps if i < steps else t1
                 add(tt, te, st, txt[:cut] + ("{\\alpha&HFF&}" + txt[cut:] if cut < len(txt) else ""), pos)
         else:
-            add(t0, t1, st, ass_text(c["text"], up), pos + a_tag)
+            add(t0, t1, st, mark(ass_text(c["text"], up), hic, back_c), pos + a_tag)
 
     head = ["[Script Info]", "ScriptType: v4.00+", f"PlayResX: {W}", f"PlayResY: {H}", "WrapStyle: 0", "ScaledBorderAndShadow: yes", "",
             "[V4+ Styles]", f"Format: {STYLE_FIELDS}", *styles, "", "[Events]",
@@ -551,6 +629,24 @@ def fit_chain(fit, W, H, focus):
                 f"[fga]scale={W}:{H}:force_original_aspect_ratio=decrease[fgb];[bgb][fgb]overlay=(W-w)/2:(H-h)/2")
     # cover (default)
     return f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H}:(iw-{W})*{fx_}:(ih-{H})*{fy_}"
+
+
+def track_chain(track, zoom, sw, sh, W, H):
+    """Moving camera over a source frame: hold on a point, glide to the next. Keys {t, x, y, move}; x,y = the point to
+    centre on, as fractions of the SOURCE frame; t = seconds into the clip as it plays; move = glide seconds (default 0.6).
+    The first key is the starting position. Scaled to cover first, so the pan moves in whole output pixels (smooth)."""
+    ks = sorted(track, key=lambda k: float(k.get("t", 0)))
+    f = max(W / sw, H / sh) * max(1.0, float(zoom or 1))
+    SW, SH = max(W, math.ceil(sw * f)), max(H, math.ceil(sh * f))
+
+    def comp(key):
+        e = f"{float(ks[0][key]):.4f}"
+        for prev, k in zip(ks, ks[1:]):
+            st = f"min(1,max(0,(t-{float(k.get('t', 0)):.3f})/{max(0.05, float(k.get('move', 0.6))):.3f}))"
+            e += f"+({float(k[key]) - float(prev[key]):.4f})*({st}*{st}*(3-2*{st}))"
+        return e
+    return (f"scale={SW}:{SH}:flags=bicubic,crop={W}:{H}:x='max(0,min({SW - W},({comp('x')})*{SW}-{W / 2:g}))':"
+            f"y='max(0,min({SH - H},({comp('y')})*{SH}-{H / 2:g}))'")
 
 
 def build_segment(clip, W, H, fps, project, seg_dir, cfg):
@@ -605,7 +701,9 @@ def build_segment(clip, W, H, fps, project, seg_dir, cfg):
     fit_focus = clip.get("focus")
     v = [",".join(chain)] if chain else []
     fit = clip.get("fit", "blurpad" if is_img else "cover")
-    if src is not None:
+    if src is not None and clip.get("track") and info and info["video"]:
+        v.append(track_chain(clip["track"], clip.get("zoom"), info["video"]["w"], info["video"]["h"], W, H))
+    elif src is not None:
         v.append(fit_chain(fit, W, H, fit_focus))
     post = []
     for f in fxs:
@@ -913,6 +1011,103 @@ def write_ledger_row(project, row):
         w.writeheader(); w.writerows(rows)
 
 
+# ----------------------------------------------------------------------------- caption contrast (auto)
+def _lin(c):
+    c /= 255
+    return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def _rel_lum(rgb):
+    return 0.2126 * _lin(rgb[0]) + 0.7152 * _lin(rgb[1]) + 0.0722 * _lin(rgb[2])
+
+
+def _ratio(a, b):
+    la, lb = _rel_lum(a), _rel_lum(b)
+    return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+
+def _hex(c):
+    names = {"white": "FFFFFF", "black": "000000", "yellow": "FFE600", "red": "FF2D2D", "green": "2BE36B", "blue": "2D8CFF",
+             "pink": "FF3EA5", "orange": "FF8A00", "cyan": "00E5FF", "tiktok": "FE2C55", "purple": "9B5CFF"}
+    c = names.get(c, c).lstrip("#")
+    return tuple(int(c[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def cap_region(c, preset, W, H, portrait, has_header):
+    """Rough pixel box (x, y, w, h) a caption will cover, from its style geometry."""
+    k = min(W, H) / 1080
+    st = c.get("style", "cap")
+    size = preset["size"] * k * (1.18 if st == "hook" else 1)
+    text = c.get("text", "").replace("*", "")
+    side, right = 0.08 * W, (0.15 if portrait else 0.08) * W
+    avail = W - side - right
+    tw = min(avail, len(text) * size * 0.52)
+    lines = max(1, math.ceil(len(text) * size * 0.52 / avail))
+    th = lines * size * 1.3
+    if "x" in c and "y" in c:
+        cx, cy = c["x"] * W, c["y"] * H
+        x0, y0 = cx - tw / 2, cy - th / 2
+    else:
+        cx = side + avail / 2
+        x0 = cx - tw / 2
+        if st == "hook":
+            y0 = ((0.23 if has_header else 0.15) if portrait else 0.08) * H
+        elif st == "mid":
+            y0 = H / 2 - th / 2
+        else:
+            y0 = H - ((0.30 if portrait else 0.10) * H) - th
+    x0, y0 = max(0, min(W - 8, x0)), max(0, min(H - 8, y0))
+    return int(x0), int(y0), int(max(8, min(tw, W - x0))), int(max(8, min(th, H - y0)))
+
+
+def sample_region(video, t, region, W, H):
+    """(mean_rgb, luma_std 0-1) of a region of the frame at time t."""
+    x, y, w, h = region
+    p = subprocess.run(["ffmpeg", "-v", "error", "-ss", f"{t:.2f}", "-i", video, "-frames:v", "1", "-vf", f"crop={w}:{h}:{x}:{y},scale=24:24:flags=area",
+                        "-f", "rawvideo", "-pix_fmt", "rgb24", "pipe:1"], capture_output=True)
+    d = p.stdout
+    if len(d) < 24 * 24 * 3:
+        return None
+    px = [(d[i], d[i + 1], d[i + 2]) for i in range(0, 24 * 24 * 3, 3)]
+    mean = tuple(sum(q[j] for q in px) / len(px) for j in range(3))
+    ys = [(0.299 * q[0] + 0.587 * q[1] + 0.114 * q[2]) / 255 for q in px]
+    ym = sum(ys) / len(ys)
+    return mean, (sum((v - ym) ** 2 for v in ys) / len(ys)) ** 0.5
+
+
+def auto_contrast(caps, textless, preset, W, H, total, has_header):
+    """Look at the real footage under each caption and fix what would clash: busy background -> dark plate, tinted text that
+    matches the background -> white, accent word that matches -> a colour that doesn't. Returns (captions, notes)."""
+    portrait = H > W
+    out_caps, notes = [], []
+    for c in caps:
+        st = c.get("style", "cap")
+        if st not in ("hook", "cap", "mid") or c.get("contrast") is False or preset.get("box"):
+            out_caps.append(c); continue
+        t0, d = float(c.get("t", 0)), float(c.get("d", 2))
+        region = cap_region(c, preset, W, H, portrait, has_header)
+        samples = [sample_region(textless, min(max(0, total - 0.1), t0 + f * d), region, W, H) for f in (0.15, 0.5, 0.85)]
+        samples = [s_ for s_ in samples if s_]
+        if not samples:
+            out_caps.append(c); continue
+        busy = max(s_[1] for s_ in samples)
+        fill = c.get("color") or preset["fill"]
+        c2, fix = dict(c), []
+        if fill not in ("white", "black", "#FFFFFF", "#000000") and min(_ratio(_hex(fill), s_[0]) for s_ in samples) < 1.9:
+            c2["color"] = "white"; fix.append(f"{fill} text clashed with the background -> white")
+        if "*" in c.get("text", ""):
+            hi = c.get("hi") or preset["hi"]
+            if min(_ratio(_hex(hi), s_[0]) for s_ in samples) < 1.9:
+                best = max(("yellow", "white", "cyan", "pink", "orange"), key=lambda n: min(_ratio(_hex(n), s_[0]) for s_ in samples))
+                c2["hi"] = best; fix.append(f"accent {hi} clashed -> {best}")
+        if busy > 0.20:
+            c2["style"] = st + "_plate"; fix.append(f"busy background (detail {busy:.2f}) -> dark plate")
+        if fix:
+            notes.append({"t": round(t0, 1), "text": c.get("text", "")[:24], "fix": "; ".join(fix)})
+        out_caps.append(c2)
+    return out_caps, notes
+
+
 def render_video(v, plan, cfg, a):
     project = v.get("project") or plan.get("project")
     fmt = v.get("format", "tiktok")
@@ -936,7 +1131,10 @@ def render_video(v, plan, cfg, a):
     # A) segments
     segs, total = [], 0.0
     card_caps = []
-    for c in v["clips"]:
+    muted_music = product_music_clips(v, project)
+    for ci, c in enumerate(v["clips"]):
+        if ci in muted_music:
+            c = {**c, "audio": "mute"}  # the project's own music would fight the library bed: two musics is always wrong
         p, d = build_segment(c, W, H, fps, project, seg_dir, cfg)
         if "card" in c:
             card_caps.append({"t": total, "d": d, "text": c["card"], "style": "card", "anim": "pop"})
@@ -959,6 +1157,9 @@ def render_video(v, plan, cfg, a):
          "-t", str(total), "-r", str(fps), *enc_final(cfg), *AUD, textless])
     # D) captions -> final
     v2 = dict(v); v2["captions"] = card_caps + list(v.get("captions", []))
+    contrast_notes = []
+    if v.get("auto_contrast", cfg["render"].get("auto_contrast", True)):
+        v2["captions"], contrast_notes = auto_contrast(v2["captions"], textless, PRESETS.get(v.get("style", "pop"), PRESETS["pop"]), W, H, total, bool(v.get("header")))
     ass = os.path.join(vdir, "captions.ass")
     n_ev = build_ass(v2, W, H, total, ass)
     if n_ev and not a.no_captioned:
@@ -982,7 +1183,9 @@ def render_video(v, plan, cfg, a):
     lo, hi = LIMITS.get(fmt, (1, 9999))
     warn = [] if lo <= total <= hi else [f"duration {total}s outside {lo}-{hi}s for {fmt}"]
     return {"id": v["id"], "ok": True, "dur": total, "file": os.path.relpath(final, workspace()), "desc": os.path.basename(desc),
-            **({"thumb": os.path.basename(thumb)} if thumb else {}), **({"warn": warn} if warn else {})}
+            **({"thumb": os.path.basename(thumb)} if thumb else {}), **({"warn": warn} if warn else {}),
+            **({"contrast_fixed": contrast_notes} if contrast_notes else {}),
+            **({"product_music_muted": [f"clips[{i}]" for i in muted_music]} if muted_music else {})}
 
 
 def load_plan(path):
@@ -1029,6 +1232,24 @@ def lint_text(s):
     return issues
 
 
+def still_in_clip(c, proj, d):
+    """Hard issue when a clip's span lands on frozen footage recorded in the rec cache (see register_rec)."""
+    src = c.get("src", "")
+    if not src.startswith("rec:") or c.get("still") or any(str(f).startswith("freeze") for f in c.get("fx", [])):
+        return []
+    ref, p2 = src[4:], proj
+    if "/" in ref:
+        p2, ref = ref.split("/", 1)
+    rec = next((r for r in load_data(p2)["recordings"] if r["id"] == ref), None)
+    if not rec:
+        return []
+    a0, b0 = float(c.get("in", 0)), min(float(c.get("out", d)), d)
+    hit = sum(max(0.0, min(b0, e) - max(a0, s)) for s, e in rec.get("still", []))
+    if hit >= 2.5 or (b0 - a0 > 0 and hit / (b0 - a0) > 0.6):
+        return [f"frozen footage: {src} {a0:g}-{b0:g}s is {hit:.1f}s still (rec still spans {rec.get('still')}). Pick a moving span or re-record"]
+    return []
+
+
 def cmd_check(a):
     cfg = load_config()
     plan, vids = load_plan(a.plan)
@@ -1068,6 +1289,12 @@ def cmd_check(a):
                     else:
                         d = ffprobe(p)["dur"]
                         est += (min(float(c.get("out", d)), d) - float(c.get("in", 0))) / float(c.get("speed", 1))
+                        iss += still_in_clip(c, proj, d)
+                        for k in c.get("track", []):
+                            if not (0 <= float(k.get("x", -1)) <= 1 and 0 <= float(k.get("y", -1)) <= 1):
+                                iss.append(f"track key {k} needs x,y between 0 and 1 (fractions of the source frame; read them off clip.py sheet --grid)")
+                        if c.get("track") and len(c["track"]) < 2:
+                            iss.append("track needs 2+ keys (start point + where to glide); for one fixed spot use focus")
                 else:
                     est += float(c.get("dur", 1.5))
                 for f in c.get("fx", []):
@@ -1085,6 +1312,11 @@ def cmd_check(a):
             if len(c.get("text", "").split()) > (12 if fmt == "youtube" else 9):
                 iss.append(f"long caption ({len(c['text'].split())}w): '{c['text'][:24]}...'")
             iss += [f"cap {x}" for x in lint_text(c.get("text", ""))]
+        plain = [c for c in v.get("captions", []) if "x" not in c and c.get("style", "cap") in ("hook", "cap", "mid")]
+        for i, c1 in enumerate(plain):
+            for c2 in plain[i + 1:]:
+                if c1.get("style", "cap") == c2.get("style", "cap") and float(c1.get("t", 0)) < float(c2.get("t", 0)) + float(c2.get("d", 2)) and float(c2.get("t", 0)) < float(c1.get("t", 0)) + float(c1.get("d", 2)):
+                    iss.append(f"captions overlap in time at the same spot: '{c1['text'][:18]}' / '{c2['text'][:18]}' (stack them in one caption with a line break, or shorten d)")
         caps = [c for c in v.get("captions", []) if float(c.get("t", 0)) < 1.0]
         if fmt != "youtube" and not caps and not v.get("header"):
             iss.append("no on-screen hook in first second")
@@ -1104,18 +1336,31 @@ def cmd_check(a):
                 resolve_asset(v["music"]["asset"] if isinstance(v["music"], dict) else v["music"])
             except Exception as e:
                 iss.append(str(e)[:80])
+            pm = product_music_clips(v, proj) if proj else []
+            if pm:
+                iss.append(f"music: clips{pm} have their own music; render will mute them under the library track (add \"product_music\":\"keep\" to keep it and drop `music`)")
+        elif fmt == "tiktok" and not v.get("sfx") and not v.get("overlays") and not any("fx" in c or "sticker" in c for c in v["clips"]):
+            iss.append("bare: no music, SFX, overlay or fx - raw recording with captions. Add at least a meme SFX and one pointing overlay or fx (references/effects-cookbook.md)")
         if fmt == "youtube" and v.get("chapters"):
             ch = v["chapters"]
             if ch[0]["t"] != 0 or len(ch) < 3:
                 iss.append("chapters: first must be 0:00 and >=3 chapters")
         styles_used[v.get("style", "pop")] = styles_used.get(v.get("style", "pop"), 0) + 1
-        hard = [x for x in iss if not x.startswith(("cap ai-tell", "desc ai-tell", "title ai-tell", "cap emoji", "long caption", "tags="))]
+        hard = [x for x in iss if not x.startswith(("cap ai-tell", "desc ai-tell", "title ai-tell", "cap emoji", "long caption", "tags=", "music:", "bare:"))]
         bad += bool(hard)
         report.append({"id": v["id"], "est": round(est, 1), "issues": iss})
     for r in report:
         print(f"{r['id']} ~{r['est']}s " + ("OK" if not r["issues"] else "| " + "; ".join(r["issues"])))
     if len(vids) >= 6 and max(styles_used.values()) > len(vids) * 0.6:
         print(f"variety: style '{max(styles_used, key=styles_used.get)}' used {max(styles_used.values())}/{len(vids)} - rotate presets")
+    tt = [v for v in vids if v.get("format", "tiktok") == "tiktok"]
+    mode = (cfg.get("music") or {}).get("meme_bed", "tiktok")
+    if len(tt) >= 5 and mode != "off":
+        want = float(cfg.get("mix", {}).get("music_share_short", 0.4))
+        have = sum(1 for v in tt if v.get("music"))
+        if have < max(1, int(len(tt) * want * 0.5)):
+            print(f"music: {have}/{len(tt)} TikToks have a music bed (target about {int(want * 100)}%). "
+                  "Pick tracks with `assets.py find --type music --mood <m>` (references/music-audio.md, section 'Meme music bed').")
     sys.exit(1 if bad else 0)
 
 
@@ -1228,7 +1473,7 @@ def main():
     sp.add_parser("doctor").set_defaults(f=cmd_doctor)
     p = sp.add_parser("init"); p.add_argument("project"); p.add_argument("--path"); p.add_argument("--shorthand-in-repo", action="store_true"); p.set_defaults(f=cmd_init)
     p = sp.add_parser("probe"); p.add_argument("file"); p.add_argument("--fast", action="store_true"); p.set_defaults(f=cmd_probe)
-    p = sp.add_parser("sheet"); p.add_argument("file"); p.add_argument("--n", type=int, default=6); p.add_argument("--cols", type=int)
+    p = sp.add_parser("sheet"); p.add_argument("file"); p.add_argument("--n", type=int, default=6); p.add_argument("--cols", type=int); p.add_argument("--grid", action="store_true")
     p.add_argument("--width", type=int, default=900); p.add_argument("--times"); p.add_argument("--out"); p.set_defaults(f=cmd_sheet)
     p = sp.add_parser("rec"); p.add_argument("action", choices=["add", "list", "find"]); p.add_argument("project"); p.add_argument("query", nargs="?")
     for k in ("--file", "--id", "--feature", "--era", "--commit", "--notes"):

@@ -24,7 +24,9 @@ C rec list <p>                            # what's cached: id | dur | WxH | feat
 C rec find <p> "inventory"
 ```
 
-Recording ids: `<feature>-<what>[-<era>]`, e.g. `combat-boss-intro`, `editor-drag-drop-v1`. Record **raw and long enough** (10 to 40 s). Cut in the plan, not at record time, so one recording feeds several videos. Record portrait (`--portrait`) for mobile-ish web UIs and landscape for games and desktop apps; the render crops (`fit`).
+**Before the first recording of a project, read `references/recording-gate.md`.** The loop for each recording is: 3 s probe with no steps → `sheet` → note the blockers → write steps that clear them and do the feature → record → `sheet --n 6` → open it → write `saw:` → only then is it usable. `record-*` prints `warn: STILL n%` and `rec list` shows `!!STILL` when the footage froze; `check` fails any clip that lands on frozen footage.
+
+Recording ids: `<feature>-<what>[-<era>]`, e.g. `combat-boss-intro`, `editor-drag-drop-v1`. Record **raw and long enough** (10 to 40 s). Cut in the plan, not at record time, so one recording feeds several videos. Record portrait (`--portrait`) for mobile-ish web UIs and landscape for games and desktop apps; the render crops (`fit`), and the default centre `cover` throws away ~65% of a landscape frame, so for games use `fit: "blurpad"` or `cover` + `focus` (see `recording-gate.md` rule 6).
 
 ### Web apps
 ```
@@ -87,7 +89,7 @@ Per video: `output/<p>/<name>.mp4` (captioned), `output/<p>/textless/<name>.mp4`
 C sheet output/<p>/<name>.mp4 --n 6       # one jpg, 6 frames with timestamps
 C probe output/<p>/<name>.mp4             # static_spans (>3s frozen = low-effort flag), loudness sanity
 ```
-Reviewer subagent (`roles/reviewer.md`) gets the sheet paths + plan path, and returns fixes per id. Apply → `render --only`. Max 2 fix rounds per video; then ship it or drop it.
+Open the sheets yourself too; the reviewer's `ok` doesn't replace looking at them. Reviewer subagent (`roles/reviewer.md`) gets the sheet paths + plan path, and returns fixes per id. Apply → `render --only`. Max 2 fix rounds per video; then ship it or drop it.
 
 ## 7. Wrap the project
 ```

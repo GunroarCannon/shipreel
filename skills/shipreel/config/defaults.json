@@ -32,10 +32,13 @@
   },
   "music": {
     "tiktok": "in-app",
+    "meme_bed": "tiktok",
+    "meme_bed_vol": 0.14,
     "youtube": "library-or-product",
     "product_music_policy": "keep-if-good"
   },
-  "render": { "fps": 30, "preset": "medium", "split_by_format": false },
+  "ask": { "level": "when_unsure" },
+  "render": { "fps": 30, "preset": "medium", "split_by_format": false, "auto_contrast": true },
   "permissions": {
     "launch_apps": true,
     "simulate_input": true,
