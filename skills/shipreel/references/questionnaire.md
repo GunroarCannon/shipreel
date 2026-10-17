@@ -31,7 +31,7 @@ Goal: get the setup answers in one sitting so the run mostly flows, while stayin
    - `simulate input (scripted clicks, keys, autoplay) (Recommended)`
    - `check out old commits in temp worktrees (Recommended)`
    - `edit project files (minimal, reverted after)`: off by default
-10. **Music** (header "Music"): `TikTok: meme-music bed + trending sound in-app, YouTube: product music or none (Recommended)` / `burn in meme music everywhere (Content ID risk on YouTube)` / `no music, SFX only`. Maps to `music.meme_bed` = `"tiktok"` / `"all"` / `"off"`. Also ask when a project turns out to have its own music: keep it, or mute it under the meme bed?
+10. **Music** (header "Music"): `TikTok: meme-music bed + trending sound in-app, YouTube: product music or none (Recommended)` / `burn in meme music everywhere (Content ID risk on YouTube)` / `no music, SFX only`. Maps to `music.meme_bed` = `"tiktok"` / `"all"` / `"off"`. Follow with: `ask me about music each batch (Recommended)` / `ask once and reuse` / `never ask, use the defaults` -> `music.ask` = `"each-batch"` / `"once"` / `"never"`. Also ask when a project turns out to have its own music: keep it, or mute it under the meme bed?
 11. **Where to write** (header "Output"): `this folder (Recommended)` / `another drive (tell me the path)`. If doctor showed low disk, recommend another drive first.
 12. **Shorthand file location** (header "Shorthand"): `temp/<project>/ (Recommended, repo untouched)` / `in each repo as .project-shorthand.txt` (handy if the user commits it).
 

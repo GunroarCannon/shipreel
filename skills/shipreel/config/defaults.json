@@ -33,6 +33,7 @@
   "music": {
     "tiktok": "in-app",
     "meme_bed": "tiktok",
+    "ask": "each-batch",
     "meme_bed_vol": 0.14,
     "youtube": "library-or-product",
     "product_music_policy": "keep-if-good"

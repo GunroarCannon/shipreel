@@ -7,7 +7,7 @@ Captions that look like TikTok's own text tools get read; heavy, glowing, clashi
 1. **Weight and size**: semibold, not black. About 7 to 8% of the frame width (`pop` is 82 px on a 1080 frame). Two lines max, 3 to 7 words per line, centred, balanced lines. If it needs three lines, cut words.
 2. **Outline**: thin and crisp (about 5 px at 1080), pure black, no glow, no blurry shadow. The outline carries legibility, so don't thicken it to fake contrast.
 3. **Colour**: white by default. **One** accent colour per caption: yellow (`#FFE600`). Highlight the single word or line that matters (`"it took *3 rewrites*"`, or a second line `\n*#10: 4.2 million views*`). Never a rainbow, never two accents, never pink/green/cyan text over footage of the same hue.
-4. **Boxes**: on busy, detailed or mid-tone footage use `label` (black text, white box) or the `box` caption style. Boxes stay readable on anything; outlined text doesn't.
+4. **Boxes**: on busy, detailed or mid-tone footage use `label` (black text, white box) or the `box` caption style. Boxes stay readable on anything; outlined text doesn't. Boxes are drawn as rounded rectangles, one per line (like TikTok's own), never square.
 5. **Placement**: the middle-to-lower third, above the bottom UI. Don't sit on the subject or the thing the caption names; move with `x,y` or pick a quieter region. A header (`header`) and a `hook` never share a spot (the hook drops under the header automatically).
 6. **One thing at a time**: don't show two captions of the same style at once. Stack lines in one caption instead (`check` flags overlaps).
 7. **Mixed case** reads human. All caps only for presets that are built for it (`hormozi`, `meme`, `comic`, `cinema`).

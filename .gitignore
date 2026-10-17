@@ -23,3 +23,7 @@ Thumbs.db
 
 # built locally from Buzzer.cs on first use (no binaries in the repo)
 skills/shipreel/tools/buzzer/buzzer.exe
+
+# music folder the user added (copyrighted soundtracks) and its local-only index
+skills/shipreel/assets/music/meme-music/
+skills/shipreel/assets/index.local.json

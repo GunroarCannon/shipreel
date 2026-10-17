@@ -8,7 +8,7 @@
   python assets.py sheet --type image --mood smug    # contact sheet jpg for a quick visual pick
   python assets.py vocab                             # moods/themes in use with counts
 """
-import argparse, os, shutil, sys
+import argparse, os, re, shutil, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import ASSETS, load_index, save_index, out, die, slug, run, wpath, resolve_asset
 
@@ -31,7 +31,7 @@ def matches(a, args):
         if t not in a.get("themes", []):
             return False
     if args.q:
-        hay = " ".join([a["id"], a.get("text", ""), " ".join(a.get("themes", [])), " ".join(a.get("moods", []))]).lower()
+        hay = " ".join([a["id"], a.get("text", ""), a.get("source", ""), " ".join(a.get("themes", [])), " ".join(a.get("moods", []))]).lower()
         if not all(w in hay for w in args.q.lower().split()):
             return False
     return True
@@ -39,8 +39,13 @@ def matches(a, args):
 
 def cmd_find(args):
     rows = [a for a in load_index()["assets"] if matches(a, args)]
+    if getattr(args, "yt_safe", False):
+        rows = [a for a in rows if a.get("yt") in ("ok", "credit")]
+    rows = [a for a in rows if os.path.exists(os.path.join(ASSETS, a["path"]))]  # an entry whose file isn't on this machine is not usable
     for a in rows[: args.limit]:
         extra = f" | {a['dur']}s" if a.get("dur") else ""
+        if a["type"] == "music" and a.get("yt"):
+            extra += f" | yt:{a['yt']}"
         txt = f" | \"{a['text']}\"" if a.get("text") else ""
         print(f"{a['id']} | {','.join(a.get('moods', []))} | {','.join(a.get('themes', []))}{extra}{txt}")
     if len(rows) > args.limit:
@@ -141,6 +146,96 @@ def cmd_vocab(args):
     print("themes: " + " ".join(f"{k}:{v}" for k, v in t.most_common(60)))
 
 
+# ---- bulk-index a folder of tracks (music the user dropped in) -------------------------------------------------
+# keyword -> (moods, themes). First match adds; all matches are merged.
+TAG_RULES = [
+    (("comedy", "cartoon", "curb your", "cinema sins", "clowning", "pizzicato", "spanish flea", "tiptoes", "workaday", "gaiety", "spongebob",
+      "silly", "fluffing", "monkeys", "weasel", "marty", "groose", "frolic"), ("laughing,chaos", "funny,fail,punchline")),
+    (("sneaky", "hitman", "investigations", "scheming", "tiptoe"), ("sus,nervous", "bug,weird-behavior,plot-twist")),
+    (("dramatic", "pursuit", "strategy", "ghostpocalypse", "battle", "epic", "mountain king", "legionnaire", "hidden masters", "dragon castle",
+      "hopes and dreams", "megalovania", "run, jump", "athletic", "hurry up", "final battle", "melty molten"), ("hype,determined", "escalation,boss,showcase")),
+    (("sad", "emotional", "piano"), ("sad", "ending,cope,emotional")),
+    (("wii", "mii", "animal crossing", "delfino", "donk city", "mario", "kirby", "zelda", "yoshi", "crash bandicoot", "smash bros", "homebrew",
+      "super mario", "paint"), ("nostalgic,wholesome", "nostalgia,devlog,showcase")),
+    (("elevator", "biscuit", "bread", "lukrembo", "lofi", "brain trust", "hej", "laureate", "travis", "rude prices", "in a mix", "damaged coda",
+      "retrofuture", "minoru", "boulangerie", "workaday", "welcome to the party", "candy mountain"), ("chill", "late-night,coding,waiting,devlog")),
+    (("otis mcdonald", "dutty moonshine", "everybody", "tango", "darix", "mighty fine", "not for nothing", "scarlet fire", "trap", "cantina", "sleigh bells"),
+     ("smug,hype", "flex,funny,showcase")),
+]
+NOISE = re.compile(r"\s*[-–]?\s*(vanoss gaming |gaming |comedy |tgfbro |royalty free )?background music\s*(\(hd\))?\s*(\(\s*\d+kbps\s*\))?|\(hd\)|\(\s*\d+kbps\s*\)|\[ost\]|\[non copyrighted music\]", re.I)
+
+
+def clean_title(fn):
+    t = os.path.splitext(fn)[0]
+    t = NOISE.sub("", t).strip(" -_")
+    return re.sub(r"\s+", " ", t) or os.path.splitext(fn)[0]
+
+
+def guess_tags(name):
+    n = name.lower()
+    moods, themes = [], []
+    for keys, (m, t) in TAG_RULES:
+        if any(k in n for k in keys):
+            moods += [x for x in m.split(",") if x not in moods]
+            themes += [x for x in t.split(",") if x not in themes]
+    return moods or ["chill"], themes or ["devlog"]
+
+
+def guess_license(name):
+    n = name.lower()
+    if "macleod" in n or "mcleod" in n:
+        return "credit", "CC BY 4.0: credit Kevin MacLeod (incompetech.com)"
+    if "scott buckley" in n:
+        return "credit", "CC BY 4.0: credit Scott Buckley (scottbuckley.com.au)"
+    if "non copyrighted" in n or "copyright free" in n:
+        return "ok", "labelled non-copyrighted by the uploader (verify before YouTube)"
+    if "makai symphony" in n:
+        return "credit", "free to use with credit (Makai Symphony)"
+    return "risky", "copyrighted or unknown third-party music: fine as a quiet TikTok bed, Content ID risk on YouTube"
+
+
+def cmd_index_dir(args):
+    """Index every audio file in a folder under assets/ (or an absolute path) as music, guessing moods/themes/licence from the file name."""
+    from common import ffprobe
+    root = args.dir if os.path.isabs(args.dir) else os.path.join(ASSETS, args.dir)
+    if not os.path.isdir(root):
+        die("folder not found", dir=root)
+    idx = load_index()
+    known = {a["path"].replace("\\", "/") for a in idx["assets"]}
+    ids = {a["id"] for a in idx["assets"]}
+    added = []
+    for fn in sorted(os.listdir(root)):
+        if os.path.splitext(fn)[1].lower() not in (".mp3", ".ogg", ".wav", ".m4a"):
+            continue
+        rel = os.path.relpath(os.path.join(root, fn), ASSETS).replace("\\", "/")
+        if rel in known:
+            continue
+        title = clean_title(fn)
+        aid = f"{PREFIX[args.type]}:{slug(title)}"
+        n = 2
+        while aid in ids:
+            aid = f"{PREFIX[args.type]}:{slug(title)}-{n}"; n += 1
+        ids.add(aid)
+        moods, themes = guess_tags(fn)
+        yt, lic = guess_license(fn)
+        try:
+            dur = round(ffprobe(os.path.join(root, fn))["dur"], 1)
+        except Exception:
+            dur = None
+        entry = {"id": aid, "type": args.type, "path": rel, "moods": moods, "themes": themes, "text": title, "rating": "clean",
+                 "yt": yt, "license": lic, "source": args.source or os.path.basename(root)}
+        if dur:
+            entry["dur"] = dur
+        if args.local:
+            entry["local"] = True
+        idx["assets"].append(entry)
+        added.append(entry)
+    save_index(idx)
+    for e in added:
+        print(f"{e['id']} | {','.join(e['moods'])} | {','.join(e['themes'])} | {e.get('dur', '?')}s | yt:{e['yt']}")
+    print(f"indexed {len(added)} new in {args.dir}" + (" (local index, not committed)" if args.local else ""))
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sp = ap.add_subparsers(dest="cmd", required=True)
@@ -148,6 +243,7 @@ def main():
         p.add_argument("--type", choices=list(TYPE_DIR)); p.add_argument("--mood", action="append"); p.add_argument("--theme", action="append")
         p.add_argument("--q"); p.add_argument("--clean", action="store_true", help="only rating=clean")
         p.add_argument("--all-ratings", action="store_true", help="include nsfw-flagged"); p.add_argument("--limit", type=int, default=12)
+        p.add_argument("--yt-safe", action="store_true", help="music only: tracks cleared for YouTube (yt:ok or yt:credit)")
     p = sp.add_parser("find"); filt(p); p.set_defaults(f=cmd_find)
     p = sp.add_parser("get"); p.add_argument("id"); p.set_defaults(f=cmd_get)
     p = sp.add_parser("add"); p.add_argument("file"); p.add_argument("--type", required=True, choices=list(TYPE_DIR))
@@ -155,6 +251,10 @@ def main():
     p.add_argument("--rating", default="clean", choices=["clean", "mild", "nsfw"]); p.add_argument("--source"); p.add_argument("--move", action="store_true")
     p.set_defaults(f=cmd_add)
     p = sp.add_parser("scan"); p.set_defaults(f=cmd_scan)
+    p = sp.add_parser("index-dir", help="bulk-index a folder of audio files (guesses moods/themes/licence from names)")
+    p.add_argument("dir"); p.add_argument("--type", default="music", choices=["music", "sfx"]); p.add_argument("--local", action="store_true",
+                   help="keep these entries in assets/index.local.json (gitignored) instead of the shared index"); p.add_argument("--source")
+    p.set_defaults(f=cmd_index_dir)
     p = sp.add_parser("sheet"); filt(p); p.add_argument("--dir"); p.add_argument("--offset", type=int, default=0); p.add_argument("--out"); p.set_defaults(f=cmd_sheet)
     p = sp.add_parser("vocab"); p.add_argument("--type"); p.set_defaults(f=cmd_vocab)
     a = ap.parse_args()

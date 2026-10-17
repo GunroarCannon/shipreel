@@ -16,6 +16,8 @@ A wrong guess costs more than a question: a batch of videos filmed from the wron
 
 Never silently pick the easy path. A "faked" or "assumed" step that the user wasn't told about is the failure this protocol exists to stop.
 
+Always ask (at any ask level except `config.music.ask = never`): **music for the TikTok batch** (`music-audio.md`, section 00).
+
 Also ask when: a project has its own music and the licence or intent is unclear (keep it, mute it under a meme bed, or drop the bed?).
 
 ## Ask level (`config.ask.level`, set in the questionnaire)

@@ -1,12 +1,13 @@
-// buzzer.exe - flash a red border around every screen + play a sound, then exit.
+// buzzer.exe - flash a rounded border around every screen + play a sound, then exit.
 // Click-through, never steals focus. Build: powershell -File build.ps1 (uses the csc that ships with Windows).
 //
 //   buzzer.exe                      2s red flash + buzzer.mp3/wav next to the exe (or system sound)
 //   buzzer.exe -t 5 -m "Need your input"   5 seconds, with a message banner
 //   buzzer.exe -s none | beep | C:\path\sound.mp3     sound choice
-//   buzzer.exe -c orange -w 16 -f 3        color, border width px, flashes per second
+//   buzzer.exe -c "#FFC107" -w 16 -f 3     color (name or #RRGGBB), border width px, flashes per second
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Media;
 using System.Runtime.InteropServices;
@@ -37,19 +38,30 @@ class BorderForm : Form {
             return cp;
         }
     }
+    static GraphicsPath Round(RectangleF r, float rad) {
+        GraphicsPath p = new GraphicsPath(); rad = Math.Max(0.5f, Math.Min(rad, Math.Min(r.Width, r.Height) / 2f)); float d = rad * 2;
+        p.AddArc(r.X, r.Y, d, d, 180, 90); p.AddArc(r.Right - d, r.Y, d, d, 270, 90);
+        p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90); p.AddArc(r.X, r.Bottom - d, d, d, 90, 90);
+        p.CloseFigure(); return p;
+    }
     protected override void OnPaint(PaintEventArgs e) {
         if (!On) return;
         Graphics g = e.Graphics; int w = ClientSize.Width, h = ClientSize.Height;
-        using (SolidBrush b = new SolidBrush(color)) {
-            g.FillRectangle(b, 0, 0, w, border); g.FillRectangle(b, 0, h - border, w, border);
-            g.FillRectangle(b, 0, 0, border, h); g.FillRectangle(b, w - border, 0, border, h);
+        // The window is colour-keyed (no per-pixel alpha), so no antialiasing: it would leave magenta fringes.
+        float outer = 34, inner = Math.Max(4, outer - border);
+        using (GraphicsPath ring = new GraphicsPath(FillMode.Alternate)) {
+            ring.AddPath(Round(new RectangleF(0, 0, w, h), outer), false);
+            ring.AddPath(Round(new RectangleF(border, border, w - 2 * border, h - 2 * border), inner), false);
+            using (SolidBrush b = new SolidBrush(color)) g.FillPath(b, ring);
         }
         if (!string.IsNullOrEmpty(message)) {
             using (Font f = new Font("Segoe UI", 20, FontStyle.Bold)) {
                 SizeF sz = g.MeasureString(message, f);
                 float x = (w - sz.Width) / 2f, y = border + 18;
-                using (SolidBrush bg = new SolidBrush(color)) g.FillRectangle(bg, x - 18, y - 8, sz.Width + 36, sz.Height + 16);
-                g.DrawString(message, f, Brushes.White, x, y);
+                using (GraphicsPath pill = Round(new RectangleF(x - 22, y - 10, sz.Width + 44, sz.Height + 20), (sz.Height + 20) / 2f))
+                using (SolidBrush bg = new SolidBrush(color)) g.FillPath(bg, pill);
+                // dark text: white on amber/orange is hard to read
+                using (SolidBrush fg = new SolidBrush(Color.FromArgb(38, 25, 10))) g.DrawString(message, f, fg, x, y);
             }
         }
     }
@@ -58,7 +70,7 @@ class BorderForm : Form {
 static class Program {
     [STAThread]
     static int Main(string[] args) {
-        double seconds = 2; string msg = null, sound = null, colorName = "red"; int width = 14; double hz = 4;
+        double seconds = 2; string msg = null, sound = null, colorName = "#FFC107"; int width = 14; double hz = 4;
         for (int i = 0; i < args.Length; i++) {
             string a = args[i]; string v = i + 1 < args.Length ? args[i + 1] : null;
             if ((a == "-t" || a == "--time") && v != null) { seconds = double.Parse(v, System.Globalization.CultureInfo.InvariantCulture); i++; }
@@ -75,7 +87,9 @@ static class Program {
         }
         try { Native.SetProcessDPIAware(); } catch { }
         Application.EnableVisualStyles();
-        Color color = Color.FromName(colorName); if (!color.IsKnownColor) color = Color.Red;
+        Color color;
+        try { color = colorName.StartsWith("#") ? ColorTranslator.FromHtml(colorName) : Color.FromName(colorName); } catch { color = Color.Red; }
+        if (!colorName.StartsWith("#") && !color.IsKnownColor) color = Color.Red;
         if (color.ToArgb() == Color.Magenta.ToArgb()) color = Color.FromArgb(255, 0, 254);
 
         // sound

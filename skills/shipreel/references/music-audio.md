@@ -1,10 +1,34 @@
 # Music and audio
 
+## 00. Ask the user about music (once per batch)
+
+Music is a taste and risk call, so the director **asks** before the writer starts, not the model alone. `config.music.ask`: `"each-batch"` (default: ask at the start of every project's batch), `"once"` (ask the first time, reuse the answer), `"never"` (use the defaults: bed on ~40%, YouTube-safe only). Skip the question when `music.meme_bed` is `"off"`. Buzz first, then one AskUserQuestion call with up to 3 questions. Fill the **recommendation and the reasons from this project**: the shorthand's `product_audio`, how many of the planned videos are jokes/fails/reveals, and whether the project has its own music. Don't ask the bare question without a recommendation.
+
+**Q1: Music on the TikToks** (header "Music"). Option text must carry the tradeoff:
+
+| option | what you get | tradeoff |
+|---|---|---|
+| `Meme bed on the ones it fits (Recommended)` | about 40% of the batch (jokes, fails, reveals, montages) get a quiet meme track picked per beat; the rest stay SFX + product sound | adds personality and holds muted viewers; burned-in copyrighted music can get muted by TikTok, and you can't swap it later without a re-render |
+| `Meme bed on every TikTok` | consistent sound across the batch | repeats fast, more videos at risk of mute/claims, drowns the project's own audio (it's muted under the bed) |
+| `No bed: SFX only, I'll add a trending sound in-app` | best chance at TikTok's trending-sound reach, no copyright risk | silent-ish if you forget to add one; the textless re-cut has no music either |
+| `Keep the project's own music, no bed` (only if the project has music) | your own soundtrack, safe on every platform | menu loops and quiet tracks can be weak; no joke timing from music |
+
+**Q2: Where the tracks come from** (ask only when Q1 is a bed). Say what's available and the catch:
+- `Meme loops (myinstants: sneaky snitch, crab rave, careless whisper...)`: short, instantly recognisable; copyrighted, TikTok only.
+- `Your meme-music folder (81 tracks: Nintendo/Wii, Kevin MacLeod, comedy, lofi)`: longer, more variety; mostly copyrighted game/media music, TikTok only. The ones marked `yt:credit` (Kevin MacLeod, Scott Buckley) are fine anywhere with a credit line.
+- `YouTube-safe only (--yt-safe)`: cleared tracks, credit in the description; less meme-y.
+
+**Q3: The project's own music** (ask only if the scout or `probe` found music and the user hasn't said): `mute it under the bed (Recommended)` / `keep it, add no bed` / `mute it, no bed`. Render mutes by default when a bed is set.
+
+What works best (put this in the question or the recommendation): quiet (0.10 to 0.18) so captions and SFX stay loudest; match the track to the beat (sneaky for bugs, careless-whisper for fails, crab-rave for flexes, calm Wii/lofi for devlogs); one bed per video; start the track at its best bar with `start`; no more than 3 of 10 with the same track; stay off scenes where the product's own audio is the point.
+
+After the answer: `clip.py state note "music: <choice>, source <x>, project music <mute|keep>"` and pass `music_policy: {share, source, project_music}` in the writer's slate. Don't re-ask for the same batch.
+
 ## 0. Decide music for every video (don't skip this)
 
 Every plan answers one question per video: **what is the music?** Write it in the plan (`music` set, or `"music": null` with a reason in the video's note). Leaving it blank by default is the failure this section exists to prevent.
 
-- **TikTok**: use a meme-music bed on about `mix.music_share_short` (40%) of videos, more when the video is a joke, a fail, a reveal or a montage. See "Meme music bed" below.
+- **TikTok**: follow the user's answer to the music question above (`music_policy`). With no answer, a meme-music bed on about `mix.music_share_short` (40%) of videos, more for jokes, fails, reveals and montages. See "Meme music bed" below.
 - **YouTube**: product music or library tracks only (section 3).
 - **Skip music** only when the product's own music is the point, a punchline needs silence, or `music.meme_bed` is `"off"`. Say which in the notes.
 
@@ -35,7 +59,7 @@ If the plan's `music` is a meme track, also say so in `sound_note` ("burned-in: 
 
 ### Meme music bed
 
-Library: `python S/scripts/assets.py find --type music [--mood sus] [--theme bug]` (`assets.py vocab` lists moods and themes). The starter set is meme-music loops from myinstants: sneaky-snitch, crab-rave, careless-whisper, megalovania, wii-shop-channel, mii-channel, rickroll, running-in-the-90s, gas-gas-gas, benny-hill, elevator-music, mission-impossible, pink-panther, phonk-yara, cool-chill-lofi, minecraft-theme, curb-your-enthusiasm, hampster-dance, nyan-cat.
+Library: `python S/scripts/assets.py find --type music [--mood sus] [--theme bug] [--yt-safe] [--q myinstants|meme-music]` (`assets.py vocab --type music` lists moods and themes; each row shows `yt:ok|credit|risky`). Two sources: the myinstants loops below, and the user's `assets/music/meme-music/` folder (81 longer tracks, indexed in the local-only `assets/index.local.json`; add more folders with `assets.py index-dir <folder> --local`). Tracks marked `yt:credit` need a credit line in the description (see their `license`). The starter set is meme-music loops from myinstants: sneaky-snitch, crab-rave, careless-whisper, megalovania, wii-shop-channel, mii-channel, rickroll, running-in-the-90s, gas-gas-gas, benny-hill, elevator-music, mission-impossible, pink-panther, phonk-yara, cool-chill-lofi, minecraft-theme, curb-your-enthusiasm, hampster-dance, nyan-cat.
 
 **Pick by the beat, not at random**:
 

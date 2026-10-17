@@ -94,19 +94,36 @@ def ffprobe(path):
     return info
 
 
-def load_index():
-    if not os.path.exists(INDEX):
+LOCAL_INDEX = os.path.join(ASSETS, "index.local.json")  # gitignored: assets that live only on this machine (e.g. a music folder the user added)
+
+
+def _read_index(path):
+    if not os.path.exists(path):
         return {"version": 1, "assets": []}
-    with open(INDEX, encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
+def load_index():
+    """Shared index + this machine's local index. Entries from the local file carry "local": true."""
+    idx = _read_index(INDEX)
+    have = {a["id"] for a in idx["assets"]}
+    for a in _read_index(LOCAL_INDEX)["assets"]:
+        if a["id"] not in have:
+            idx["assets"].append({**a, "local": True})
+    return idx
+
+
 def save_index(idx):
-    idx["assets"].sort(key=lambda a: a["id"])
-    tmp = INDEX + ".tmp"
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(idx, f, indent=1, ensure_ascii=False)
-    os.replace(tmp, INDEX)
+    shared = sorted((a for a in idx["assets"] if not a.get("local")), key=lambda a: a["id"])
+    local = sorted((a for a in idx["assets"] if a.get("local")), key=lambda a: a["id"])
+    for path, rows in ((INDEX, shared), (LOCAL_INDEX, local)):
+        if not rows and path == LOCAL_INDEX and not os.path.exists(path):
+            continue
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump({**{k: v for k, v in idx.items() if k != "assets"}, "assets": rows}, f, indent=1, ensure_ascii=False)
+        os.replace(tmp, path)
 
 
 def resolve_asset(ref):

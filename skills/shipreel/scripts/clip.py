@@ -500,16 +500,68 @@ def ts(t):
     return f"{h}:{m:02d}:{s:05.2f}"
 
 
+_FONT_FILES = {}
+_PIL_FONTS = {}
+
+
+def pil_font(name, px):
+    """PIL font for an ASS font family name (to measure text for rounded caption boxes). None if it can't be found."""
+    key = (name, px)
+    if key in _PIL_FONTS:
+        return _PIL_FONTS[key]
+    f = None
+    try:
+        from PIL import ImageFont
+        if not _FONT_FILES:
+            for fn in os.listdir(FONTS):
+                if fn.lower().endswith((".ttf", ".otf")):
+                    try:
+                        nm = " ".join(x for x in ImageFont.truetype(os.path.join(FONTS, fn), 20).getname() if x != "Regular")
+                        _FONT_FILES[nm.lower()] = os.path.join(FONTS, fn)
+                        _FONT_FILES.setdefault(os.path.splitext(fn)[0].replace("-", " ").lower(), os.path.join(FONTS, fn))
+                    except Exception:
+                        pass
+        fp = _FONT_FILES.get(name.lower())
+        f = ImageFont.truetype(fp, px) if fp else None
+    except Exception:
+        f = None
+    _PIL_FONTS[key] = f
+    return f
+
+
+def text_metrics(name, px, txt):
+    """(width, line height) in px. Falls back to an estimate when the font can't be loaded."""
+    f = pil_font(name, px)
+    if not f:
+        return len(txt) * px * 0.55, px * 1.25
+    asc, desc = f.getmetrics()
+    return f.getlength(txt), asc + desc
+
+
+def round_rect(w, h, r):
+    """ASS drawing path of a rounded rectangle w x h with corner radius r (top-left at 0,0)."""
+    w, h = int(round(w)), int(round(h))
+    r = int(max(1, min(r, h // 2, w // 2)))
+    c = int(round(r * 0.4477))  # r * (1 - 0.5523): bezier control offset for a quarter circle
+    return (f"m {r} 0 l {w - r} 0 b {w - c} 0 {w} {c} {w} {r} l {w} {h - r} b {w} {h - c} {w - c} {h} {w - r} {h} "
+            f"l {r} {h} b {c} {h} 0 {h - c} 0 {h - r} l 0 {r} b 0 {c} {c} 0 {r} 0")
+
+
 def build_ass(v, W, H, total, path):
     k = min(W, H) / 1080
     portrait = H > W
     preset = PRESETS.get(v.get("style", "pop"), PRESETS["pop"])
     styles, events = [], []
 
+    boxmeta = {}
+
     def style(name, font, size, fill, outline, ol, sh, align, ml, mr, mv, box=False, back="black", back_alpha=0):
-        bs = 3 if box else 1
-        oc = ass_color(back if box else outline, back_alpha if box else 0)
-        styles.append(f"Style: {name},{font},{int(size * k)},{ass_color(fill)},{ass_color(fill)},{oc},{ass_color(back, 0x60)},0,0,0,0,100,100,0,0,{bs},{max(1, int(ol * k))},{int(sh * k)},{align},{int(ml)},{int(mr)},{int(mv)},1")
+        # Box styles are drawn as rounded rectangles under the text (libass BorderStyle 3 can only make square boxes)
+        if box:
+            boxmeta[name] = {"font": font, "px": int(size * k), "al": align, "ml": ml, "mr": mr, "mv": mv, "back": back, "ba": back_alpha}
+            ol, sh = 0, 0
+        oc = ass_color(outline)
+        styles.append(f"Style: {name},{font},{int(size * k)},{ass_color(fill)},{ass_color(fill)},{oc},{ass_color(back, 0x60)},0,0,0,0,100,100,0,0,1,{0 if box else max(1, int(ol * k))},{int(sh * k)},{align},{int(ml)},{int(mr)},{int(mv)},1")
 
     P = preset
     side = 0.08 * W
@@ -539,7 +591,77 @@ def build_ass(v, W, H, total, path):
         """*word* -> accent colour, then back to the style colour (a reset would also cancel the pop animation)."""
         return re.sub(r"\*([^*]+)\*", lambda m: "{\\1c" + hic + "}" + m.group(1) + "{\\1c" + back + "}", txt)
 
+    def add_box(t0, t1, st, text, tags):
+        """Rounded caption box: one rounded rectangle per text line (layer 0) under the text (layer 1), like TikTok's background look."""
+        m = boxmeta[st]
+        font, px, al = m["font"], m["px"], m["al"]
+        pm = re.search(r"\\pos\((-?\d+),(-?\d+)\)", tags)
+        inner = "".join(re.findall(r"\{([^}]*)\}", re.sub(r"\{\\an5\\pos\([^)]*\)\}", "", tags)))
+        box_inner = re.sub(r"\\c&H[0-9A-Fa-f]+&", "", inner)
+        pad_x = 0.34 * px
+        maxw = W - m["ml"] - m["mr"] - 2 * pad_x if not pm else W * 0.84 - 2 * pad_x
+        # wrap on the visible text, keep override tags (accent colours) attached to their words
+        lines = []
+        for hard in text.split("\\N"):
+            toks = re.split(r"(\{[^}]*\})", hard)
+            plain = "".join(t for t in toks if not t.startswith("{")).replace("\\\\", "\\")
+            words, cur, brk = plain.split(" "), "", set()
+            pos_i = 0
+            for wi, w in enumerate(words):
+                trial = (cur + " " + w) if cur else w
+                if cur and text_metrics(font, px, trial)[0] > maxw:
+                    brk.add(pos_i - 1)  # index of the space before this word
+                    cur = w
+                else:
+                    cur = trial
+                pos_i += len(w) + 1
+            out_l, line, idx, carry = [], "", 0, ""
+            for t in toks:
+                if t.startswith("{"):
+                    line += t
+                    if re.search(r"\\1?c&H", t) or "\\alpha" in t:
+                        carry = t
+                    continue
+                for ch in t:
+                    if idx in brk and ch == " ":
+                        out_l.append(line); line = carry
+                    else:
+                        line += ch
+                    idx += 1
+            out_l.append(line)
+            lines += out_l
+        plains = [re.sub(r"\{[^}]*\}", "", ln).replace("\\\\", "\\") for ln in lines]
+        n = len(lines)
+        widths = [text_metrics(font, px, pl)[0] for pl in plains]
+        ph = text_metrics(font, px, "Hg")[1]
+        rad = 0.30 * ph
+        if pm:
+            cx, y0, h_al = int(pm.group(1)), int(pm.group(2)) - n * ph / 2, 2
+        else:
+            h_al = {1: 1, 2: 2, 0: 3}[al % 3]  # 1 left, 2 centre, 3 right
+            cx = (m["ml"] + W - m["mr"]) / 2 if h_al == 2 else (m["ml"] if h_al == 1 else W - m["mr"])
+            if al in (7, 8, 9):
+                y0 = m["mv"]
+            elif al in (4, 5, 6):
+                y0 = (H - n * ph) / 2 + m["mv"]
+            else:
+                y0 = H - m["mv"] - n * ph
+        an_t = {1: 4, 2: 5, 3: 6}[h_al]
+        back_rgb = ass_color(m["back"])[4:]
+        for i, (ln, pl, lw) in enumerate(zip(lines, plains, widths)):
+            if not pl.strip():
+                continue
+            cy = int(y0 + (i + 0.5) * ph)
+            rw = lw + 2 * pad_x
+            rx = cx - (pad_x if h_al == 1 else -pad_x if h_al == 3 else 0)
+            rect = (f"{{\\an{an_t}\\pos({int(rx)},{cy})\\bord0\\shad0\\1c&H{back_rgb}&\\1a&H{m['ba']:02X}&{box_inner}\\p1}}"
+                    f"{round_rect(rw, ph, rad)}{{\\p0}}")
+            events.append(f"Dialogue: 0,{ts(t0)},{ts(t1)},{st},,0,0,0,,{rect}")
+            events.append(f"Dialogue: 1,{ts(t0)},{ts(t1)},{st},,0,0,0,,{{\\an{an_t}\\pos({int(cx)},{cy}){inner}}}{ln}")
+
     def add(t0, t1, st, text, tags=""):
+        if st in boxmeta:
+            return add_box(t0, t1, st, text, tags)
         events.append(f"Dialogue: 0,{ts(t0)},{ts(t1)},{st},,0,0,0,,{tags}{text}")
 
     POP = "{\\fscx72\\fscy72\\t(0,90,\\fscx106\\fscy106)\\t(90,150,\\fscx100\\fscy100)}"

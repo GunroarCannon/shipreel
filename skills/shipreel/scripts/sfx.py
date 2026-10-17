@@ -67,6 +67,7 @@ def fetch(url, name, kind, title, moods, themes, rating="clean"):
              "themes": [t for t in themes.split(",") if t], "text": title, "rating": rating, "dur": dur, "source": url}
     if kind == "music":
         entry["license"] = "meme/copyrighted (myinstants): fine as a quiet TikTok bed, Content-ID risk on YouTube"
+        entry["yt"] = "risky"
     idx["assets"].append(entry)
     save_index(idx)
     return {"ok": True, "id": aid, "dur": dur, "kb": len(data) // 1024}
