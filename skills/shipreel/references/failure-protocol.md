@@ -10,6 +10,8 @@ python S/scripts/buzz.py "shipreel: <8 words max, what's needed>" -t 3
 
 Windows: a flashing red border on every screen + a sound + a banner (`tools/buzzer/buzzer.exe`; non-blocking, click-through). macOS and Linux get a notification + a sound. Set `SHIPREEL_BUZZ=0` to silence it. Buzz once per question, not per retry.
 
+**Any question to the user buzzes first**, not only failures: the questionnaire, mid-run decisions, env values, the effort choice. Run buzz.py right before the AskUserQuestion call, with the same message shape. Never buzz for progress updates or finished work.
+
 ## 2. Ask (AskUserQuestion, one question, these options)
 
 Header: the project name. Question: what failed, in one sentence, plus the last error line (no secrets). Options:

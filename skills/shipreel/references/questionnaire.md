@@ -1,6 +1,6 @@
 # First-run questionnaire
 
-Goal: one sitting of questions, then an unattended run. Use AskUserQuestion (max 4 questions per call, so 3 rounds). Put the recommended option first. Skip anything the user already answered in their request. Write the answers to `<workspace>/shipreel.config.json`, which uses the same keys as `config/defaults.json` and only needs the overrides.
+Goal: one sitting of questions, then an unattended run. Before each round, buzz the user: `python S/scripts/buzz.py "shipreel: answer 3 quick questions" -t 2`. Use AskUserQuestion (max 4 questions per call, so 3 rounds). Put the recommended option first. Skip anything the user already answered in their request. Write the answers to `<workspace>/shipreel.config.json`, which uses the same keys as `config/defaults.json` and only needs the overrides.
 
 ## Round 1: cost and scope
 

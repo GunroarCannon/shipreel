@@ -53,6 +53,8 @@ Plans, the reasons behind them, and when to skip subagents: `references/model-ro
 - **Standalone videos.** Each one makes sense to a viewer who saw nothing else. Use series (`-part-N`) only when a story really needs it, and still stand alone.
 - **Faceless and voiceless.** No webcam, no TTS voice. On-screen text carries the story. Avoid low-effort and reused-content flags: `references/channel-rules.md`.
 - **Human copy.** Short, specific, lowercase-casual where it fits, no AI tells. Some clickbait (`config.mix.clickbait_share`), never a lie. `references/copy-rules.md`.
+- **Show what's talked about.** The video is voiceless, so every named thing in a caption (a feature, a bug, a number, a file, a screen) must be on screen while the caption plays. If the caption says "the boss has 3 phases", the clip shows the boss. Text with no matching footage gets cut or re-timed.
+- **Comparisons look different.** When a video compares versions or projects (then vs now, project A vs project B, old build vs new), the two sides must look visibly different: separate clips with distinct framing, a `bw`/`sepia` or colour difference, and a label on each side (`header`, `box` or a `hook`-style caption). Two near-identical screens side by side don't count as a comparison.
 - **Never edit the user's project.** Use env/CLI toggles, `--autoplay` scripts, URL params and git worktrees (`clip.py worktree`). Edits to the project only with `permissions.edit_project_files`, and keep them minimal and reversible.
 - **Never show secrets.** Check the shorthand's `never show` list. Blur them with `censor` overlays when they're on screen.
 - **Env values** the user pastes go into the env of one command only. Never into files, plans, logs, descriptions or summaries.
@@ -62,6 +64,8 @@ Plans, the reasons behind them, and when to skip subagents: `references/model-ro
 
 Exit code 3 / `NEED_ENV X` / missing tool / a recording that won't work → **buzz, then ask**:
 `python S/scripts/buzz.py "shipreel needs you: <short reason>"`, then AskUserQuestion with **skip / fix (effort estimate) / fake it / paste env var**. Keep working on other projects while waiting when you can. Full protocol: `references/failure-protocol.md`.
+
+**Every question to the user gets a buzz first**, including the questionnaire and mid-run questions: `python S/scripts/buzz.py "shipreel: <8 words, what you need>" -t 2`, then AskUserQuestion. One buzz per question. The buzz is the user's attention tool, not a sound in the video.
 
 ## Context
 

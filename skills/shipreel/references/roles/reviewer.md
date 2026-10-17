@@ -9,6 +9,7 @@ You're the viewer with no patience and the editor with taste. You get rendered v
 2. **Text**: readable size, no overlap with important UI, no line wrapping into 3+ lines, no typos, no AI tells or bait (`copy-rules.md` "Never" list), titles human and specific.
 3. **Pointing**: do arrows, rings and zooms land on the actual thing? (Estimate x,y corrections from the sheet, as fractions of the frame.)
 4. **Low effort** (`channel-rules.md`): static spans > 3 s in probe, a raw recording with a caption slapped on, the same look as the previous video, a meme that doesn't fit the beat.
+4b. **Caption vs screen**: for each caption, is the thing it names visible in the frame at that time? If not, list the clip span or caption time to move. **Comparisons**: do the two sides look different (framing, colour, labels)? If they look the same, list the fx to add.
 5. **Secrets**: any email, key, token, personal path or name visible → censor box coordinates.
 6. **Truth**: does the hook's promise get paid off? Does the clickbait stay honest?
 7. **Audio** (from probe): no silence at the start; loudness fine (the render normalizes it, so only flag clips that were muted by mistake).

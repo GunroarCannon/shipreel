@@ -7,6 +7,8 @@ Faceless dev channels work. Footage of a real product the user built is original
 - **Real footage of the user's own project** is the main content (≥60% of runtime). Memes, cards and stickers are seasoning.
 - **A distinct idea.** Different feature, angle, era or story from every other video of the same project. Same recording is OK, but use a different span or a different angle on it. The writer checks `ledger --titles` and `rec` usage.
 - **Visible editing**: cuts on beats, a zoom or crop on the point of interest, captions written for this video, at least one effect or overlay that serves the idea. Raw 30 s screen recording + caption = low effort.
+- **On screen when it's said.** Every named thing in a caption or header is visible in the frame while that caption is up. A caption about a bug with no bug on screen is a mismatch.
+- **Comparisons read as comparisons.** Two versions or projects side by side must look different: different framing or colour treatment (`bw`, `sepia`, `vhs`, `contrast`), and a label on each. Same-looking clips are a template.
 - **No dead air.** No frame frozen > 3 s unless intentional (`probe` → `static_spans`), no loading screens or blank pages (speed them up or cut them), no idle cursor.
 - **No watermark** from another app; no TikTok-downloaded clips re-uploaded to YouTube. The render's output is clean; keep it that way.
 - **Text carries it.** Voiceless means captions + header must tell the story muted. Don't use TTS voices (that's the most flagged faceless pattern) unless the user explicitly asks.
