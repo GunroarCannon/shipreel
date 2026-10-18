@@ -37,6 +37,7 @@ Check with `python skills/shipreel/scripts/clip.py doctor`.
 ### Bundled companions
 The writer uses these for extra depth, and they ship in `skills/`, so one install gets everything:
 - **viral-hooks, viral-captions-and-ctas, viral-tiktok-content, viral-youtube-shorts, viral-short-form-ideas**: from [vyralcontent/content-skills](https://github.com/vyralcontent/content-skills) (MIT, Copyright (c) 2026 Vyral). See `skills/viral-*/LICENSE`.
+- **humanizer**: a merge of two AI-writing editors, the Wikipedia "Signs of AI writing" humanizer (v2.1.1) and The Humanizer by Crazy Marketer (v2.4), with the second one's self-editing step removed. Both were supplied by the repo owner; check their upstream licences before redistributing. shipreel's writer and reviewer run it on every caption, title and description.
 - **tiktok-marketing**: from [sergebulaev/tiktok-skills](https://github.com/sergebulaev/tiktok-skills) (MIT, Copyright (c) 2026 Sergey Bulaev). See `skills/tiktok-marketing/LICENSE`.
 
 ## Use

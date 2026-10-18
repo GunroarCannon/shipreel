@@ -35,9 +35,23 @@ func _initialize() -> void:
 		scene = ProjectSettings.get_setting("application/run/main_scene", "")
 	events = data.get("events", []) if data is Dictionary else []
 	events.sort_custom(func(a, b): return float(a["t"]) < float(b["t"]))
+	_apply_resolution()
 	_load_autoloads()
 	if scene != "":
 		change_scene_to_file(scene)
+
+
+func _apply_resolution() -> void:
+	# Projects often pin window_width/height_override, which makes --resolution a no-op under Movie Maker.
+	# SHIPREEL_RES=WxH (set by clip.py --resolution) resizes the root window itself, so a portrait capture really is portrait.
+	var r := OS.get_environment("SHIPREEL_RES").split("x")
+	if r.size() != 2:
+		return
+	var size := Vector2i(int(r[0]), int(r[1]))
+	if size.x < 16 or size.y < 16:
+		return
+	root.size = size
+	DisplayServer.window_set_size(size)
 
 
 func _load_autoloads() -> void:

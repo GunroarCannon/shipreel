@@ -11,9 +11,9 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 | `title` | str | human title, it becomes the file name. See copy-rules |
 | `tags` | [str] | 3 to 5 niche hashtags without `#`. Also go in the file name |
 | `series` | {name, part} | optional → `name-part-N_title_#tags` |
-| `style` | caption preset | `pop` (default, TikTok Classic look) `label` (white box) `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
+| `style` | caption preset | `pop` (default, TikTok Classic look) `bubble` (rounded chunky mid-frame: the game-dev look) `chip` (small grey rounded box) `label` (white box) `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
 | `hook_type` | str | for the ledger: `contrarian`, `before-after`, `number`, `question`, `pov`, `fail`, `flex`, `tutorial`, `clickbait`... |
-| `header` | str or {text, t, until} | persistent white-box text at the top (TikTok's "persistent caption") |
+| `header` | str or {text, t, until} | persistent white-box text at the top (TikTok's "persistent caption"). Off by default: a project name boxed on every frame reads as a template |
 | `clips` | [clip] | in order. Total length = the sum |
 | `captions` | [caption] | burned in (not in the textless file) |
 | `overlays` | [overlay] | in the textless file too |
@@ -53,7 +53,7 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 {"t": 0, "d": 2.2, "text": "it took 3 rewrites", "style": "hook", "words": true, "per": 2}
 ```
 
-- `style`: `box` (black text on a white box, readable on anything), `plate` (white text on a dark plate), `hook` (big, top third), `cap` (default, lower-middle above the UI), `mid` (center), `callout` (yellow, center or `x,y`), `card`, `code` (mono box), `lower` (lower third, YouTube), `title` (big center), `meme-top`, `meme-bottom` (classic impact).
+- `style`: `chip` (small translucent rounded box, dark lowercase text, low in the frame: date tags and deadpan asides, works inside any preset), `box` (black text on a white box, readable on anything), `plate` (white text on a dark plate), `hook` (big, top third), `cap` (default, lower-middle above the UI), `mid` (center), `callout` (yellow, center or `x,y`), `card`, `code` (mono box), `lower` (lower third, YouTube), `title` (big center), `meme-top`, `meme-bottom` (classic impact).
 - Animation: default `pop` for hook/cap/mid/callout, `fade` for others; `"anim": "none"`.
 - Modes: `words: true` (2 to 3 word groups popping, `per`), `karaoke: true` (line stays, active word highlighted), `type: true` (typewriter).
 - `x`, `y` (position the center), `color`, `upper` (override the preset's uppercase), `hi` (accent colour for `*starred*` words), `contrast: false` (opt out of the auto-fix below).

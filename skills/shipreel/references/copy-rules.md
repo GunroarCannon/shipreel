@@ -1,6 +1,6 @@
 # Copy rules (titles, on-screen text, descriptions, hashtags)
 
-Why hooks, structure, pillars and sounds work on TikTok: `tiktok-strategy.md`.
+Why hooks, structure, pillars and sounds work on TikTok: `tiktok-strategy.md`. The full AI-pattern catalogue and the rewrite process live in the sibling `humanizer` skill (`skills/humanizer/`); the writer and reviewer run it on every plan.
 
 Distilled from the vendor skills `viral-hooks`, `viral-captions-and-ctas`, `viral-tiktok-content`, `viral-youtube-shorts`, `viral-short-form-ideas` and `tiktok-marketing` (humanizer and voice rules), adapted for faceless, voiceless dev content. These are patterns that tend to work, not guarantees.
 
@@ -24,6 +24,16 @@ Write like a dev texting a friend about their project. Not like a brand, not lik
 - Hype without proof: "insane", "mind-blowing", "you won't believe" (vague tease).
 - Greetings, intros, "welcome back", logo stings.
 - Emoji in burned-in text (stripped anyway). In descriptions: 0 to 2.
+
+## Would a stranger care? (the first test for every line)
+
+The viewer has never heard of the project and will scroll in two seconds. Every caption, title and description line must pass: **would someone who doesn't know me smile, wince, wonder or want to see what happens next?** If the answer is "only the developer would care", cut the line.
+
+Never put these on screen (they are real facts, but they are housekeeping): licences and attributions ("swapped the title font for a CC0 one"), renamed files, refactors, dependency or tooling changes, config, CI, tests passing, "cleaned up the code", internal module names, commit counts with no story attached. They belong in the repo, not in a video. `check` warns on the common ones (`insider:`).
+
+What does work, in order: a joke or deadpan aside about what's on screen; a relatable struggle ("i've been fixing this one bug for 3 days"); something surprising the game or app does by itself; a plain claim the footage proves in one glance ("the menu is a live battle"); a number that means something to a stranger (hours, deaths, rewrites, players), not a number only you track. Write the line you'd say to a friend watching over your shoulder, not the line you'd put in release notes.
+
+A video that has to explain a development detail to be interesting is the wrong video: pick another angle from the shorthand, or another feature.
 
 ## Hooks (first 1 to 3 s)
 

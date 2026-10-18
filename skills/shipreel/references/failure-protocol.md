@@ -8,7 +8,7 @@ A wrong guess costs more than a question: a batch of videos filmed from the wron
 - You can't get past a blocker (login, paywall, data you don't have, a tutorial that won't dismiss, an app that won't start).
 - You're about to **fake it**, skip a feature, drop a video, or substitute a different feature or angle than the slate.
 - A caption wants to name something that isn't on any recording and you'd have to guess, invent or re-time around it.
-- Two reasonable framings, angles or tones and you can't tell which the user would pick (portrait vs `blurpad`, serious vs jokey, which version counts as "old").
+- Two reasonable framings, angles or tones and you can't tell which the user would pick (portrait capture vs a tracked crop, serious vs jokey, which version counts as "old").
 - A claim in a title or caption (a count, a date, "first", "fastest") isn't backed by the shorthand or git history.
 - Something might be private (names, emails, keys, unreleased work) and the shorthand's `never show` list doesn't settle it.
 - The user's request has a gap you filled with an assumption. Say the assumption in the question and offer the alternative.

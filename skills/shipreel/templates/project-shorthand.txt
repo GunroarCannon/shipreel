@@ -19,7 +19,7 @@ build_needed: <yes/no + cost, e.g. "npm i ~300MB, skip: use live_url">
 toggles: <env flags/CLI args that change what shows, e.g. DEBUG_OVERLAY=0, ?demo=1, --skip-intro>  (claimed: the editor checks on screen)
 input: <how to drive it: keyboard WASD, mouse, touch, url params, autoplay scene>
 first_state: <what a fresh headless run shows before any input + what clears it, e.g. "title screen: click text=START; then tutorial card: click text=Skip">
-camera: <native size/orientation, camera modes, where the action sits on screen, e.g. "1280x720 landscape top-down, action spread wide: use blurpad">
+camera: <native size/orientation, camera modes, where the action sits on screen, e.g. "1280x720 landscape top-down, action spread wide: use a tracked cover crop">
 
 ## audio
 product_audio: <none | sfx only | music + sfx>   music_where: <menu only / always / level 2>

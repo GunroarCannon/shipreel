@@ -12,6 +12,8 @@ All bundled fonts are free to use in videos and to redistribute under their own 
 | BebasNeue-Regular.ttf | Bebas Neue (Dharma Type) | SIL OFL 1.1 |
 | JetBrainsMono-ExtraBold.ttf | JetBrains Mono (JetBrains) | SIL OFL 1.1 |
 | LuckiestGuy-Regular.ttf | Luckiest Guy (Astigmatic) | Apache License 2.0 |
+| Fredoka-Bold.ttf | Fredoka (Milena Brandao, Hafontia) | SIL OFL 1.1 |
+| Nunito-ExtraBold.ttf | Nunito (Vernon Adams, Cyreal, Jacques Le Bailly) | SIL OFL 1.1 |
 | PermanentMarker-Regular.ttf | Permanent Marker (Font Diner) | Apache License 2.0 |
 
-Montserrat, TikTok Sans and Poppins had their internal family names adjusted (e.g. "Montserrat Black") so libass can select each weight by name. Under the OFL that makes them modified versions; they keep the original license.
+Fredoka and Nunito are static instances (Bold 700, ExtraBold 800) cut from the variable fonts and renamed so libass can pick them by name. Montserrat, TikTok Sans and Poppins had their internal family names adjusted (e.g. "Montserrat Black") so libass can select each weight by name. Under the OFL that makes them modified versions; they keep the original license.

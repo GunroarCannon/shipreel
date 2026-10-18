@@ -8,7 +8,8 @@
   clip.py record-screen <project> --id X --dur 20 [--window "Title" | --region x,y,w,h]
   clip.py record-web <project> --id X --url URL [--steps s.json] [--portrait] [--dur 20]
   clip.py record-godot <project> --id X [--scene res://a.tscn] [--dur 15] [--autoplay t.json] [--godot path]
-  clip.py worktree <project> add <commit> | remove <commit>    old versions without touching the repo
+  clip.py worktree <project> add <commit>|--before DATE | remove <commit>    old versions without touching the repo (Godot: imports it)
+  clip.py history <project> [--n 15]                            commits that changed the look: pick eras
   clip.py check <plan.json>                        validate plan + copy lint (AI-tells, lengths, emoji)
   clip.py render <plan.json> [--only ID] [--force] [--no-captioned]
   clip.py thumb <video|image> --t 3 --text "IT WORKS??" [--sticker meme:x] --out file.jpg
@@ -408,6 +409,53 @@ def cmd_record_web(a):
     out({"ok": True, **e})
 
 
+def shadow_project(proj, res, dest, scale=None):
+    """A throwaway mirror of a Godot project whose viewport is res (WxH). Movie Maker takes its output size from the project's
+    viewport settings and ignores --resolution, so a portrait capture of a landscape game needs patched settings. Folders are
+    junctions/symlinks, so nothing is copied and the real project is never written to. scale = UI scale (1.5 for 1080 wide
+    when the UI was drawn for 720)."""
+    w, h = (int(x) for x in res.lower().split("x"))
+    if os.path.isdir(dest):
+        shutil.rmtree(dest, ignore_errors=True)
+    os.makedirs(dest)
+    for name in os.listdir(proj):
+        if name in (".git", "project.godot"):
+            continue
+        src, dst = os.path.join(proj, name), os.path.join(dest, name)
+        if os.path.isdir(src):
+            if platform.system() == "Windows":
+                subprocess.run(["cmd", "/c", "mklink", "/J", dst, src], capture_output=True)
+            else:
+                os.symlink(src, dst)
+        elif name != "project.godot":
+            try:
+                os.link(src, dst)
+            except OSError:
+                shutil.copy2(src, dst)
+    cfg = open(os.path.join(proj, "project.godot"), encoding="utf-8").read()
+    nl = chr(10)
+    drop = re.compile(r"window/size/(viewport_|window_)(width|height)(_override)?\s*=|window/stretch/scale\s*=")
+    cfg = nl.join(ln for ln in cfg.split(nl) if not drop.match(ln.strip()))
+    add = f"window/size/viewport_width={w}{nl}window/size/viewport_height={h}{nl}" + (f"window/stretch/scale={scale}{nl}" if scale else "")
+    if re.search(r"^\[display\]\s*$", cfg, re.M):
+        cfg = re.sub(r"^\[display\]\s*$", lambda m: "[display]" + nl + nl + add.rstrip(nl), cfg, count=1, flags=re.M)
+    else:
+        cfg += nl + "[display]" + nl + nl + add
+    # saves and prefs the game writes during a capture go to a scratch user dir, not the player's real one
+    cfg = re.sub(r"^config/(use_custom_user_dir|custom_user_dir_name)\s*=.*$", "", cfg, flags=re.M)
+    cfg = re.sub(r"^\[application\]\s*$", lambda m: "[application]" + nl + nl + "config/use_custom_user_dir=true" + nl + "config/custom_user_dir_name=\"shipreel-capture\"", cfg, count=1, flags=re.M)
+    open(os.path.join(dest, "project.godot"), "w", encoding="utf-8").write(cfg)
+    # start from a copy of the player's own saves/prefs (tutorials already done, settings as they play), written to the scratch dir
+    nm = re.search(r'^config/name="([^"]*)"', cfg, re.M)
+    appdata = os.environ.get("APPDATA") or os.path.expanduser("~/.local/share")
+    real = os.path.join(appdata, "Godot", "app_userdata", nm.group(1)) if nm else ""
+    scratch = os.path.join(appdata, "shipreel-capture")
+    shutil.rmtree(scratch, ignore_errors=True)
+    if real and os.path.isdir(real):
+        shutil.copytree(real, scratch, ignore=shutil.ignore_patterns("logs", "shader_cache", "vulkan"), dirs_exist_ok=True)
+    return dest
+
+
 def cmd_record_godot(a):
     cfg = load_config()
     godot = a.godot or find_godot(cfg)
@@ -418,6 +466,9 @@ def cmd_record_godot(a):
         die("no project.godot at project path (use --path, or a worktree path)")
     tmp_avi = os.path.join(pdir("temp", a.project, "rec"), slug(a.id, 90) + ".avi")
     frames = int(a.dur * a.fps)
+    if a.resolution:
+        w_, h_ = (int(x) for x in a.resolution.lower().split("x"))
+        proj = shadow_project(proj, a.resolution, os.path.join(pdir("temp", a.project, "shadow"), a.resolution), a.ui_scale)
     cmd = [godot, "--path", proj, "--write-movie", tmp_avi, "--fixed-fps", str(a.fps), "--quit-after", str(frames)]
     if a.resolution:
         cmd += ["--resolution", a.resolution]
@@ -425,6 +476,7 @@ def cmd_record_godot(a):
     if a.autoplay:
         env["SHIPREEL_AUTOPLAY"] = os.path.abspath(a.autoplay)
         env["SHIPREEL_SCENE"] = a.scene or ""
+        env["SHIPREEL_RES"] = a.resolution or ""
         cmd += ["--script", os.path.join(SKILL_DIR, "templates", "godot_autoplay.gd")]
     elif a.scene:
         cmd += [a.scene]
@@ -434,7 +486,8 @@ def cmd_record_godot(a):
     if not os.path.exists(tmp_avi):
         die("godot did not write a movie", tail=(p.stderr or p.stdout)[-600:])
     dst = rec_out(a.project, a.id)
-    run(["ffmpeg", "-y", "-v", "error", "-i", tmp_avi, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", *AUD, dst])
+    vf = ["-vf", f"scale={a.out_size.replace('x', ':')}:flags=lanczos"] if a.out_size else []
+    run(["ffmpeg", "-y", "-v", "error", "-i", tmp_avi, *vf, "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p", *AUD, dst])
     os.remove(tmp_avi)  # MJPEG avi is huge; keep only the mp4
     out({"ok": True, **register_rec(a.project, a.id, dst, feature=a.feature, era=a.era, commit=a.commit, notes=a.notes, how="godot", scene=a.scene)})
 
@@ -443,15 +496,61 @@ def cmd_worktree(a):
     repo = load_data(a.project).get("path")
     if not repo:
         die("project path unknown: clip.py init <project> --path <repo>")
-    wt = os.path.join(pdir("temp", a.project, "wt"), a.commit[:10])
+    commit = a.commit
+    if a.before:  # "the game as it looked on 2026-09-20": last commit on or before that date
+        commit = subprocess.run(
+            ["git", "-C", repo, "rev-list", "-1", f"--before={a.before} 23:59", "HEAD"], capture_output=True, text=True).stdout.strip()
+        if not commit:
+            die(f"no commit on or before {a.before}")
+    if not commit:
+        die("give a commit/tag or --before YYYY-MM-DD")
+    wt = os.path.join(pdir("temp", a.project, "wt"), commit[:10])
     if a.action == "add":
         if not os.path.exists(wt):
-            run(["git", "-C", repo, "worktree", "add", "--detach", wt, a.commit])
-        out({"ok": True, "path": wt, "note": "read-only use; remove when done: clip.py worktree <p> remove <commit>"})
+            run(["git", "-C", repo, "worktree", "add", "--detach", wt, commit])
+        info = {"ok": True, "path": wt, "commit": commit[:10],
+                "date": subprocess.run(["git", "-C", repo, "log", "-1", "--format=%ad|%s", "--date=short", commit], capture_output=True, text=True).stdout.strip(),
+                "note": "read-only use; remove when done: clip.py worktree <p> remove <commit>"}
+        if os.path.exists(os.path.join(wt, "project.godot")):
+            # a fresh checkout has no .godot import cache, so Godot would open it with every asset missing: import once
+            godot = find_godot(load_config())
+            if godot and not os.path.isdir(os.path.join(wt, ".godot", "imported")):
+                p = subprocess.run([godot, "--headless", "--path", wt, "--import"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=900)
+                info["imported"] = os.path.isdir(os.path.join(wt, ".godot", "imported"))
+                if not info["imported"]:
+                    info["import_tail"] = (p.stderr or p.stdout)[-300:]
+            info["next"] = f"clip.py record-godot {a.project} --path {wt} --id <feature>-<era> --era <e1> --commit {commit[:10]} ... (old input actions: read {wt}/project.godot [input])"
+        elif os.path.exists(os.path.join(wt, "package.json")):
+            info["next"] = f"cd {wt} && npm ci (or the project's install) in the background, start its dev server on a free port, then record-web; kill both after"
+        out(info)
     else:
         run(["git", "-C", repo, "worktree", "remove", "--force", wt], check=False)
         run(["git", "-C", repo, "worktree", "prune"], check=False)
         out({"ok": True, "removed": wt})
+
+
+def cmd_history(a):
+    """Commits with dates and what kind of change they were, to pick eras where the project LOOKED different."""
+    repo = load_data(a.project).get("path")
+    if not repo:
+        die("project path unknown: clip.py init <project> --path <repo>")
+    log = subprocess.run(["git", "-C", repo, "log", "--reverse", "--format=@@%h|%ad|%s", "--date=short", "--numstat"], capture_output=True, text=True, encoding="utf-8", errors="replace").stdout
+    rows, cur = [], None
+    vis = re.compile(r"\.(tscn|scn|png|jpe?g|webp|svg|css|scss|html|shader|gdshader|tres|vue|jsx|tsx|ttf|otf)$", re.I)
+    for ln in log.splitlines():
+        if ln.startswith("@@"):
+            h, d, subj = ln[2:].split("|", 2)
+            cur = {"sha": h, "date": d, "subject": subj[:70], "files": 0, "visual": 0}
+            rows.append(cur)
+        elif ln.strip() and cur:
+            parts = ln.split("	")
+            if len(parts) == 3:
+                cur["files"] += 1
+                cur["visual"] += 1 if vis.search(parts[2]) else 0
+    big = sorted(rows, key=lambda r: -r["visual"])[:a.n]
+    out({"ok": True, "commits": len(rows), "first": rows[0] if rows else None, "last": rows[-1] if rows else None,
+         "most_visual_changes": sorted(big, key=lambda r: r["date"]),
+         "next": "pick 2 to 4 eras that look clearly different, then clip.py worktree <p> add <sha> and record each"})
 
 
 # ----------------------------------------------------------------------------- captions (ASS)
@@ -483,6 +582,11 @@ PRESETS = {
     "marker":  {"font": "Permanent Marker", "size": 98, "fill": "white", "outline": "black", "ol": 5, "sh": 2, "upper": False, "hi": "yellow"},
     "bold":    {"font": "Poppins ExtraBold", "size": 96, "fill": "white", "outline": "black", "ol": 6, "sh": 1, "upper": False, "hi": "pink"},
     "cinema":  {"font": "Bebas Neue", "size": 124, "fill": "white", "outline": "black", "ol": 3, "sh": 4, "upper": True, "hi": "yellow"},
+    # bubble = the rounded, chunky game-dev-TikTok look: bold rounded face, thick dark outline, soft drop shadow, mid-frame
+    "bubble":  {"font": "Fredoka Bold", "size": 108, "fill": "white", "outline": "#1B1B1F", "ol": 11, "sh": 6, "upper": False, "hi": "#3DA5FF", "cap_mv": 0.40, "no_plate": True},
+    # chip = a small translucent rounded grey box with dark bold lowercase text, low in the frame (the "cool sticks." look)
+    "chip":    {"font": "Nunito ExtraBold", "size": 58, "fill": "#1B1B1F", "outline": "#1B1B1F", "ol": 0, "sh": 0, "upper": False, "hi": "#D62D2D", "box": True,
+                "boxcolor": "#E9E9EC", "boxalpha": 0x2E, "cap_mv": 0.22},
     "cartoon": {"font": "Luckiest Guy", "size": 106, "fill": "white", "outline": "black", "ol": 7, "sh": 3, "upper": True, "hi": "orange"},
 }
 EMOJI_RE = re.compile("[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U0000FE0F\U0000200D]+")
@@ -568,12 +672,15 @@ def build_ass(v, W, H, total, path):
     right = (0.15 if portrait else 0.08) * W  # TikTok right rail
     bx = bool(P.get("box"))
     hook_mv = ((0.23 if v.get("header") else 0.15) if portrait else 0.08) * H  # sit under a persistent header, never on it
-    for nm, sz, al, mv in (("hook", P["size"] * 1.18, 8, hook_mv), ("cap", P["size"], 2, (0.30 if portrait else 0.10) * H), ("mid", P["size"], 5, 0)):
-        style(nm, P["font"], sz, P["fill"], P["outline"], P["ol"] + (1 if nm == "hook" and not bx else 0), P["sh"], al, side, right, mv, box=bx, back=P["outline"] if bx else "black")
+    cap_mv = (P.get("cap_mv", 0.30) if portrait else 0.10) * H
+    for nm, sz, al, mv in (("hook", P["size"] * 1.18, 8, hook_mv), ("cap", P["size"], 2, cap_mv), ("mid", P["size"], 5, 0)):
+        style(nm, P["font"], sz, P["fill"], P["outline"], P["ol"] + (1 if nm == "hook" and not bx else 0), P["sh"], al, side, right, mv, box=bx,
+              back=P.get("boxcolor", P["outline"] if bx else "black"), back_alpha=P.get("boxalpha", 0))
         # auto-contrast fallback (see auto_contrast): same geometry on a dark plate, for busy or colour-clashing footage
         style(nm + "_plate", P["font"], sz, "white", "black", 12, 0, al, side, right, mv, box=True, back="black", back_alpha=0x58)
     style("box", "TikTok Sans SemiBold", 70, "black", "white", 12, 0, 2, side, right, (0.30 if portrait else 0.10) * H, box=True, back="white")
     style("plate", "TikTok Sans SemiBold", 70, "white", "black", 12, 0, 2, side, right, (0.30 if portrait else 0.10) * H, box=True, back="black", back_alpha=0x58)
+    style("chip", "Nunito ExtraBold", 56, "#1B1B1F", "#1B1B1F", 0, 0, 2, side, right, (0.22 if portrait else 0.08) * H, box=True, back="#E9E9EC", back_alpha=0x2E)
     style("callout", "Montserrat Black", 80, "yellow", "black", 6, 0, 5, 0, 0, 0)
     style("header", "TikTok Sans ExtraBold", 66, "black", "white", 14, 0, 8, side, right, (0.115 if portrait else 0.05) * H, box=True, back="white")
     style("card", P["font"], P["size"] * 1.35, "white", "black", 6, 0, 5, side, side, 0)
@@ -686,8 +793,10 @@ def build_ass(v, W, H, total, path):
         hic = ass_color(c["hi"]) if c.get("hi") else hi
         if c.get("color"):
             back_c = ass_color(c["color"])
-        elif st in ("box",) or (bx and st in ("hook", "cap", "mid")):
+        elif st in ("box", "chip"):
             back_c = ass_color("black")
+        elif bx and st in ("hook", "cap", "mid"):
+            back_c = fill_c
         elif st in ("plate",) or st.endswith("_plate"):
             back_c = ass_color("white")
         else:
@@ -1177,7 +1286,7 @@ def cap_region(c, preset, W, H, portrait, has_header):
         elif st == "mid":
             y0 = H / 2 - th / 2
         else:
-            y0 = H - ((0.30 if portrait else 0.10) * H) - th
+            y0 = H - ((preset.get("cap_mv", 0.30) if portrait else 0.10) * H) - th
     x0, y0 = max(0, min(W - 8, x0)), max(0, min(H - 8, y0))
     return int(x0), int(y0), int(max(8, min(tw, W - x0))), int(max(8, min(th, H - y0)))
 
@@ -1222,7 +1331,7 @@ def auto_contrast(caps, textless, preset, W, H, total, has_header):
             if min(_ratio(_hex(hi), s_[0]) for s_ in samples) < 1.9:
                 best = max(("yellow", "white", "cyan", "pink", "orange"), key=lambda n: min(_ratio(_hex(n), s_[0]) for s_ in samples))
                 c2["hi"] = best; fix.append(f"accent {hi} clashed -> {best}")
-        if busy > 0.20:
+        if busy > 0.20 and not preset.get("no_plate"):
             c2["style"] = st + "_plate"; fix.append(f"busy background (detail {busy:.2f}) -> dark plate")
         if fix:
             notes.append({"t": round(t0, 1), "text": c.get("text", "")[:24], "fix": "; ".join(fix)})
@@ -1343,10 +1452,16 @@ AI_TELLS = ["delve", "leverage", "utilize", "seamless", "robust", "game-changer"
             "smash that", "comment below", "tag a friend", "stay tuned"]
 
 
+# Housekeeping that only the developer cares about: a stranger scrolling past has no reason to read it (copy-rules.md, "Would a stranger care?")
+INSIDER = ["licence", "license", "cc0", "font swap", "swapped for", "refactor", "dependenc", "linter", "typo", "changelog", "ci pipeline", "boilerplate",
+           "config file", "renamed the", "bumped", "migrat", "tech debt", "unit test"]
+
+
 def lint_text(s):
     s_l = s.lower()
     hits = [w for w in AI_TELLS if w in s_l]
     issues = [f"ai-tell:'{h}'" for h in hits]
+    issues += [f"insider:'{w}' (would a stranger care?)" for w in INSIDER if w in s_l]
     if s.count("—") > 1:
         issues.append("em-dashes>1")
     if EMOJI_RE.search(s):
@@ -1468,7 +1583,7 @@ def cmd_check(a):
             if ch[0]["t"] != 0 or len(ch) < 3:
                 iss.append("chapters: first must be 0:00 and >=3 chapters")
         styles_used[v.get("style", "pop")] = styles_used.get(v.get("style", "pop"), 0) + 1
-        hard = [x for x in iss if not x.startswith(("cap ai-tell", "desc ai-tell", "title ai-tell", "cap emoji", "long caption", "tags=", "music:", "bare:"))]
+        hard = [x for x in iss if not x.startswith(("cap ai-tell", "desc ai-tell", "title ai-tell", "cap insider", "title insider", "desc insider", "cap emoji", "long caption", "tags=", "music:", "bare:"))]
         bad += bool(hard)
         report.append({"id": v["id"], "est": round(est, 1), "issues": iss})
     for r in report:
@@ -1611,9 +1726,10 @@ def main():
     p = sp.add_parser("record-web"); recargs(p); p.add_argument("--url", required=True); p.add_argument("--steps"); p.add_argument("--portrait", action="store_true")
     p.add_argument("--mobile", action="store_true"); p.add_argument("--size"); p.add_argument("--scale", type=float); p.add_argument("--no-cursor", action="store_true")
     p.add_argument("--dark", action="store_true"); p.add_argument("--headed", action="store_true"); p.set_defaults(f=cmd_record_web)
-    p = sp.add_parser("record-godot"); recargs(p); p.add_argument("--scene"); p.add_argument("--path"); p.add_argument("--godot"); p.add_argument("--resolution")
+    p = sp.add_parser("record-godot"); recargs(p); p.add_argument("--scene"); p.add_argument("--path"); p.add_argument("--godot"); p.add_argument("--resolution"); p.add_argument("--ui-scale", type=float, default=None); p.add_argument("--out-size", help="downscale the capture to WxH, e.g. 1080x1920 after rendering the phone's logical 1280x2276")
     p.add_argument("--autoplay"); p.add_argument("--env", action="append", help="KEY=VALUE toggles passed to the game"); p.set_defaults(f=cmd_record_godot)
-    p = sp.add_parser("worktree"); p.add_argument("project"); p.add_argument("action", choices=["add", "remove"]); p.add_argument("commit"); p.set_defaults(f=cmd_worktree)
+    p = sp.add_parser("worktree"); p.add_argument("project"); p.add_argument("action", choices=["add", "remove"]); p.add_argument("commit", nargs="?", default=""); p.add_argument("--before", help="YYYY-MM-DD: the last commit on or before this date"); p.set_defaults(f=cmd_worktree)
+    p = sp.add_parser("history"); p.add_argument("project"); p.add_argument("--n", type=int, default=15); p.set_defaults(f=cmd_history)
     p = sp.add_parser("check"); p.add_argument("plan"); p.set_defaults(f=cmd_check)
     p = sp.add_parser("render"); p.add_argument("plan"); p.add_argument("--only"); p.add_argument("--force", action="store_true")
     p.add_argument("--no-captioned", action="store_true"); p.add_argument("--keep-build", action="store_true"); p.set_defaults(f=cmd_render)

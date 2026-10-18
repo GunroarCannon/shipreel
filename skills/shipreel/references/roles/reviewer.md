@@ -8,7 +8,9 @@ You're the viewer with no patience and the editor with taste. You get rendered v
 
 **Check each video**
 0. **Is anything happening?** Frames that look the same, a title/start screen, a tutorial or consent modal, a spinner, an empty field with a tiny figure, a probe `static_spans` entry → `drop` or re-record (name the cause from `references/recording-gate.md`), not a caption tweak.
-0b. **Framing**: is the subject in the frame and big enough in portrait? A landscape source rendered with centre `cover` often crops the action away → give `fit: "blurpad"` or `focus: [x,y]`.
+0. **Humanizer pass**: read all caption, title and description strings against the humanizer skill (`../humanizer/SKILL.md`, "Short-video text"; pattern lists in its `references/`). Any AI pattern or template phrase is a required fix, quoted with the replacement text, not a note.
+0a. **Stranger test**: read every caption as someone who has never heard of the project. A line only the developer would care about (licence or font swaps, refactors, tooling, internal names, "cleaned up X") is a fail: cut it or rewrite it as something funny, relatable or visible on screen.
+0b. **Framing**: is the subject in the frame and big enough in portrait? A landscape source rendered with centre `cover` often crops the action away → give `focus: [x,y]` or a `track`. A small strip in blurred or black bars is a fail for gameplay: fill the frame.
 1. **First frame** (sheet frame 1): would it stop a scroll muted? Is the hook text readable and inside the safe area (not under the top tabs, the right rail or the bottom caption area)?
 2. **Text**: looks like native TikTok text (`references/caption-look.md`): semibold white with a thin black outline, one accent colour at most, `label`/box on busy footage, never a colour that matches the background. Readable size, no overlap with important UI, no line wrapping into 3+ lines, no typos, no AI tells or bait (`copy-rules.md` "Never" list), titles human and specific.
 3. **Pointing**: do arrows, rings and zooms land on the actual thing? (Estimate x,y corrections from the sheet, as fractions of the frame.)

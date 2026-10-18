@@ -26,7 +26,7 @@ C rec find <p> "inventory"
 
 **Before the first recording of a project, read `references/recording-gate.md`.** The loop for each recording is: 3 s probe with no steps → `sheet` → note the blockers → write steps that clear them and do the feature → record → `sheet --n 6` → open it → write `saw:` → only then is it usable. `record-*` prints `warn: STILL n%` and `rec list` shows `!!STILL` when the footage froze; `check` fails any clip that lands on frozen footage.
 
-Recording ids: `<feature>-<what>[-<era>]`, e.g. `combat-boss-intro`, `editor-drag-drop-v1`. Record **raw and long enough** (10 to 40 s). Cut in the plan, not at record time, so one recording feeds several videos. Record portrait (`--portrait`) for mobile-ish web UIs and landscape for games and desktop apps; the render crops (`fit`), and the default centre `cover` throws away ~65% of a landscape frame, so for games use `fit: "blurpad"` or `cover` + `focus` (see `recording-gate.md` rule 6).
+Recording ids: `<feature>-<what>[-<era>]`, e.g. `combat-boss-intro`, `editor-drag-drop-v1`. Record **raw and long enough** (10 to 40 s). Cut in the plan, not at record time, so one recording feeds several videos. Record portrait (`--portrait`) for mobile-ish web UIs and landscape for games and desktop apps; the render crops (`fit`), and the default centre `cover` throws away ~65% of a landscape frame, so for games use `cover` + `focus` or a `track` (full-bleed; `blurpad` only for UI screens). See `recording-gate.md` rule 6.
 
 ### Web apps
 ```
@@ -43,7 +43,7 @@ Steps (wait/ms are milliseconds):
 ```
 C record-godot <p> --id boss-fight --scene res://levels/boss.tscn --dur 15 --autoplay temp/<p>/steps/boss.json [--env DEBUG_OVERLAY=0] [--resolution 1920x1080]
 ```
-Uses Movie Maker (`--write-movie`, fixed fps, so it's deterministic and frame-perfect even on a slow PC) and `templates/godot_autoplay.gd` via `--script`. Nothing in the project changes. Timeline:
+Uses Movie Maker (`--write-movie`, fixed fps, so it's deterministic and frame-perfect even on a slow PC) and `templates/godot_autoplay.gd` via `--script`. Nothing in the project changes. `--resolution WxH` records at another size through a throwaway mirror project (Movie Maker ignores the flag otherwise) and `--out-size 1080x1920` downscales afterwards; a phone game's logical size is 1280 wide, so portrait is `--resolution 1280x2276 --out-size 1080x1920`. Check the HUD on the sheet. Timeline:
 ```json
 {"events": [{"t": 0.5, "action": "ui_accept"}, {"t": 1, "action": "move_right", "hold": 1.5}, {"t": 3, "key": "SPACE"},
             {"t": 4, "click": [640, 360]}, {"t": 5, "call": ["/root/Main", "spawn_boss"]}, {"t": 6, "set": ["/root/Main/Player", "speed", 900]}]}
@@ -62,11 +62,18 @@ C rec add <p> --file <repo>/media/trailer.mp4 --id trailer --feature overview [-
 ```
 
 ### Old versions ("then vs now", dev-stage videos)
+
+The old look has to be on screen. A card saying "2 weeks earlier", or today's build with a sepia filter, is not a then-vs-now video.
+
 ```
-C worktree <p> add <commit-or-tag>        # → temp/<p>/wt/<sha>; record from that path (record-godot --path / start its dev server)
-C worktree <p> remove <commit-or-tag>
+C history <p> [--n 15]                    # commits that changed the look most (scenes, art, css): pick 2 to 4 eras
+C worktree <p> add <sha>                  # -> temp/<p>/wt/<sha>. Godot projects are imported for you (a fresh checkout has no .godot cache)
+C worktree <p> add --before 2026-09-22    # the game as it was on a date
+C record-godot <p> --path temp/<p>/wt/<sha> --scene <same scene> --autoplay <same driver> --id <feature>-e1 --era e1 --commit <sha>
+C worktree <p> remove <sha>
 ```
-Tag those recordings with `--era e1 --commit <sha>`. Old commits often don't build. Give it one try with the documented run command; if it fails, use the failure protocol (fake it = screenshots from git history or old media in the repo).
+
+Rules: same scene and same driver in every era so the comparison is fair (old input actions can differ: read the old `project.godot` `[input]` and adapt the driver). Web projects: `npm ci` in the worktree in the background, start its dev server on a free port, `record-web`, kill both. Cut the eras back to back, each with a `chip` date label and a sound beat between them. Pick eras that look different on the sheet; if two old recordings look the same, pick other commits. Old commits sometimes don't build: one try, then the failure protocol (screenshots from `git show <sha>:path`, or old media in the repo, and say so).
 
 ## 3. Write the plan
 
