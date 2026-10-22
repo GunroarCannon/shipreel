@@ -37,7 +37,7 @@ Steps (wait/ms are milliseconds):
 [{"waitFor": "#app"}, {"wait": 600}, {"click": "text=Get started"}, {"type": "hello@demo.dev", "into": "input[type=email]"},
  {"press": "Enter"}, {"mark": "dashboard"}, {"scroll": 700, "ms": 1200}, {"hover": ".chart"}, {"wait": 1500}]
 ```
-`mark` puts exact timestamps in the result (`marks`), so the writer can cut on `in: marks.dashboard - 0.3` without looking at frames. `--portrait` gives exactly 1080×1920; landscape is 1280×720 CSS at 1.5×. A fake cursor with click ripples is drawn (`--no-cursor` to hide it). Use the shorthand's `live_url` if the dev server is expensive to start. If you start a dev server, run it in the background and kill it after.
+`target` measures an on-screen element for a highlight (`{"target":"export","sel":"text=Export report","pad":6}`: the box and time land in the recording's `targets`; `references/highlighting.md`). `mark` puts exact timestamps in the result (`marks`), so the writer can cut on `in: marks.dashboard - 0.3` without looking at frames. `--portrait` gives exactly 1080×1920; landscape is 1280×720 CSS at 1.5×. A fake cursor with click ripples is drawn (`--no-cursor` to hide it). Use the shorthand's `live_url` if the dev server is expensive to start. If you start a dev server, run it in the background and kill it after.
 
 `record-web` steps the page clock one frame per `--fps` (virtual time). Playback is full speed even when capture is slower than realtime. The JSON includes `mode` (`virtual` or `screencast`) and `fps`. `mode` `virtual` is the default. An fps warn means the screencast fallback was choppy: fix the page and re-record. HTML5 `<video>` and `<audio>` on the page follow the wall clock and look wrong under virtual time; record those with `record-screen`.
 

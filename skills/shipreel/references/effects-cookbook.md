@@ -31,7 +31,7 @@ Real TikToks don't talk about the enemies while the camera sits on the player: t
 0. **Let auto aim first.** With no `fit`/`focus`, render points the crop at the motion (`framing` in the result says where), and `track: "auto"` follows it around (`framing.md`). That covers "show the action". The steps below are for showing a *specific* thing a caption names.
 1. **Different `focus` per clip.** Cut the same recording into two or three clips and give each its own `focus` (`[0.2,0.5]` on the player, `[0.85,0.3]` on the enemies, `[0.1,0.08]` on the HUD). A cut is the most common look.
 2. **`track`: a glide.** `"track":[{"t":0,"x":0.3,"y":0.6},{"t":2.5,"x":0.85,"y":0.3,"move":0.8}]` starts on the player and drifts to the enemies as the caption lands, then holds. Time it so the camera arrives about 0.3 s before the word appears. Hold at least 1 s on each stop.
-3. **`zoomin:1.6@x,y` / `zoom:1.5@x,y`** pushes in on a HUD element or a small sprite; combine with a `ring` or `arrow` on the same spot.
+3. **`zoomin:1.6@x,y` / `zoom:1.5@x,y`** pushes in on a HUD element or a small sprite; combine with a `focus`, `box` or `arrow` anchored to the same spot (a static `zoom` holds still, so highlights work on it; a `zoomin` never does, so the render drops highlights on it).
 4. **Change the recording.** If it's never on screen, the footage is wrong: use an autoplay `call`/`set` to spawn the enemies, open the panel, take damage so the health bar moves, or pick a different camera mode, then re-record.
 5. **Change the caption** to what is shown. Never leave the mismatch.
 
@@ -39,10 +39,11 @@ Find x,y with `clip.py sheet <rec.mp4> --grid`: it draws a 10% grid labelled 1 t
 
 ## Overlays (in `overlays[]`)
 
-- **Arrow at the thing**: `{"type":"arrow","t":4.5,"d":2,"x":0.62,"y":0.41,"angle":150,"color":"yellow"}`. x,y = what the tip touches; angle 0 = pointing right, 90 = down, 180 = left. Pair it with `ring` on the same spot and an SFX (`ding`, `pop`, `vine-boom`).
-- **Circle it (`ring` / `scribble`)**: ONLY use a circle if you can get the exact coordinates right from `sheet --grid`. If the target coordinates are unverified or cannot be placed with precision, **AVOID circles entirely**. A misaligned circle circling empty space or the wrong text looks broken and sloppy. In pro mode or on dense UI, prefer camera zooms (`zoomin:1.2@x,y`), a spotlight, or no overlay at all.
+- **Pointing at a thing: `references/highlighting.md`.** Anchor it to the source (`target` from `record-web`, or `box`/`at` read off `sheet --grid`) with a `what`, pick the type for the target (`box`/`focus` for UI, `marker`/`bar` for text, `arrow` for small things, `ring` only for round game objects), and open the `proof` sheet after rendering. The render drops a highlight it can't place exactly; no highlight beats a wrong one.
+- **Arrow**: `{"type":"arrow","t":4.5,"d":2,"box":[0.58,0.4,0.14,0.08],"what":"boss health bar","color":"yellow"}`; the tip touches the nearest edge of the box. Pair it with a sound (`ding`, `pop`; pro `ui-click`).
+- **Circle it (`ring` / `scribble`)**: round game objects only, creator mode. Pro and UI: `box`, `focus`, `marker`, `bar`.
 - **Wrong vs right**: `x` on the old version, `check` on the new.
-- **Spotlight** for "look here" in busy screens (YouTube especially).
+- **`focus`** (dims everything but a rounded window) for "look here" on busy screens, YouTube especially; `spotlight` is the round version.
 - **Censor** any email, key, token, personal name or path on screen. Do it even if the shorthand doesn't list it.
 - **Sticker memes**: `{"type":"sticker","asset":"meme:press-x-to-doubt","t":10.5,"d":1.4,"x":0.72,"y":0.62,"w":0.4,"anim":"slide"}`. Keep them inside the safe area, 1 to 2 s, with an SFX.
 - **Progress bar** on longer TikToks (≥20 s) improves completion; skip it on short ones.

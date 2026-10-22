@@ -205,6 +205,21 @@ function centerJs(sel) {
     : `(() => { const e=document.querySelector(${JSON.stringify(sel)}); if(!e) return null; e.scrollIntoView({block:'center',behavior:${behavior}}); const r=e.getBoundingClientRect(); return [r.x+r.width/2,r.y+r.height/2]; })()`;
 }
 
+// the element's box as fractions of the viewport (= of the recorded frame), measured without scrolling; null if missing or off-screen
+function rectJs(sel) {
+  const find = sel.startsWith("text=")
+    ? `(() => { const t=${JSON.stringify(sel.slice(5).toLowerCase())}; const it=document.evaluate("//*[not(self::script)][contains(translate(normalize-space(.),'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz'),"+JSON.stringify(sel.slice(5).toLowerCase())+")]",document,null,7,null); let best=null; for(let i=0;i<it.snapshotLength;i++){const e=it.snapshotItem(i); const r=e.getBoundingClientRect(); if(r.width&&r.height&&(!best||r.width*r.height<best.a)) best={e,a:r.width*r.height};} return best&&best.e; })()`
+    : `document.querySelector(${JSON.stringify(sel)})`;
+  return `(() => { const e=${find}; if(!e) return null; const r=e.getBoundingClientRect(); const W=innerWidth,H=innerHeight; if(!r.width||!r.height||r.right<=0||r.bottom<=0||r.left>=W||r.top>=H) return null; const x=Math.max(0,r.left),y=Math.max(0,r.top),x2=Math.min(W,r.right),y2=Math.min(H,r.bottom); return [x/W,y/H,(x2-x)/W,(y2-y)/H,r.width*r.height>0?((x2-x)*(y2-y))/(r.width*r.height):0]; })()`;
+}
+const targets = {};
+function noteTarget(s, t, r) {
+  if (!r) { console.error(`target not visible: ${JSON.stringify(s)} (scroll it into view first, or fix the selector)`); return; }
+  const pad = (s.pad ?? 0) / W, padY = (s.pad ?? 0) / H;
+  const r4 = (n) => +n.toFixed(4);
+  targets[s.target] = { t: +t.toFixed(2), sel: s.sel, box: [r4(Math.max(0, r[0] - pad)), r4(Math.max(0, r[1] - padY)), r4(Math.min(1, r[2] + 2 * pad)), r4(Math.min(1, r[3] + 2 * padY))], visible: r4(r[4]) };
+}
+
 let mode = wantVirtual ? "virtual" : "screencast";
 let captured = 0;
 let virtualTicks = 0;
@@ -317,6 +332,11 @@ async function runVirtual() {
         mouse = [x2, y2];
       } else if (s.eval) { await evaluate(s.eval); await captureOne(); }
       else if (s.mark) marks[s.mark] = +(captured / FPS).toFixed(3);
+      else if (s.target) {
+        let r = await evaluate(rectJs(s.sel));
+        for (let i = 0; !r && i < 30 && captured < maxFrames; i++) { await captureOne(); r = await evaluate(rectJs(s.sel)); }
+        noteTarget(s, captured / FPS, r);
+      }
       else if (s.shot) {
         const r = await send("Page.captureScreenshot", { format: "png" });
         fs.writeFileSync(path.resolve(path.dirname(out), s.shot), Buffer.from(r.data, "base64"));
@@ -386,6 +406,11 @@ async function runScreencast() {
         await send("Input.dispatchMouseEvent", { type: "mouseReleased", x: x2, y: y2, button: "left", clickCount: 1 }); mouse = [x2, y2];
       } else if (s.eval) await evaluate(s.eval);
       else if (s.mark) marks[s.mark] = +now().toFixed(2);
+      else if (s.target) {
+        let r = await evaluate(rectJs(s.sel));
+        for (let i = 0; !r && i < 10; i++) { await sleep(150); r = await evaluate(rectJs(s.sel)); }
+        noteTarget(s, now(), r);
+      }
       else if (s.shot) { const r = await send("Page.captureScreenshot", { format: "png" }); fs.writeFileSync(path.resolve(path.dirname(out), s.shot), Buffer.from(r.data, "base64")); }
     } catch (e) { console.error(`step failed: ${JSON.stringify(s)} -> ${e.message}`); if (s.required) throw e; }
   }
@@ -463,6 +488,7 @@ try {
   }
   await shutdown();
   const result = { ok: true, out, frames: frameCount, dur, marks, mode, fps: fpsOut };
+  if (Object.keys(targets).length) result.targets = targets;
   if (warn) result.warn = warn;
   console.log(JSON.stringify(result));
   process.exit(0);

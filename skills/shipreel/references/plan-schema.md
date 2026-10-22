@@ -83,13 +83,15 @@ All have `t`, `d`.
 
 | type | keys | |
 |---|---|---|
-| `arrow`, `arrow-curved` | x, y (where the tip points), angle (deg, 0 = pointing right, 90 = down), color red/yellow/white/green, w, anim bob | |
-| `ring` / `scribble` | x, y, r (radius as a fraction of width), color | circle a thing |
-| `underline` | x, y, w, color | |
+| pointers | `target` (a name from record-web) or `box` [x,y,w,h] / `at` [x,y] in the **source** frame, plus `what` | **the way to point at something** (`highlighting.md`): the render maps it through the crop/track/zoom and drops it if it can't land exactly |
+| `box` `marker` `bar` `focus` | box/target; color, thick | rounded outline / highlighter / clean underline / dim-everything-else window |
+| `arrow`, `arrow-curved` | box/target/at, or x, y (where the tip points), angle (deg, 0 = pointing right, 90 = down), color red/yellow/white/green, w, anim bob | |
+| `ring` / `scribble` | box/target/at, or x, y, r (radius as a fraction of width), color | circle a thing |
+| `underline` | box/target/at, or x, y, w, color | hand-drawn |
 | `x` / `check` | x, y, w | wrong / right |
-| `box` | x, y, w, h, color, thick | outline rect (top-left based) |
+| a pointer with only `x,y(,w,h)` | | output-frame coordinates; `check` fails it unless `"verified": true` |
 | `censor` | x, y, w, h | blur a region (secrets, emails) |
-| `spotlight` | x, y, r | dims everything but a circle |
+| `spotlight` | box/target/at, or x, y, r | dims everything but a circle |
 | `fx` | fx: bw/dim/sat/invert/blur | effect on a time range across clips |
 | `flash` | color, d | quick full-frame flash |
 | `progress` | color, h, pos top/bottom | progress bar for the whole video |
@@ -98,5 +100,6 @@ All have `t`, `d`.
 ## Audio
 
 - `sfx`: `{"asset": "sfx:vine-boom", "t": 4.4, "vol": 0.7}`, plus `start`/`dur` to trim. Start an SFX 0.05 to 0.1 s **before** the visual beat.
-- `music`: `{"asset": "music:sneaky-snitch", "vol": 0.14, "duck": true}` (find tracks with `assets.py find --type music`; pro: `--pro`). Product audio drives ducking. The final mix is loudnormed to -14 LUFS. It loops and fades by itself.
+- `music`: `{"asset": "music:sneaky-snitch", "vol": 0.14, "duck": true}` (find tracks with `assets.py find --type music`; pro: `--pro`). Product audio and SFX drive the ducking. It loops and fades by itself.
+- Levels: every sound is levelled to a reference before `vol` applies (so `vol` means the same for every sound), SFX are cut at 4 s unless `dur` is set, and the overall level is set from the measured mix. Details: `music-audio.md` section 5.
 - `product_music`: `"mute"` (default) or `"keep"`. With `music` set, `rec:` clips whose audio looks like music are muted automatically (`product_music_muted` in the render result) so two musics never play. `"keep"` leaves them alone.

@@ -90,14 +90,45 @@ Use product music, tracks the user puts in `assets/music/` (YouTube Audio Librar
 ## 4. SFX
 
 - Find: `assets.py find --type sfx --mood shocked` or `--theme fail` (`assets.py vocab --type sfx` lists moods: happy, shocked, panic, sad, hype, laughing, awkward...; themes: reveal, fail, success, bug, plot-twist, time-skip...). Missing → `sfx.py search "<name>"` → `sfx.py get`.
-- Timing: start 0.05 to 0.1 s before the visual beat. Volume 0.5 to 0.8 (meme SFX are loud; vine-boom ≈ 0.6).
-- Density: TikTok ≤ 1 SFX per 2.5 s, 2 to 5 per video; YouTube more spread out. Pro mode: 2 to 4 subtle sounds per video max. Not every cut needs a sound. Silence before a punchline or outcome is a sound too.
-- **No phantom transition sounds**: Never play `whoosh`, `swoosh`, `whip`, or `swipe` unless an actual transition or fast camera move happens at that exact timestamp. Playing whooshes in the middle of static clips or over gentle crossfades/dissolves sounds sloppy and broken.
-- Pairing: arrow/ring → `ding`/`pop`; reveal → `vine-boom`/`dun-dun-dunnn`; fail → `sad-trombone`/`bruh`/`windows-xp-error`/`metal-pipe`; time skip → `2000-years-later`/`whoosh`; win → `tada`/`minecraft-level-up`/`hallelujah`; awkward → `crickets`; rewind → `record-scratch`.
+- Timing: start 0.05 to 0.1 s before the visual beat. Silence before a punchline or outcome is a sound too.
+- **Levels**: the render levels every sound first (the library ranges from -27 to +1 LUFS, so raw files can't be mixed by ear), then applies `vol`. So `vol` means the same for every sound: **0.5 to 0.8 creator, 0.35 to 0.6 pro**. Don't compensate for a quiet-sounding file by raising `vol`; pick a different sound.
+- **Length**: a sound is cut at 4 s with a short fade. Set `dur` to end it where you want (`tada` is 19 s, `oh-no-no-no` 11 s: use `"dur": 1.5`). A sound that rings into the next beat reads as a mistake.
+- Density: TikTok ≤ 1 SFX per 2.5 s, 2 to 5 per video; YouTube more spread out. Pro: 2 to 4 per video. Not every cut needs a sound.
+- **No phantom transition sounds**: never play `whoosh`, `swoosh`, `whip`, or `swipe` unless an actual transition or fast camera move happens at that exact timestamp. Whooshes over static clips or gentle dissolves sound broken.
+- Pairing: highlight appears → `ding`/`pop` (pro: `ui-click`/`pop-soft`); reveal → `vine-boom`/`dun-dun-dunnn` (pro: `impact-soft`); fail → `sad-trombone`/`bruh`/`windows-xp-error`/`metal-pipe`; time skip → `2000-years-later`/`whoosh`; win → `tada`/`minecraft-level-up`/`hallelujah` (pro: `shimmer`); awkward → `crickets`; rewind → `record-scratch`.
 - Don't use the same signature SFX in more than 3 of 10 videos in a batch.
+
+## 4b. Sound design: give every sound a job
+
+A good mix has few sounds, each with a reason a viewer could name. Plan them like captions: list the beats, then decide which beats get a sound.
+
+| role | when | creator | pro |
+|---|---|---|---|
+| **Open** | the first frame / hook lands | `pop`, `vine-boom` | `impact-soft` (once, under the title) |
+| **Point** | a highlight appears | `ding`, `pop` | `ui-click`, `pop-soft` |
+| **Turn** | a transition or camera move (and only then) | `whoosh`, `swoosh-fast`, `camera-shutter` | `whoosh-soft`, `swoosh-fast` on a push or zoom |
+| **Result** | the thing worked / failed | `tada`, `ding`, `sad-trombone` | `shimmer` |
+| **Typing/UI** | the screen shows typing or a click | `keyboard-typing` (quiet; `dur` = the typing), `mouse-click` | `ui-click`, `tick` |
+| **Bed** | the whole video | meme track, or the project's own music | `ambient-pad` or `soft-pulse`, or none |
+
+Rules that keep it clean:
+1. **One layer at a time.** A sound at a beat means no other sound within 0.3 s (`check` flags pile-ups). A bed plus a few SFX is the whole mix.
+2. **The bed is a bed.** `vol` 0.10 to 0.18, `duck: true` (the default). It dips under SFX and product audio, then returns. No bed where the product's own audio is the point, or where a punchline needs silence.
+3. **A pro video is mostly quiet.** No bed beats a loud one; if there is one, a viewer should only notice it when it stops.
+4. **Silence is a tool.** Leave a 0.3 s gap before the payoff.
+5. **Never fix a sound by adding another.** If a beat feels flat, change the sound or the timing, not the count.
+6. **Don't sound-track what isn't happening.** No `whoosh` on a static clip, no `ding` with nothing on screen, no keyboard sound over a clip with no typing.
 
 ## 5. Mix
 
-The render does it: product audio × `product_volume` (+ per-clip `audio` gain) + SFX + music (ducked by product audio via sidechain) → loudnorm -14 LUFS, true peak -1.5 dB. That's the TikTok and YouTube target. Short clip edges get 30 to 40 ms fades, so cuts don't click.
+What the render does (you don't set any of this):
 
-The myinstants MCP (`.mcp.json`) can *play* a sound through the speakers. That's for the user ("preview vine boom"), not for renders. It costs nothing to skip.
+1. **Levels every library sound** to a reference (SFX -18 LUFS, music -16 LUFS, peaks capped at -3 dBFS), then applies your `vol`. Raw file loudness no longer matters.
+2. **Shapes each SFX**: 4 ms fade-in, a fade-out, cut at 4 s unless `dur` says otherwise.
+3. **Ducks the music** from the product audio and the SFX together with a gentle compressor (3:1, slow release), so the bed breathes instead of pumping.
+4. **Limits the sum**, then sets the overall level from the measured mix: towards -14 LUFS, but never past -2 dB true peak. A quiet bed with a few SFX stays quiet and natural instead of being cranked into distortion. The result reports it as `audio: {mix_lufs, gain_db, peak_db}`.
+5. Clip edges get 30 to 40 ms fades, so cuts don't click.
+
+If `audio.gain_db` is above about 10, the mix is very quiet (no product audio, a low bed, few sounds): fine for pro, but check the bed is audible. If a sound is too quiet or loud **relative to the others**, change its `vol` by 0.1 to 0.2 at a time.
+
+The myinstants MCP (`.mcp.json`) can *play* a sound through the speakers for the user ("preview vine boom"). It's not used in renders.

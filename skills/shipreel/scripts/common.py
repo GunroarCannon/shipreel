@@ -161,3 +161,54 @@ def http_get(url, headers=None, timeout=30):
 
 def now():
     return time.strftime("%Y-%m-%d %H:%M")
+
+
+# ----------------------------------------------------------------------------- loudness (sound design: references/music-audio.md, section 5)
+_LOUD = {}
+
+
+def measure_loudness(path):
+    """{"lufs": integrated loudness or None when the sound is too short to gate, "peak": sample peak dBFS, "dur": seconds}."""
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", path, "-vn", "-af", "ebur128=peak=true", "-f", "null", "-"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    t = p.stderr or ""
+    i = re.findall(r"I:\s+(-?[\d.]+) LUFS", t)
+    pk = re.findall(r"Peak:\s+(-?[\d.]+) dBFS", t)
+    d = re.search(r"Duration: (\d+):(\d+):([\d.]+)", t)
+    lufs = float(i[-1]) if i else None
+    return {"lufs": None if lufs is None or lufs <= -69 else lufs, "peak": float(pk[-1]) if pk else 0.0,
+            "dur": round(int(d.group(1)) * 3600 + int(d.group(2)) * 60 + float(d.group(3)), 3) if d else 0.0}
+
+
+def loudness_of(path):
+    """measure_loudness, cached per file in the workspace (temp/_loudness.json), keyed by size and mtime."""
+    key = os.path.abspath(path)
+    st = os.stat(path)
+    sig = [st.st_size, int(st.st_mtime)]
+    if not _LOUD:
+        try:
+            with open(wpath("temp", "_loudness.json"), encoding="utf-8") as f:
+                _LOUD.update(json.load(f))
+        except Exception:
+            pass
+    hit = _LOUD.get(key)
+    if hit and hit.get("sig") == sig:
+        return hit["m"]
+    m = measure_loudness(path)
+    _LOUD[key] = {"sig": sig, "m": m}
+    try:
+        os.makedirs(wpath("temp"), exist_ok=True)
+        with open(wpath("temp", "_loudness.json"), "w", encoding="utf-8") as f:
+            json.dump(_LOUD, f)
+    except OSError:
+        pass
+    return m
+
+
+def gain_to(path, lufs, peak_ceiling=-3.0, lo=-30.0, hi=18.0):
+    """dB that brings a sound to `lufs` without its peak passing `peak_ceiling` dBFS. Sounds too short to measure
+    (clicks, ticks, pops) are levelled by peak alone, to 12 dB under the ceiling's LUFS-equivalent."""
+    m = loudness_of(path)
+    g = (lufs - m["lufs"]) if m["lufs"] is not None else (peak_ceiling - 5.0 - m["peak"])
+    g = min(g, peak_ceiling - m["peak"])
+    return max(lo, min(hi, g))

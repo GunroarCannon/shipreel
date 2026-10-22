@@ -24,7 +24,7 @@
 import argparse, csv, json, math, os, platform, re, shutil, subprocess, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from common import (SKILL_DIR, ASSETS, FONTS, out, die, slug, safe_title, video_name, sha, run, ffprobe, resolve_asset,
-                    disk_free_gb, workspace, wpath, now, load_index)
+                    disk_free_gb, workspace, wpath, now, load_index, loudness_of, gain_to)
 
 FORMATS = {"tiktok": (1080, 1920), "short": (1080, 1920), "reel": (1080, 1920), "portrait": (1080, 1920),
            "youtube": (1920, 1080), "landscape": (1920, 1080), "x": (1920, 1080), "twitter": (1920, 1080), "square": (1080, 1080)}
@@ -34,7 +34,7 @@ ENC_FINAL = ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-profile:v",
              "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv", "-movflags", "+faststart"]
 ENC_SEG = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p"]
 AUD = ["-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-ac", "2"]
-SEG_VERSION = 4  # bump when segment rendering changes, so cached segments rebuild
+SEG_VERSION = 5  # bump when segment rendering changes, so cached segments rebuild
 
 # Pacing (references/pacing.md). shot = (min, average, max) seconds per clip; gap = longest stretch with nothing new;
 # wps = caption reading speed (words per second); trans = default transition length; per = word-pop group size.
@@ -475,7 +475,7 @@ def cmd_probe(a):
     out(info)
 
 
-def cmd_sheet(a):
+def make_sheet(a):
     info = ffprobe(a.file)
     n = max(2, min(16, a.n))
     cols = min(n, a.cols or (3 if (info["video"] or {}).get("h", 1) > (info["video"] or {}).get("w", 1) else 2) if n > 3 else n)
@@ -502,6 +502,11 @@ def cmd_sheet(a):
     else:
         fc = parts[0].replace("[f0]", "[o]")
     run(["ffmpeg", "-y", "-v", "error", *sum([["-frames:v", "1"] for _ in []], []), *inputs, "-filter_complex", fc, "-map", "[o]", "-frames:v", "1", "-q:v", "5", dst])
+    return dst, times
+
+
+def cmd_sheet(a):
+    dst, times = make_sheet(a)
     out({"sheet": dst, "times": times})
 
 
@@ -610,7 +615,7 @@ def cmd_record_web(a):
     except Exception:
         pass
     e = register_rec(a.project, a.id, dst, feature=a.feature, era=a.era, commit=a.commit, notes=a.notes, how="web",
-                     url=a.url, marks=meta.get("marks"), orient="portrait" if a.portrait else "landscape",
+                     url=a.url, marks=meta.get("marks"), targets=meta.get("targets"), orient="portrait" if a.portrait else "landscape",
                      capture=meta.get("mode"), fps=meta.get("fps"))
     cap_warn = meta.get("warn")
     if cap_warn:
@@ -1331,6 +1336,10 @@ def build_segment(clip, W, H, fps, project, seg_dir, cfg, mode="creator"):
             mask, shadow, pad = made
             aux_in = ["-loop", "1", "-framerate", str(fps), "-t", str(dur), "-i", mask, "-loop", "1", "-framerate", str(fps), "-t", str(dur), "-i", shadow]
             aux_idx = (1, 2, pad)
+    if src is not None and sw:  # what the crop ended up as, so overlays can be anchored to the source (anchor_overlays)
+        eff = fit if not (fit.split(":")[0] == "float" and not aux_idx) else f"blurpad:{min(1.0, float(fit.partition(':')[2] or 0.86))}"
+        note["geo"] = {"sw": sw, "sh": sh, "fit": "track" if track else eff, "focus": focus, "track": track or None, "zoom": clip.get("zoom"),
+                       "fx": [[n_, arg_, ff_] for n_, arg_, ff_ in (parse_fx(f) for f in fxs) if n_ in ("zoom", "zoomin", "zoomout", "shake", "mirror")]}
     if src is not None and track and sw:
         v.append(track_chain(track, clip.get("zoom"), sw, sh, W, H))
     elif src is not None:
@@ -1430,10 +1439,235 @@ def build_segment(clip, W, H, fps, project, seg_dir, cfg, mode="creator"):
 
 
 # ----------------------------------------------------------------------------- render: overlays + audio mix
+# ----------------------------------------------------------------------------- highlights anchored to the source (references/highlighting.md)
+POINTERS = ("arrow", "arrow-curved", "ring", "circle", "scribble", "underline", "bar", "box", "marker", "focus", "spotlight", "x", "check")
+RECTS = ("box", "marker", "focus")
+HL_COLORS = {"yellow": (255, 214, 10), "red": (255, 59, 48), "green": (52, 199, 89), "white": (255, 255, 255), "blue": (10, 132, 255),
+             "orange": (255, 149, 0), "pink": (255, 45, 140), "black": (0, 0, 0)}
+
+
+def _smooth(x):
+    x = min(1.0, max(0.0, x))
+    return x * x * (3 - 2 * x)
+
+
+def _track_at(keys, t):
+    ks = sorted(keys, key=lambda k: float(k.get("t", 0)))
+    out_ = []
+    for comp in ("x", "y"):
+        val = float(ks[0][comp])
+        for prev, k in zip(ks, ks[1:]):
+            val += (float(k[comp]) - float(prev[comp])) * _smooth((t - float(k.get("t", 0))) / max(0.05, float(k.get("move", 0.6))))
+        out_.append(val)
+    return out_
+
+
+def src_to_out(geo, sx, sy, t, W, H):
+    """Where a point of the SOURCE frame (fractions) lands in the W x H output at clip time t, as fractions of the output.
+    Mirrors fit_chain / track_chain / the geometric fx. None when the layout can't be mapped (stack, crop), "moving" for
+    fx that never hold still (zoomin, zoomout, shake)."""
+    sw, sh = geo["sw"], geo["sh"]
+    name, _, arg = str(geo["fit"]).partition(":")
+    fx_, fy_ = geo.get("focus") or (0.5, 0.5)
+    if name == "track":
+        f = max(W / sw, H / sh) * max(1.0, float(geo.get("zoom") or 1))
+        SW, SH = max(W, math.ceil(sw * f)), max(H, math.ceil(sh * f))
+        cx, cy = _track_at(geo["track"], t)
+        x0, y0 = max(0, min(SW - W, cx * SW - W / 2)), max(0, min(SH - H, cy * SH - H / 2))
+        x, y = (sx * SW - x0) / W, (sy * SH - y0) / H
+    elif name == "cover":
+        f = max(W / sw, H / sh)
+        SW, SH = sw * f, sh * f
+        x, y = (sx * SW - (SW - W) * fx_) / W, (sy * SH - (SH - H) * fy_) / H
+    elif name == "contain":
+        s_ = min(W / sw, H / sh)
+        x, y = ((W - sw * s_) / 2 + sx * sw * s_) / W, ((H - sh * s_) / 2 + sy * sh * s_) / H
+    elif name == "blurpad":
+        z = max(1.0, float(arg or 1))
+        s_ = min(W * z / sw, H * z / sh)
+        iw, ih = sw * s_, sh * s_
+        cw, ch = min(iw, W), min(ih, H)
+        x, y = ((W - cw) / 2 + sx * iw - (iw - cw) * fx_) / W, ((H - ch) / 2 + sy * ih - (ih - ch) * fy_) / H
+    elif name == "float":
+        fw, fh, x0, y0 = float_box(sw, sh, W, H, float(arg or 0.86))
+        x, y = (x0 + sx * fw) / W, (y0 + sy * fh) / H
+    else:
+        return None
+    for n_, arg_, ff_ in geo.get("fx", []):
+        zx, zy = ff_ or geo.get("focus") or (0.5, 0.5)
+        if n_ == "zoom":
+            z = float(arg_ or 1.3)
+            x, y = (x - (1 - 1 / z) * zx) * z, (y - (1 - 1 / z) * zy) * z
+        elif n_ == "mirror":
+            x = 1 - x
+        elif n_ in ("zoomin", "zoomout", "shake"):
+            return "moving"
+    return x, y
+
+
+def static_span(geo, ct0, ct1, pts, W, H, step=0.05):
+    """The longest stretch of [ct0, ct1] (clip time) in which every source point in `pts` stays put in the output, i.e. the
+    camera is holding. Returns (t_start, t_end) or None when the layout can't be mapped or never holds."""
+    best, run0, ref, last = None, None, None, None
+    t = ct0
+    while t <= ct1 + 1e-6:
+        ps = [src_to_out(geo, px, py, t, W, H) for px, py in pts]
+        if any(p_ is None or p_ == "moving" for p_ in ps):
+            return None
+        if ref is None or any(abs(p_[0] - r_[0]) > 0.004 or abs(p_[1] - r_[1]) > 0.004 for p_, r_ in zip(ps, ref)):
+            if run0 is not None and (best is None or last - run0 > best[1] - best[0]):
+                best = (run0, last)
+            run0, ref = t, ps
+        last = t
+        t += step
+    if run0 is not None and (best is None or last - run0 > best[1] - best[0]):
+        best = (run0, last)
+    return best
+
+
+def anchor_overlays(v, built, starts, durs, geos, project, W, H):
+    """Overlays that carry `at` [sx, sy] / `box` [sx, sy, w, h] / `target` (a name record-web saved) are given in the SOURCE
+    frame of the clip they sit on; this maps them through that clip's crop / track / zoom so they land on the thing.
+    A highlight that can't be placed exactly (off-frame, the camera still moving, a layout it can't follow) is DROPPED, not
+    drawn: no highlight beats a wrong one. Returns (overlays for the renderer, notes on what was dropped or moved, proof rows)."""
+    outl, notes, proof = [], [], []
+    for i, o in enumerate(v.get("overlays", [])):
+        if not any(k in o for k in ("at", "box", "target")):
+            outl.append(o)
+            continue
+        typ = o.get("type", "ring")
+        t0 = float(o.get("t", 0)); d = float(o.get("d", 2.0)); t1 = t0 + d
+        ci = o.get("clip")
+        if ci is None:
+            ci = max((k for k in range(len(starts)) if starts[k] <= t0 + 1e-6), default=0)
+        what = o.get("what") or o.get("target") or f"overlays[{i}]"
+        tag = f"overlays[{i}] {typ} '{what}'"
+        if ci >= len(built) or not geos[ci]:
+            notes.append(f"{tag} dropped: clips[{ci}] has no mappable source (a card, or not a recording)")
+            continue
+        geo = geos[ci]
+        box = o.get("box")
+        if o.get("target"):
+            tg = (rec_meta(built[ci].get("src", ""), project).get("targets") or {}).get(o["target"])
+            if not tg:
+                notes.append(f"{tag} dropped: the recording behind clips[{ci}] has no target '{o['target']}' (add a record-web step {{\"target\":\"{o['target']}\",\"sel\":\"...\"}} and re-record)")
+                continue
+            box = tg["box"]
+            lo_, hi_ = float(built[ci].get("in", 0)), float(built[ci].get("out", 1e9))
+            if not lo_ - 0.05 <= float(tg.get("t", lo_)) <= hi_ + 0.05 and not o.get("any_time"):
+                notes.append(f"{tag} dropped: target '{o['target']}' was measured at {tg.get('t')}s, outside clips[{ci}] ({lo_}-{hi_}s), where the page may look different")
+                continue
+        pts = [(box[0], box[1]), (box[0] + box[2], box[1] + box[3])] if box else [tuple(o["at"])]
+        cstart = starts[ci]
+        ct0, ct1 = max(0.0, t0 - cstart), max(0.0, min(durs[ci], t1 - cstart))
+        span = static_span(geo, ct0, ct1, pts, W, H)
+        if span is None:
+            notes.append(f"{tag} dropped: clips[{ci}] uses a layout or move a highlight can't follow (stack/crop, zoomin/zoomout, shake)")
+            continue
+        a0, a1 = span
+        if a1 - a0 < min(0.8, d) - 1e-6:
+            notes.append(f"{tag} dropped: the camera moves for most of {t0:.1f}-{t1:.1f}s (track glide / zoom). Hold the shot there, or put the highlight on a steady stretch")
+            continue
+        P = [src_to_out(geo, px, py, a0, W, H) for px, py in pts]
+        xs, ys = [p_[0] for p_ in P], [p_[1] for p_ in P]
+        x_min, x_max, y_min, y_max = min(xs), max(xs), min(ys), max(ys)
+        tol = 0.012
+        if x_min < -tol or y_min < -tol or x_max > 1 + tol or y_max > 1 + tol:
+            notes.append(f"{tag} dropped: the target is outside the frame at {cstart + a0:.1f}s (x {x_min:.2f}-{x_max:.2f}, y {y_min:.2f}-{y_max:.2f}); aim the camera at it (focus / track) or pick another shot")
+            continue
+        r = {k: val for k, val in o.items() if k not in ("at", "box", "target", "clip")}
+        r["t"], r["d"] = round(cstart + a0, 3), round(min(d, a1 - a0), 3)
+        bw, bh = x_max - x_min, y_max - y_min
+        cx, cy = (x_min + x_max) / 2, (y_min + y_max) / 2
+        pad = float(o.get("pad", 0.012))
+        if typ in RECTS:
+            if not box:
+                notes.append(f"{tag} dropped: a {typ} needs `box` or `target`, not a single point")
+                continue
+            px_, py_ = pad, pad * W / H
+            r.update(x=max(0.0, x_min - px_), y=max(0.0, y_min - py_), w=min(1.0, bw + 2 * px_), h=min(1.0, bh + 2 * py_))
+        elif typ == "spotlight":
+            r.update(x=cx, y=cy, r=float(o.get("r", max(0.1, 0.5 * math.hypot(bw * W, bh * H) / W * 1.15))))
+        elif typ in ("ring", "circle", "scribble"):
+            r.update(x=cx, y=cy, r=float(o["r"]) if o.get("r") else (max(0.05, 0.5 * max(bw, bh * H / W) * 1.3 + 0.01) if box else 0.09))
+        elif typ == "bar":  # a clean straight underline, as wide as the target
+            if not box:
+                notes.append(f"{tag} dropped: a bar needs `box` or `target`")
+                continue
+            r.update(x=x_min, y=min(0.99, y_max + 0.004), w=bw, h=max(0.004, 0.0065 * W / H))
+        elif typ == "underline":  # the hand-drawn png
+            r.update(x=cx, y=(y_max if box else cy) + 0.006, w=float(o.get("w", max(0.18, bw if box else 0.3))))
+        elif typ in ("arrow", "arrow-curved"):
+            wlen = float(o.get("w", 0.28))
+            chosen = None
+            for a_ in ([o["angle"]] if o.get("angle") is not None else [90, 0, 180, 270]):  # 90 = pointing down (arrow sits above), 0 = pointing right
+                ar = math.radians(float(a_))
+                tx, ty = cx - math.cos(ar) * (bw / 2 if box else 0.0), cy - math.sin(ar) * (bh / 2 if box else 0.0)  # tip on the edge facing the arrow
+                bx, by = tx - math.cos(ar) * wlen, ty - math.sin(ar) * wlen * W / H
+                if 0.03 <= bx <= 0.97 and 0.03 <= by <= 0.97:
+                    chosen = (a_, tx, ty)
+                    break
+            if chosen is None:
+                if o.get("angle") is None:
+                    notes.append(f"{tag} dropped: no direction leaves the arrow's body inside the frame; use a box or marker instead")
+                    continue
+                chosen = (o["angle"], cx, cy)
+            r.update(angle=chosen[0], x=chosen[1], y=chosen[2])
+        else:  # x / check
+            r.update(x=cx, y=cy)
+        outl.append(r)
+        proof.append({"i": i, "type": typ, "what": what, "t": r["t"], "d": r["d"], "xy": [round(cx, 3), round(cy, 3)]})
+        if abs(r["t"] - t0) > 0.15:
+            notes.append(f"{tag} moved from {t0:.1f}s to {r['t']:.1f}s to wait for the camera to settle")
+    return outl, notes, proof
+
+
+def hl_rgb(color):
+    c = str(color or "yellow")
+    if c.startswith("#") and len(c) == 7:
+        return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
+    return HL_COLORS.get(c, HL_COLORS["yellow"])
+
+
+def hl_png(kind, W, H, o, dst_dir):
+    """A rounded highlight as a transparent png (PIL): `box` (outline + faint tint), `marker` (a highlighter swipe),
+    `focus` (the whole frame dimmed except a rounded window). Returns (path, x_px, y_px) or None without PIL."""
+    try:
+        from PIL import Image, ImageDraw
+    except ImportError:
+        return None
+    x, y, w, h = int(o["x"] * W), int(o["y"] * H), max(4, int(o["w"] * W)), max(4, int(o["h"] * H))
+    rgb = hl_rgb(o.get("color", "red" if kind == "box" else "yellow"))
+    thick = max(3, int(o.get("thick", max(4, W * 0.0055))))
+    rad = int(o.get("radius", min(26, max(6, min(w, h) * 0.2))))
+    key = sha({"k": kind, "w": w, "h": h, "c": rgb, "t": thick, "r": rad, "W": W, "H": H}, 10)
+    path = os.path.join(dst_dir, f"hl_{kind}_{key}.png")
+    if os.path.exists(path):
+        return path, x, y
+    S = 3  # supersample, then shrink: smooth corners
+    if kind == "focus":
+        im = Image.new("RGBA", (W * S, H * S), (0, 0, 0, int(255 * float(o.get("dim", 0.6)))))
+        d = ImageDraw.Draw(im)
+        d.rounded_rectangle([x * S, y * S, (x + w) * S, (y + h) * S], rad * S, fill=(0, 0, 0, 0))
+        d.rounded_rectangle([x * S, y * S, (x + w) * S, (y + h) * S], rad * S, outline=rgb + (235,), width=max(2, thick // 2) * S)
+        im.resize((W, H), Image.LANCZOS).save(path)
+        return path, 0, 0
+    im = Image.new("RGBA", (w * S, h * S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    if kind == "bar":
+        d.rounded_rectangle([0, 0, w * S - 1, h * S - 1], h * S // 2, fill=rgb + (245,))
+    elif kind == "marker":
+        d.rounded_rectangle([0, 0, w * S - 1, h * S - 1], max(4, rad // 2) * S, fill=rgb + (int(255 * float(o.get("alpha", 0.36))),))
+    else:
+        d.rounded_rectangle([0, 0, w * S - 1, h * S - 1], rad * S, fill=rgb + (22,), outline=rgb + (245,), width=thick * S)
+    im.resize((w, h), Image.LANCZOS).save(path)
+    return path, x, y
+
+
 OV_TIP = {"arrow": (0.95, 0.5), "arrow-curved": (0.84, 0.76)}  # where the tip sits inside the png (normalized)
 
 
-def overlay_graph(v, W, H, fps, total, inputs_start):
+def overlay_graph(v, W, H, fps, total, inputs_start, ov_dir=None):
     """Returns (extra_inputs, filter_lines, out_label). Base video is [vbase]."""
     ins, lines = [], []
     cur = "vbase"
@@ -1443,9 +1677,24 @@ def overlay_graph(v, W, H, fps, total, inputs_start):
         t0 = float(o.get("t", 0)); d = float(o.get("d", total - t0)); t1 = min(total, t0 + d)
         en = f"enable='between(t,{t0:.3f},{t1:.3f})'"
         nxt = f"v{i}"
-        if typ == "box":
-            x, y, w, h = o["x"], o["y"], o["w"], o["h"]
-            lines.append(f"[{cur}]drawbox=x={int(x * W)}:y={int(y * H)}:w={int(w * W)}:h={int(h * H)}:color={o.get('color', 'red')}@0.95:t={int(o.get('thick', 8))}:{en}[{nxt}]")
+        if typ in RECTS or typ == "bar":
+            made = hl_png(typ, W, H, o, ov_dir) if ov_dir else None
+            if made:
+                path, px_, py_ = made
+                ins += ["-loop", "1", "-framerate", str(fps), "-t", str(total), "-i", path]
+                lines.append(f"[{n_in}:v]format=rgba,fade=in:st={t0:.3f}:d=0.14:alpha=1,fade=out:st={max(t0, t1 - 0.14):.3f}:d=0.14:alpha=1[r{i}];"
+                             f"[{cur}][r{i}]overlay={px_}:{py_}:eof_action=pass:{en}[{nxt}]")
+                n_in += 1
+            else:  # no PIL: plain rectangles
+                x, y, w, h = o["x"], o["y"], o["w"], o["h"]
+                bx, by, bw_, bh_ = int(x * W), int(y * H), int(w * W), int(h * H)
+                if typ == "focus":
+                    lines.append(f"[{cur}]drawbox=x=0:y=0:w=iw:h={by}:color=black@0.6:t=fill:{en},drawbox=x=0:y={by + bh_}:w=iw:h=ih-{by + bh_}:color=black@0.6:t=fill:{en},"
+                                 f"drawbox=x=0:y={by}:w={bx}:h={bh_}:color=black@0.6:t=fill:{en},drawbox=x={bx + bw_}:y={by}:w=iw-{bx + bw_}:h={bh_}:color=black@0.6:t=fill:{en}[{nxt}]")
+                elif typ in ("marker", "bar"):
+                    lines.append(f"[{cur}]drawbox=x={bx}:y={by}:w={bw_}:h={bh_}:color={o.get('color', 'yellow')}@{0.36 if typ == 'marker' else 0.95}:t=fill:{en}[{nxt}]")
+                else:
+                    lines.append(f"[{cur}]drawbox=x={bx}:y={by}:w={bw_}:h={bh_}:color={o.get('color', 'red')}@0.95:t={int(o.get('thick', 8))}:{en}[{nxt}]")
         elif typ == "censor":
             x, y, w, h = o["x"], o["y"], o["w"], o["h"]
             cw, ch = max(2, int(w * W)) // 2 * 2, max(2, int(h * H)) // 2 * 2
@@ -1525,6 +1774,8 @@ def overlay_graph(v, W, H, fps, total, inputs_start):
                 f.append(f"rotate={a:.5f}:c=none:ow={rot_w}:oh={rot_h}")
             if o.get("fade", True):
                 f.append(f"fade=in:st={t0}:d=0.12:alpha=1")
+                if not moving:
+                    f.append(f"fade=out:st={max(t0, t1 - 0.15):.3f}:d=0.15:alpha=1")
             lines.append(chain[0] + ",".join(f) + f"[o{i}]")
             # position: x,y = centre; for arrows x,y = the point the tip touches
             cx, cy = float(o.get("x", 0.5)) * W, float(o.get("y", 0.5)) * H
@@ -1565,39 +1816,80 @@ def png_size(path):
     return info["w"], info["h"]
 
 
+SFX_LUFS, MUSIC_LUFS, SFX_MAX_S = -18.0, -16.0, 4.0  # every sound is levelled to these first; `vol` is then relative to them
+FINAL_LUFS, FINAL_TP = -14.0, -2.0  # -2 dB true peak: leaves room for the AAC encode
+
+
 def audio_graph(v, total, base_in, n_in, has_product_music):
+    """Sound design in one graph. Library sounds differ by 25+ dB in loudness, so each SFX and the music bed is levelled to a
+    reference first and `vol` then means the same thing for every sound. SFX get short fades and a length cap, and they
+    duck the music together with the product audio (a gentle compressor, not a pump). Ends on a limiter; the overall level
+    is set afterwards from the measured mix (finish_audio), never by boosting a quiet mix into its peaks."""
     ins, lines = [], []
-    mix = ["[pa]"]
     prod_vol = float(v.get("product_volume", 1.0))
     lines.append(f"[{base_in}]volume={prod_vol}[pa0]")
     music = v.get("music")
-    if music:
-        lines.append("[pa0]asplit=2[pa][key]")
-    else:
-        lines.append("[pa0]anull[pa]")
-    for j, s in enumerate(v.get("sfx", [])):
+    sfx = v.get("sfx", [])
+    keys = ["[pa1]"]
+    lines.append("[pa0]asplit=2[pa][pa1]" if music else "[pa0]anull[pa]")
+    sfx_labels = []
+    for j, s in enumerate(sfx):
         path = resolve_asset(s["asset"])
         ins += ["-i", path]
-        t = float(s.get("t", 0)); ms = int(t * 1000)
-        trim = f"atrim=start={s.get('start', 0)}" + (f":duration={s['dur']}" if s.get("dur") else "") + ",asetpts=PTS-STARTPTS,"
-        lines.append(f"[{n_in}:a]{trim}aresample=48000,aformat=channel_layouts=stereo,volume={s.get('vol', 0.8)},adelay={ms}|{ms}[s{j}]")
-        mix.append(f"[s{j}]")
+        t = float(s.get("t", 0)); ms = int(max(0.0, t) * 1000)
+        m = loudness_of(path)
+        gain = 10 ** (gain_to(path, SFX_LUFS) / 20) * float(s.get("vol", 0.7))
+        st = float(s.get("start", 0))
+        length = float(s["dur"]) if s.get("dur") else min(SFX_MAX_S, max(0.05, m["dur"] - st))
+        fo = min(0.25, max(0.02, length * 0.25))
+        lines.append(f"[{n_in}:a]atrim=start={st}:duration={length:.3f},asetpts=PTS-STARTPTS,aresample=48000,aformat=channel_layouts=stereo,"
+                     f"volume={gain:.4f},afade=t=in:d=0.004,afade=t=out:st={max(0.0, length - fo):.3f}:d={fo:.3f},adelay={ms}|{ms}[s{j}]")
+        sfx_labels.append(f"[s{j}]")
         n_in += 1
+    if sfx_labels and music:  # the SFX bus also feeds the ducking key
+        lines.append("".join(sfx_labels) + f"amix=inputs={len(sfx_labels)}:normalize=0:duration=longest,asplit=2[sfxbus][sfxkey]")
+        keys.append("[sfxkey]")
+        mix = ["[pa]", "[sfxbus]"]
+    else:
+        mix = ["[pa]"] + sfx_labels
     if music:
         mm = music if isinstance(music, dict) else {"asset": music}
         path = resolve_asset(mm["asset"])
         ins += ["-stream_loop", "-1", "-i", path]
         st = float(mm.get("start", 0)); vol = float(mm.get("vol", 0.16))
+        gain = 10 ** (gain_to(path, MUSIC_LUFS) / 20) * vol
         lines.append(f"[{n_in}:a]atrim=start={st},asetpts=PTS-STARTPTS,atrim=duration={total:.3f},aresample=48000,aformat=channel_layouts=stereo,"
-                     f"volume={vol},afade=t=in:d=0.6,afade=t=out:st={max(0, total - 1.5):.3f}:d=1.5[mus0]")
+                     f"highpass=f=45,volume={gain:.4f},afade=t=in:d=0.8,afade=t=out:st={max(0, total - 1.8):.3f}:d=1.8[mus0]")
         if mm.get("duck", True):
-            lines.append("[mus0][key]sidechaincompress=threshold=0.04:ratio=8:attack=15:release=350[mus]")
+            lines.append(("".join(keys) + "amix=inputs=2:normalize=0[key];" if len(keys) == 2 else f"{keys[0]}anull[key];") +
+                         "[mus0][key]sidechaincompress=threshold=0.05:ratio=3:attack=20:release=500:makeup=1[mus]")
         else:
-            lines.append("[key]anullsink;[mus0]anull[mus]")
+            lines.append("".join(keys) + "anullsink;[mus0]anull[mus]")
         mix.append("[mus]")
         n_in += 1
-    lines.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first,loudnorm=I=-14:TP=-1.5:LRA=11,aresample=48000[aout]")
+    lines.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first,alimiter=limit=0.89:attack=4:release=80:level=disabled,aresample=48000[aout]")
     return ins, lines, n_in
+
+
+def finish_audio(video_only, mix_wav, dst, cfg):
+    """Set the overall level from the measured mix: towards -14 LUFS, but never past -1.5 dB true peak (a mix of a quiet bed
+    and a few SFX stays natural instead of being cranked into a limiter). Muxes the textless master."""
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", mix_wav, "-af", f"loudnorm=I={FINAL_LUFS}:TP={FINAL_TP}:LRA=11:print_format=json", "-f", "null", "-"],
+                       capture_output=True, text=True, encoding="utf-8", errors="replace")
+    m = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", p.stderr or "", re.S)
+    gain, info = 0.0, {}
+    if m:
+        try:
+            j = json.loads(m.group(0))
+            i_, tp = float(j["input_i"]), float(j["input_tp"])
+            if i_ > -60:
+                gain = max(-24.0, min(FINAL_LUFS - i_, FINAL_TP - tp, 12.0))
+                info = {"mix_lufs": round(i_, 1), "gain_db": round(gain, 1), "peak_db": round(tp + gain, 1)}
+        except (ValueError, KeyError):
+            pass
+    run(["ffmpeg", "-y", "-v", "error", "-i", video_only, "-i", mix_wav, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
+         "-af", f"volume={gain:.2f}dB,alimiter=limit=0.84:attack=3:release=60:level=disabled", *AUD, "-movflags", "+faststart", dst])
+    return info
 
 
 def write_description(v, cfg, base_path, total):
@@ -1862,7 +2154,7 @@ def render_video(v, plan, cfg, a):
     if mode not in MODES:
         raise ValueError(f"mode '{mode}' is not one of {', '.join(MODES)}")
     # A) segments, then the post-overlap timeline (a transition overlaps the previous clip)
-    segs, durs, built, framing = [], [], [], []
+    segs, durs, built, framing, geos = [], [], [], [], []
     card_caps = []
     muted_music = product_music_clips(v, project)
     for ci, c in enumerate(v["clips"]):
@@ -1870,8 +2162,9 @@ def render_video(v, plan, cfg, a):
             c = {**c, "audio": "mute"}  # the project's own music would fight the library bed: two musics is always wrong
         p, d, note = build_segment(c, W, H, fps, project, seg_dir, cfg, mode)
         segs.append(p); durs.append(d); built.append(c)
-        if note:
-            framing.append({"clip": ci, **note})
+        geos.append(note.get("geo"))
+        if {k: x_ for k, x_ in note.items() if k != "geo"}:
+            framing.append({"clip": ci, **{k: x_ for k, x_ in note.items() if k != "geo"}})
     pace = resolve_pace(v, sum(durs), cfg)
     if pace not in PACES:
         raise ValueError(f"pace '{pace}' is not one of auto, {', '.join(PACES)}")
@@ -1880,10 +2173,11 @@ def render_video(v, plan, cfg, a):
         prev = durs[ci - 1] if ci else 0.0
         trans.append(clip_transition(c, ci, prev, durs[ci], pace))
     cursor = 0.0
-    trans_sfx = []
+    trans_sfx, starts = [], []
     for ci, c in enumerate(built):
         _name, td, friendly = trans[ci]
         start = cursor - td
+        starts.append(max(0.0, start))
         d = durs[ci]
         ts_ = c.get("transition_sfx", friendly in WHIPS)
         if friendly and ts_:
@@ -1909,7 +2203,9 @@ def render_video(v, plan, cfg, a):
         cat = "".join(f"[{i}:v][{i}:a]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vcat][acat]"
     else:
         cat = concat_graph(durs, trans)
-    ov_in, ov_lines, vlabel, n_in = overlay_graph(v, W, H, fps, total, n)
+    ov_dir = os.path.join(vdir, "ov"); os.makedirs(ov_dir, exist_ok=True)
+    ovs, ov_notes, proof_rows = anchor_overlays(v, built, starts, durs, geos, project, W, H)
+    ov_in, ov_lines, vlabel, n_in = overlay_graph({**v, "overlays": ovs}, W, H, fps, total, n, ov_dir)
     va = {**v, "sfx": list(v.get("sfx", [])) + trans_sfx} if trans_sfx else v
     au_in, au_lines, n_in = audio_graph(va, total, "acat", n_in, False)
     # the colour look goes under the overlays, so arrows and stickers keep their colours
@@ -1917,8 +2213,11 @@ def render_video(v, plan, cfg, a):
     # pin fps: with extra overlay inputs ffmpeg otherwise guesses 25fps and drops frames (captions drift)
     fc = ";".join([cat, base] + ov_lines + [f"[{vlabel}]fps={fps},format=yuv420p[vout]"] + au_lines)
     os.makedirs(os.path.dirname(textless), exist_ok=True)
-    run(["ffmpeg", "-y", "-v", "error", *seg_in, *ov_in, *au_in, "-filter_complex", fc, "-map", "[vout]", "-map", "[aout]",
-         "-t", str(total), "-r", str(fps), *enc_final(cfg), *AUD, textless])
+    vonly, mixwav = os.path.join(vdir, "video_only.mp4"), os.path.join(vdir, "mix.wav")
+    run(["ffmpeg", "-y", "-v", "error", *seg_in, *ov_in, *au_in, "-filter_complex", fc,
+         "-map", "[vout]", "-an", "-t", str(total), "-r", str(fps), *enc_final(cfg), vonly,
+         "-map", "[aout]", "-t", str(total), "-c:a", "pcm_s16le", "-ar", "48000", mixwav])
+    audio_info = finish_audio(vonly, mixwav, textless, cfg)
     # D) captions -> final
     v2 = dict(v); v2["captions"] = [dict(c) for c in card_caps + list(v.get("captions", []))]
     v2["_mode"], v2["_pace"] = mode, pace
@@ -1936,6 +2235,16 @@ def render_video(v, plan, cfg, a):
         run(["ffmpeg", "-y", "-v", "error", "-i", textless, "-vf", vf, "-c:a", "copy", "-r", str(fps), *enc_final(cfg), final])
     else:
         shutil.copy2(textless, final)
+    proof = None
+    legacy = [o for o in ovs if o.get("type") in POINTERS and any(o is x for x in v.get("overlays", []))]  # placed by hand in output coordinates
+    shown = [(r_["t"], r_) for r_ in proof_rows] + [(float(o.get("t", 0)), {"d": float(o.get("d", 2))}) for o in legacy]
+    if shown:  # one frame per highlight, from the finished video: the reviewer checks each lands on its target (references/highlighting.md)
+        try:
+            times = [round(min(total - 0.05, t_ + min(0.6, r_["d"] / 2)), 2) for t_, r_ in sorted(shown, key=lambda x: x[0])][:12]
+            proof, _t = make_sheet(argparse.Namespace(file=final, n=len(times), cols=min(4, len(times)) if W > H else min(3, len(times)), grid=False, width=1200 if W > H else 1000,
+                                                      times=",".join(map(str, times)), out=os.path.join(pdir("temp", project, "proof"), v["id"] + ".jpg")))
+        except Exception:
+            proof = None
     desc = write_description(v, cfg, os.path.join(odir, name), total)
     thumb = None
     if v.get("thumb"):
@@ -1955,6 +2264,9 @@ def render_video(v, plan, cfg, a):
             **({"framing": framing} if framing else {}),
             **({"thumb": os.path.basename(thumb)} if thumb else {}), **({"warn": warn} if warn else {}),
             **({"contrast_fixed": contrast_notes} if contrast_notes else {}),
+            **({"audio": audio_info} if audio_info else {}),
+            **({"highlights": proof_rows} if proof_rows else {}), **({"overlay_notes": ov_notes} if ov_notes else {}),
+            **({"proof": os.path.relpath(proof, workspace())} if proof else {}),
             **({"product_music_muted": [f"clips[{i}]" for i in muted_music]} if muted_music else {})}
 
 
@@ -2060,7 +2372,7 @@ def src_size(path):
 
 
 SOFT = ("cap ai-tell", "desc ai-tell", "title ai-tell", "cap insider", "title insider", "desc insider", "cap emoji", "long caption", "tags=",
-        "music:", "bare:", "pace:", "framing:", "pro note:", "todo list:")
+        "music:", "bare:", "pace:", "framing:", "pro note:", "todo list:", "overlay note:", "sfx note:", "sound:")
 
 
 def cmd_check(a):
@@ -2215,6 +2527,7 @@ def cmd_check(a):
                     resolve_asset(o["asset"])
                 except Exception as e:
                     iss.append(str(e)[:80])
+        iss += highlight_issues(v, mode) + sound_issues(v, mode)
         trans_sound_keywords = ("whoosh", "swoosh", "whip", "swipe")
         for s in v.get("sfx", []):
             try:
@@ -2361,6 +2674,59 @@ def pace_issues(v, pace, piece_durs, kinds, starts, caps, est):
     return out_
 
 
+def sound_issues(v, mode):
+    """Sound design (references/music-audio.md, section 5): sounds are levelled at render, so what is left to catch is clutter."""
+    out_ = []
+    sfx = sorted(((float(x.get("t", 0)), x) for x in v.get("sfx", [])), key=lambda a: a[0])
+    for (t1, a), (t2, b) in zip(sfx, sfx[1:]):
+        if t2 - t1 < 0.3 and a.get("asset") != b.get("asset"):
+            out_.append(f"sound: '{a.get('asset')}' at {t1:.2f}s and '{b.get('asset')}' at {t2:.2f}s pile up within {t2 - t1:.2f}s; keep one sound per beat")
+    for _t, x in sfx:
+        try:
+            dur = loudness_of(resolve_asset(x["asset"]))["dur"]
+        except Exception:
+            continue
+        if dur > SFX_MAX_S and not x.get("dur"):
+            out_.append(f"sound: {x['asset']} is {dur:.1f}s long; the render cuts SFX at {SFX_MAX_S:g}s with a short fade. Set `dur` to choose where it ends (a sound that rings through the next beat sounds like a mistake)")
+        if float(x.get("vol", 0.7)) > 0.9:
+            out_.append(f"sound: {x['asset']} vol {x.get('vol')} is above 0.9; sounds are levelled first, 0.4 to 0.8 is the working range")
+    m = v.get("music")
+    if m and isinstance(m, dict) and float(m.get("vol", 0.16)) > 0.3:
+        out_.append(f"sound: music vol {m.get('vol')} is loud for a bed (it is levelled first; 0.10 to 0.18 keeps captions and SFX on top)")
+    if mode == "pro":
+        for _t, x in sfx:
+            if float(x.get("vol", 0.7)) > 0.7:
+                out_.append(f"sfx note: pro SFX sit at 0.4 to 0.6; {x.get('asset')} is {x.get('vol')}")
+    return out_
+
+
+def highlight_issues(v, mode):
+    """Highlights (references/highlighting.md): a pointer placed by guess is worse than none, so a hand-placed one must be marked
+    verified; anchored ones (at / box / target) are mapped and checked by the renderer."""
+    out_ = []
+    ovs = v.get("overlays", [])
+    ptr = [(i, o) for i, o in enumerate(ovs) if o.get("type") in POINTERS and o.get("type") not in ("x", "check")]
+    for i, o in ptr:
+        typ = o.get("type")
+        anchored = any(k in o for k in ("at", "box", "target"))
+        if anchored:
+            if not o.get("what") and not o.get("target"):
+                out_.append(f"overlay: overlays[{i}] {typ} needs `what` (the thing it points at, e.g. \"Export button\"): the reviewer checks the proof frame against it")
+            if typ in RECTS + ("bar", "spotlight") and "box" not in o and "target" not in o and typ != "spotlight":
+                out_.append(f"overlay: overlays[{i}] {typ} needs `box` [x, y, w, h] or `target`")
+        elif not o.get("verified"):
+            out_.append(f"overlay: overlays[{i}] {typ} is placed by hand in output coordinates. Anchor it to the source instead (`target` from record-web, or `box`/`at` read off `clip.py sheet <rec> --grid`; the render maps it through the crop and drops it if it can't land), "
+                        "or add \"verified\": true once the proof sheet shows it exactly on target. A wrong highlight is worse than none")
+    kinds = [o.get("type") for _i, o in ptr]
+    if len(kinds) >= 3 and len(set(kinds)) == 1:
+        out_.append(f"overlay note: all {len(kinds)} highlights are '{kinds[0]}'; vary them to what each target is (references/highlighting.md, section 'Pick the highlight')")
+    if mode == "pro":
+        for i, o in ptr:
+            if o.get("type") in ("scribble", "arrow-curved"):
+                out_.append(f"pro note: overlays[{i}] {o.get('type')} looks hand-drawn; box, bar, marker, focus or a straight arrow read cleaner")
+    return out_
+
+
 def pro_issues(v, style):
     """Pro mode (references/pro-mode.md): no meme looks, no slang, sentence case."""
     out_ = []
@@ -2371,9 +2737,7 @@ def pro_issues(v, style):
         if typ == "sticker" and str(o.get("asset", "")).startswith(("meme:", "gif:")):
             out_.append(f"pro: overlays[{i}] is a meme sticker; pro videos keep memes out")
         if typ in ("ring", "circle"):
-            out_.append(f"pro note: overlays[{i}] '{typ}': avoid circles in pro mode unless coordinates are verified on the contact sheet with --grid. Prefer clean zoomin or leaving the UI clean.")
-        if typ in ("scribble", "arrow-curved"):
-            out_.append(f"pro note: overlays[{i}] {typ} looks hand-drawn; ring, box, spotlight or a straight arrow read cleaner")
+            out_.append(f"pro note: overlays[{i}] '{typ}' is a creator look; a pro video points with box, bar, marker or focus")
     if v.get("hook_type") == "clickbait":
         out_.append("pro note: clickbait hook in a pro video; lead with the outcome instead")
     texts = [("title", v.get("title", ""))] + [(f"captions[{i}]", c.get("text", "")) for i, c in enumerate(v.get("captions", []))]
@@ -2741,10 +3105,10 @@ def cmd_scaffold(a):
         v["chapters"] = [{"t": 0 if k == 0 else round(starts[idx], 1), "title": f"TODO chapter {k + 1}"} for k, idx in enumerate(sections)]
     v["todo"] = ["Write every TODO text. Hook (captions[0]) = the promise in 3-6 words. Each `TODO clips[i] beat` = 2-6 words naming what clips[i] "
                  "shows (open clip.py sheet <rec>). Payoff = the result, the number or the joke. Keep the word count the pace allows (pacing.md)",
-                 "Avoid circles/rings unless exact coordinates are verified from a high-res grid and the target is clear. In pro mode or on busy UI, prefer a subtle zoomin or leaving the UI clean. An off-target circle ruins the video."]
+                 "Pointers: anchor them to the source (`target` from record-web, or `box` read off `clip.py sheet <rec> --grid`) with a `what`, pick the type for the target, and open the `proof` sheet after rendering (references/highlighting.md). No exact target = no highlight."]
     if not pro:
         v["todo"].append("Music decision (music-audio.md section 0): a bed from assets.py find --type music, or \"music\": null with a reason")
-    v["todo"].append("After render: read `framing` in the result and open clip.py sheet on the final; the subject must be in frame")
+    v["todo"].append("After render: read `framing`, `overlay_notes` and `audio` in the result; open clip.py sheet on the final and the `proof` sheet: the subject must be in frame and every highlight on its target")
     plan = {"project": a.project, "pass": a.pass_no, "videos": []}
     if os.path.exists(a.out):
         try:
