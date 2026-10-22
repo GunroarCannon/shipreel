@@ -39,6 +39,8 @@ Steps (wait/ms are milliseconds):
 ```
 `mark` puts exact timestamps in the result (`marks`), so the writer can cut on `in: marks.dashboard - 0.3` without looking at frames. `--portrait` gives exactly 1080×1920; landscape is 1280×720 CSS at 1.5×. A fake cursor with click ripples is drawn (`--no-cursor` to hide it). Use the shorthand's `live_url` if the dev server is expensive to start. If you start a dev server, run it in the background and kill it after.
 
+`record-web` steps the page clock one frame per `--fps` (virtual time). Playback is full speed even when capture is slower than realtime. The JSON includes `mode` (`virtual` or `screencast`) and `fps`. `mode` `virtual` is the default. An fps warn means the screencast fallback was choppy: fix the page and re-record. HTML5 `<video>` and `<audio>` on the page follow the wall clock and look wrong under virtual time; record those with `record-screen`.
+
 ### Godot games
 ```
 C record-godot <p> --id boss-fight --scene res://levels/boss.tscn --dur 15 --autoplay temp/<p>/steps/boss.json [--env DEBUG_OVERLAY=0] [--resolution 1920x1080]

@@ -19,6 +19,7 @@ The expensive part of a run is not rendering. It's an expensive model reading re
 - Ask for terse returns: the role files define the return format (a path + a ≤5 line summary). Don't ask subagents to "explain".
 - Run independent subagents in parallel: for example, scout the next project while the current project renders.
 - Do not spawn a subagent for a single command. Run it yourself.
+- Tell a haiku editor to follow `references/roles/editor.md` in order and treat each check error line as the fix.
 
 ## Plans
 

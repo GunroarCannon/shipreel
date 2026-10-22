@@ -7,14 +7,14 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 | key | type | notes |
 |---|---|---|
 | `id` | str | unique within the project: `t01`, `y01` (pass 2: `p2t01`) |
-| `format` | `tiktok` \| `youtube` \| `short` \| `square` | tiktok/short 1080×1920, youtube 1920×1080 |
+| `format` | `tiktok` \| `youtube` \| `short` \| `square` \| `x` \| `twitter` \| `landscape` | tiktok/short 1080×1920, youtube/x/twitter/landscape 1920×1080, square 1080×1080 |
 | `title` | str | human title, it becomes the file name. See copy-rules |
 | `tags` | [str] | 3 to 5 niche hashtags without `#`. Also go in the file name |
 | `series` | {name, part} | optional → `name-part-N_title_#tags` |
 | `style` | caption preset | `pop` (default, TikTok Classic look) `bubble` (rounded chunky mid-frame: the game-dev look) `chip` (small grey rounded box) `label` (white box) `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
 | `hook_type` | str | for the ledger: `contrarian`, `before-after`, `number`, `question`, `pov`, `fail`, `flex`, `tutorial`, `clickbait`... |
 | `header` | str or {text, t, until} | persistent white-box text at the top (TikTok's "persistent caption"). Off by default: a project name boxed on every frame reads as a template |
-| `clips` | [clip] | in order. Total length = the sum |
+| `clips` | [clip] | in order. Total length = the sum of clip lengths minus transition overlaps |
 | `captions` | [caption] | burned in (not in the textless file) |
 | `overlays` | [overlay] | in the textless file too |
 | `sfx` | [{asset, t, vol=0.8, start, dur}] | |
@@ -45,7 +45,10 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 - `speed`: 0.25 to 4 (audio pitch kept).
 - `audio`: `keep` | `mute` | a number (gain).
 - `fx`: see effects-cookbook. Syntax `name[:arg][@x,y]`.
-- `caption`: str or {text, t, d, style...}, with times relative to this clip. Good for "this clip says this".
+- `caption`: str or {text, t, d, style...}. `t` is relative to when this clip starts to appear (the start of the transition into it). Good for "this clip says this".
+- `transition`: optional, on clips after the first. `none`, `fade`, `dissolve`, `wipeleft`, `wiperight`, `slideup`, `slidedown`. Omitted or `none` is a hard cut. The first clip ignores this field.
+- `transition_dur`: seconds. Omitted uses 0.35. `0` is a hard cut. It has to be shorter than both clips it joins.
+- Video-level captions, sfx, overlays and chapters sit on the finished timeline. Each transition shortens the video by its overlap. A caption near a join can sit on the blend. When to use a transition: `effects-cookbook.md`.
 
 ## Caption
 

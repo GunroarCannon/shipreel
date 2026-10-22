@@ -70,6 +70,12 @@ Bad hooks: setup sentences ("so I've been working on..."), vague teases, brand-f
 
 - **TikTok**: 1 to 3 short lines. Line 1 adds context the video doesn't say (it shows before "more", and TikTok indexes it). Optionally a real question with a stance ("which version would you ship?"). Then links, mentions, hashtags.
 - **YouTube**: 2 to 4 sentences with the main keyword early (first 125 characters), chapters (auto-added), links, 3 to 5 hashtags.
+- **X / Twitter**: 1 to 3 punchy lines formatted as a standalone tweet (< 280 characters total).
+  - Line 1: Hook / dev insight / surprising result ("i thought adding ragdolls would be easy", "40 stickmen battling with real 2D physics").
+  - Line 2: What happened or what you built.
+  - Line 3: Optional call-to-action or repo/demo link (`code: <url>`, `play: <url>`).
+  - Tags: 2 to 4 high-relevance hashtags (#gamedev, #indiedev, #godotengine, #buildinpublic, etc.) at the end.
+  - Never use fluff, hashtags inline in sentences, or thread teases.
 - Don't echo the title or the hook text.
 - Skip the description entirely (empty marker file) when the video speaks for itself and there's nothing to add. That's fine for some TikToks.
 

@@ -59,7 +59,9 @@
             "shake:0.6",
             "flash"
           ],
-          "speed": 1.5
+          "speed": 1.5,
+          "transition": "fade",
+          "transition_dur": 0.25
         }
       ],
       "overlays": [

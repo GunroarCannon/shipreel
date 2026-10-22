@@ -4,7 +4,7 @@ Read this before the first `record-*` command of a project, and again when a rec
 
 ## The seven rules
 
-1. **Success signals lie.** Exit code 0, `ok: true`, a valid 1080x1920 mp4 and an audio track prove only that ffmpeg ran. The only proof is a contact sheet you looked at. `record-*` also prints `warn: STILL n%` when the footage froze: that is a failure, not a note.
+1. **Success signals lie.** Exit code 0, `ok: true`, a valid 1080x1920 mp4 and an audio track prove only that ffmpeg ran. The only proof is a contact sheet you looked at. `record-*` also prints `warn: STILL n%` when the footage froze: that is a failure, not a note. A capture fps warn, or `!!CHOPPY` in `rec list`, is a failure too (the web capture fell back to a live screencast).
 2. **Software does not play itself.** An app or game waits in its first state (title screen, menu, tutorial, paused scene) until something presses a key or clicks. A recording with no `--steps` / `--autoplay` is a screensaver. Every recording needs a driver that (a) clears whatever blocks the first state, then (b) performs the feature being filmed. A driverless recording is only fine for a page that animates by itself, and the note should say so.
 3. **Look before you script.** Never write steps for a screen you haven't seen. Do a 3 s probe recording (`--dur 3`, no steps), run `sheet --n 3`, and write down what is on screen and what is in the way (rule 4). Then write the steps.
 4. **Clear the blockers first.** A headless browser is a brand-new user every time and a Godot run starts from the first scene, so first-run UI always appears. Put the dismissal at the start of the steps, before the feature. Blockers to look for:
@@ -51,6 +51,7 @@ Any "no" → fix the steps/autoplay/camera and re-record. Max 2 retries, then th
 | subject tiny in the frame | wide camera, full-screen field | camera mode, zoom, `crop:` or `zoomin@x,y` |
 | caption says X, footage shows something else | caption written from the README | re-time the clip, re-record, or rewrite the caption to what is shown |
 | probe lists `static_spans` > 3 s | frozen recording or a held title card | cut the span out, or re-record with motion |
+| motion looks slow or stuttery | web capture fell back to a live screencast (`mode` screencast, or an fps warn) | re-record; virtual mode is the default. If it keeps failing, the page is too heavy or has a video element |
 
 ## Why this file exists
 

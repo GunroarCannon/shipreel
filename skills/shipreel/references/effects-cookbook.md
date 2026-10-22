@@ -57,6 +57,10 @@ Find x,y with `clip.py sheet <rec.mp4> --grid`: it draws a 10% grid labelled 1 t
 - **Meme cut**: 1 to 1.5 s image clip (`fit: blurpad`, `zoomin:1.15`) with its SFX. Max 1 to 2 per TikTok; none in about half the videos (`config.mix.meme_share`).
 - **"POV"**: header "POV: you finally fixed the physics" + a clean clip; no effects needed. Variety is good.
 
+## Transitions (between clips)
+
+A hard cut is the default. Use a transition on a version cut, a project switch, or a YouTube scene change. On TikTok pass `transition_dur` 0.25. Don't put one on every cut, and don't fade a TikTok in from black (`fadein` stays YouTube-only). The field names and the clock rule are in `plan-schema.md`.
+
 ## Fancy vs plain
 
 `config.mix.fancy_per_batch` (default 2 of 10) = heavy-edit videos (many beats, memes, glitch). The rest are clean: one or two effects, good captions. A whole feed of maximal edits looks like a template farm.

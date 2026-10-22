@@ -24,8 +24,9 @@ from common import (SKILL_DIR, ASSETS, FONTS, out, die, slug, safe_title, video_
                     disk_free_gb, workspace, wpath, now)
 
 FORMATS = {"tiktok": (1080, 1920), "short": (1080, 1920), "reel": (1080, 1920), "portrait": (1080, 1920),
-           "youtube": (1920, 1080), "landscape": (1920, 1080), "square": (1080, 1080)}
-LIMITS = {"tiktok": (10, 30), "short": (10, 60), "reel": (10, 90), "portrait": (5, 180), "youtube": (60, 300), "landscape": (5, 600), "square": (5, 120)}
+           "youtube": (1920, 1080), "landscape": (1920, 1080), "x": (1920, 1080), "twitter": (1920, 1080), "square": (1080, 1080)}
+LIMITS = {"tiktok": (10, 30), "short": (10, 60), "reel": (10, 90), "portrait": (5, 180),
+          "youtube": (60, 300), "landscape": (5, 600), "x": (5, 140), "twitter": (5, 140), "square": (5, 120)}
 ENC_FINAL = ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-profile:v", "high", "-pix_fmt", "yuv420p",
              "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv", "-movflags", "+faststart"]
 ENC_SEG = ["-c:v", "libx264", "-preset", "veryfast", "-crf", "17", "-pix_fmt", "yuv420p"]
@@ -319,7 +320,16 @@ def cmd_rec(a):
     if a.action == "list":
         for r in load_data(a.project)["recordings"]:
             extras = " ".join(f"{k}={r[k]}" for k in ("feature", "era", "commit", "orient", "music") if r.get(k))
-            flag = f" !!STILL {r['still_pct']}%" if r.get("warn") else ""
+            flag = ""
+            warn = str(r.get("warn") or "")
+            if (r.get("still_pct") or 0) >= 30 or warn.startswith("STILL"):
+                flag += f" !!STILL {r.get('still_pct', 0)}%"
+            try:
+                cap_fps = float(r.get("fps"))
+            except (TypeError, ValueError):
+                cap_fps = None
+            if r.get("capture") == "screencast" and cap_fps is not None and cap_fps < 20:
+                flag += f" !!CHOPPY {r.get('fps')}fps"
             print(f"{r['id']} | {r['dur']}s {r.get('w')}x{r.get('h')} audio={int(r.get('has_audio', 0))}{flag} | {extras} | {r.get('notes', '')[:80]}")
         return
     if a.action == "find":
@@ -405,7 +415,18 @@ def cmd_record_web(a):
     except Exception:
         pass
     e = register_rec(a.project, a.id, dst, feature=a.feature, era=a.era, commit=a.commit, notes=a.notes, how="web",
-                     url=a.url, marks=meta.get("marks"), orient="portrait" if a.portrait else "landscape")
+                     url=a.url, marks=meta.get("marks"), orient="portrait" if a.portrait else "landscape",
+                     capture=meta.get("mode"), fps=meta.get("fps"))
+    cap_warn = meta.get("warn")
+    if cap_warn:
+        d = load_data(a.project)
+        for r in d["recordings"]:
+            if r["id"] == a.id:
+                prev = r.get("warn")
+                r["warn"] = f"{prev} | {cap_warn}" if prev else cap_warn
+                e = r
+                break
+        save_data(a.project, d)
     out({"ok": True, **e})
 
 
@@ -989,7 +1010,10 @@ def build_segment(clip, W, H, fps, project, seg_dir, cfg):
         elif n in ("speed", "slowmo"):
             pass
         else:
-            raise ValueError(f"unknown fx '{n}' (see references/effects-cookbook.md)")
+            raise ValueError(
+                f"unknown fx '{n}' (allowed: bw, sepia, contrast, sat, bright, dim, blur, vignette, "
+                "zoom, zoomin, zoomout, shake, glitch, vhs, pixelate, mirror, flash, fadein, fadeout, "
+                "reverse, freeze, speed, slowmo; see references/effects-cookbook.md)")
     if post:
         v.append(",".join(post))
     v.append(f"fps={fps},format=yuv420p,setsar=1,trim=duration={dur},setpts=PTS-STARTPTS")
@@ -1339,6 +1363,63 @@ def auto_contrast(caps, textless, preset, W, H, total, has_header):
     return out_caps, notes
 
 
+TRANSITIONS = {
+    "none": None, "fade": "fade", "dissolve": "dissolve",
+    "wipeleft": "wipeleft", "wiperight": "wiperight",
+    "slideup": "slideup", "slidedown": "slidedown",
+}
+TRANSITION_DEFAULT = 0.35
+
+
+def clip_transition(clip, index, prev_dur, this_dur):
+    """Transition INTO this clip. (ffmpeg name or None, seconds). First clip ignores the field."""
+    raw = clip.get("transition")
+    if index == 0 or raw in (None, "", "none"):
+        return None, 0.0
+    name = str(raw).strip().lower()
+    if name not in TRANSITIONS:
+        allowed = "none, fade, dissolve, wipeleft, wiperight, slideup, slidedown"
+        raise ValueError(
+            f"clips[{index}] transition '{raw}' is not allowed ({allowed}). "
+            "Remove the field for a hard cut.")
+    if "transition_dur" in clip and clip["transition_dur"] not in (None, ""):
+        td = float(clip["transition_dur"])
+    else:
+        td = TRANSITION_DEFAULT
+    limit = min(prev_dur, this_dur) - (1 / 30)
+    if td <= 0:
+        return None, 0.0
+    if td > max(0.05, limit):
+        cap = max(0.05, round(limit, 3))
+        raise ValueError(
+            f"clips[{index}] transition_dur {td:g}s is longer than the shorter clip "
+            f"({min(prev_dur, this_dur):.2f}s). Use transition_dur <= {cap:.2f} or lengthen the clip.")
+    return TRANSITIONS[name], round(td, 3)
+
+
+def concat_graph(durs, trans):
+    """Pairwise xfade or hard concat. trans[i] is (ffmpeg name or None, seconds) INTO clip i.
+    Ends on [vcat][acat]. Output duration is the sum of durs minus the overlaps."""
+    lines = []
+    vprev, aprev = "0:v", "0:a"
+    acc = durs[0]
+    last = len(durs) - 1
+    for i in range(1, len(durs)):
+        name, td = trans[i]
+        vout = "vcat" if i == last else f"vx{i}"
+        aout = "acat" if i == last else f"ax{i}"
+        if name and td > 0:
+            offset = max(0.0, round(acc - td, 3))
+            lines.append(f"[{vprev}][{i}:v]xfade=transition={name}:duration={td:.3f}:offset={offset:.3f}[{vout}]")
+            lines.append(f"[{aprev}][{i}:a]acrossfade=d={td:.3f}:c1=tri:c2=tri[{aout}]")
+            acc = acc + durs[i] - td
+        else:
+            lines.append(f"[{vprev}][{i}:v][{aprev}][{i}:a]concat=n=2:v=1:a=1[{vout}][{aout}]")
+            acc += durs[i]
+        vprev, aprev = vout, aout
+    return ";".join(lines)
+
+
 def render_video(v, plan, cfg, a):
     project = v.get("project") or plan.get("project")
     fmt = v.get("format", "tiktok")
@@ -1359,26 +1440,40 @@ def render_video(v, plan, cfg, a):
     if disk_free_gb() < cfg["limits"]["min_free_gb"] / 2:
         raise RuntimeError(f"NEED_DISK only {disk_free_gb()}GB free")
 
-    # A) segments
-    segs, total = [], 0.0
+    # A) segments, then the post-overlap timeline (a transition overlaps the previous clip)
+    segs, durs, built = [], [], []
     card_caps = []
     muted_music = product_music_clips(v, project)
     for ci, c in enumerate(v["clips"]):
         if ci in muted_music:
             c = {**c, "audio": "mute"}  # the project's own music would fight the library bed: two musics is always wrong
         p, d = build_segment(c, W, H, fps, project, seg_dir, cfg)
+        segs.append(p); durs.append(d); built.append(c)
+    trans = []
+    for ci, c in enumerate(built):
+        prev = durs[ci - 1] if ci else 0.0
+        trans.append(clip_transition(c, ci, prev, durs[ci]))
+    cursor = 0.0
+    for ci, c in enumerate(built):
+        _name, td = trans[ci]
+        start = cursor - td
+        d = durs[ci]
         if "card" in c:
-            card_caps.append({"t": total, "d": d, "text": c["card"], "style": "card", "anim": "pop"})
-        if c.get("caption"):  # shorthand: caption tied to a clip, relative times
+            card_caps.append({"t": round(start, 3), "d": d, "text": c["card"], "style": "card", "anim": "pop"})
+        if c.get("caption"):  # shorthand: caption tied to a clip, relative to when this clip starts to appear
             cc = c["caption"] if isinstance(c["caption"], dict) else {"text": c["caption"]}
-            card_caps.append({**cc, "t": total + float(cc.get("t", 0)), "d": float(cc.get("d", d - float(cc.get("t", 0))))})
-        segs.append(p); total += d
-    total = round(total, 3)
+            card_caps.append({**cc, "t": round(start + float(cc.get("t", 0)), 3), "d": float(cc.get("d", d - float(cc.get("t", 0))))})
+        cursor = start + d
+    total = round(cursor, 3)
     # B+C) concat filter (not the concat demuxer: its stream-copied timestamps make overlays drop/dup frames)
     #      + overlays + audio mix -> textless master, one encode
+    #      all-hard-cut plans keep the single concat so the filter matches the old render
     seg_in = sum((["-i", sp_] for sp_ in segs), [])
     n = len(segs)
-    cat = "".join(f"[{i}:v][{i}:a]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vcat][acat]"
+    if n == 1 or all(name is None for name, _td in trans):
+        cat = "".join(f"[{i}:v][{i}:a]" for i in range(n)) + f"concat=n={n}:v=1:a=1[vcat][acat]"
+    else:
+        cat = concat_graph(durs, trans)
     ov_in, ov_lines, vlabel, n_in = overlay_graph(v, W, H, fps, total, n)
     au_in, au_lines, n_in = audio_graph(v, total, "acat", n_in, False)
     # pin fps: with extra overlay inputs ffmpeg otherwise guesses 25fps and drops frames (captions drift)
@@ -1511,21 +1606,27 @@ def cmd_check(a):
             iss.append("filler hashtag (#fyp/#viral) - use niche tags")
         if titles_seen.get(v.get("title", "").lower(), v["id"]) != v["id"]:
             iss.append("title already used")
-        if len(v.get("title", "")) > (100 if fmt == "youtube" else 90):
+        is_wide = fmt in ("youtube", "landscape", "x", "twitter")
+        if len(v.get("title", "")) > (100 if is_wide else 90):
             iss.append("title too long")
         iss += [f"title {x}" for x in lint_text(v.get("title", ""))]
         if v.get("description"):
+            if fmt in ("x", "twitter"):
+                plain_desc = re.sub(r'https?://\S+', 'x' * 23, v["description"])
+                if len(plain_desc) > 280:
+                    iss.append(f"desc {len(plain_desc)} chars (>280 limit for standard X/Twitter post)")
             iss += [f"desc {x}" for x in lint_text(v["description"])]
-        est = 0.0
+        piece_durs = []
         for c in v.get("clips", []):
+            piece = 0.0
             try:
                 if "card" not in c:
                     p = resolve_src(c["src"], proj)
                     if os.path.splitext(p)[1].lower() in IMG_EXT or c.get("still"):
-                        est += float(c.get("dur", 2))
+                        piece = float(c.get("dur", 2))
                     else:
                         d = ffprobe(p)["dur"]
-                        est += (min(float(c.get("out", d)), d) - float(c.get("in", 0))) / float(c.get("speed", 1))
+                        piece = (min(float(c.get("out", d)), d) - float(c.get("in", 0))) / float(c.get("speed", 1))
                         iss += still_in_clip(c, proj, d)
                         for k in c.get("track", []):
                             if not (0 <= float(k.get("x", -1)) <= 1 and 0 <= float(k.get("y", -1)) <= 1):
@@ -1533,20 +1634,33 @@ def cmd_check(a):
                         if c.get("track") and len(c["track"]) < 2:
                             iss.append("track needs 2+ keys (start point + where to glide); for one fixed spot use focus")
                 else:
-                    est += float(c.get("dur", 1.5))
+                    piece = float(c.get("dur", 1.5))
                 for f in c.get("fx", []):
                     n, arg, _ = parse_fx(f)
                     if n == "freeze":
-                        est += float(arg or 1)
+                        piece += float(arg or 1)
             except Exception as e:
                 iss.append(f"clip src: {str(e)[:90]}")
+            piece_durs.append(piece)
+        overlap = 0.0
+        for i, c in enumerate(v.get("clips", [])):
+            prev = piece_durs[i - 1] if i else 0.0
+            this = piece_durs[i]
+            if i > 0 and (prev <= 0 or this <= 0):
+                continue
+            try:
+                _name, td = clip_transition(c, i, prev, this)
+                overlap += td
+            except ValueError as e:
+                iss.append(str(e))
+        est = sum(piece_durs) - overlap
         lo, hi = LIMITS.get(fmt, (1, 9999))
         if not (lo <= est <= hi):
             iss.append(f"est duration {est:.1f}s outside {lo}-{hi}")
         for c in v.get("captions", []):
             if float(c.get("t", 0)) >= est:
                 iss.append(f"caption after end: '{c['text'][:20]}'")
-            if len(c.get("text", "").split()) > (12 if fmt == "youtube" else 9):
+            if len(c.get("text", "").split()) > (12 if is_wide else 9):
                 iss.append(f"long caption ({len(c['text'].split())}w): '{c['text'][:24]}...'")
             iss += [f"cap {x}" for x in lint_text(c.get("text", ""))]
         plain = [c for c in v.get("captions", []) if "x" not in c and c.get("style", "cap") in ("hook", "cap", "mid")]
@@ -1555,7 +1669,7 @@ def cmd_check(a):
                 if c1.get("style", "cap") == c2.get("style", "cap") and float(c1.get("t", 0)) < float(c2.get("t", 0)) + float(c2.get("d", 2)) and float(c2.get("t", 0)) < float(c1.get("t", 0)) + float(c1.get("d", 2)):
                     iss.append(f"captions overlap in time at the same spot: '{c1['text'][:18]}' / '{c2['text'][:18]}' (stack them in one caption with a line break, or shorten d)")
         caps = [c for c in v.get("captions", []) if float(c.get("t", 0)) < 1.0]
-        if fmt != "youtube" and not caps and not v.get("header"):
+        if not is_wide and not caps and not v.get("header"):
             iss.append("no on-screen hook in first second")
         for o in v.get("overlays", []):
             if o.get("asset"):
