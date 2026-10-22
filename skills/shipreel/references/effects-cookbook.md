@@ -40,7 +40,7 @@ Find x,y with `clip.py sheet <rec.mp4> --grid`: it draws a 10% grid labelled 1 t
 ## Overlays (in `overlays[]`)
 
 - **Arrow at the thing**: `{"type":"arrow","t":4.5,"d":2,"x":0.62,"y":0.41,"angle":150,"color":"yellow"}`. x,y = what the tip touches; angle 0 = pointing right, 90 = down, 180 = left. Pair it with `ring` on the same spot and an SFX (`ding`, `pop`, `vine-boom`).
-- **Circle it**: `ring` (clean) or `scribble` (hand-drawn, funnier).
+- **Circle it (`ring` / `scribble`)**: ONLY use a circle if you can get the exact coordinates right from `sheet --grid`. If the target coordinates are unverified or cannot be placed with precision, **AVOID circles entirely**. A misaligned circle circling empty space or the wrong text looks broken and sloppy. In pro mode or on dense UI, prefer camera zooms (`zoomin:1.2@x,y`), a spotlight, or no overlay at all.
 - **Wrong vs right**: `x` on the old version, `check` on the new.
 - **Spotlight** for "look here" in busy screens (YouTube especially).
 - **Censor** any email, key, token, personal name or path on screen. Do it even if the shorthand doesn't list it.

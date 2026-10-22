@@ -54,3 +54,11 @@ The pro presets (`pro-mode.md`) trade the thick outline for a soft dark halo and
 - At most one accent colour, and it contrasts with what's behind it?
 - Two lines or fewer, centred, not covering the subject?
 - Anything colourful over a same-colour background? → `label`/`box`, or white text.
+
+## Web UI, Dashboards, and Text-Heavy Footage
+
+- **Never place unplated captions over dense text or data tables.** An unplated `title` or `mid` caption over a paragraph or table causes severe text-on-text clashing and makes both unreadable.
+- **Use `box` or `plate` style on text-heavy UI.** Black text on a white box (`box`), white text on a dark plate (`plate`), or a compact `chip` ensures high contrast and clear separation from the background.
+- **Position away from key data.** Place captions in clean negative space (top banner, page margins, or dedicated lower bars). If the caption explains a table or diagram, never place the caption over the table row or diagram node itself.
+- **Zoom in to create space.** Instead of a full-screen wide view where text is tiny and crowded, use `zoomin:1.25@x,y` to focus tightly on the metric or component being discussed, leaving clean margin around it.
+

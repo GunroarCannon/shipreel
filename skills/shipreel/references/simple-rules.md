@@ -10,7 +10,7 @@ This file is for every model on the run, and written so the smallest one can fol
 2. **Find the moments.** For each recording you'll use: `C moments <rec-id> --project <p> --format tiktok`. It returns the best moving spans (`in`, `out`) and where the action is. `moments[0]` is the strongest: the video opens on it.
 3. **Scaffold.** `C scaffold <p> --rec <id>[,<id>] --out temp/<p>/plans/p1_a.json --id t01 [--recipe ...] [--mode pro] [--format youtube]`. It writes clips, transitions, caption slots, sounds and pace for you. Pick the recipe from the table below.
 4. **Write the words.** Replace every `TODO` (title, tags, description, hook_type, captions). Rules: "Captions" below and `copy-rules.md`. Don't move the times unless `check` asks.
-5. **Point at things.** If a caption names something (a button, the enemies, a number), add one `ring` or `arrow` on it. Get x,y from `C sheet temp/<p>/rec/<id>.mp4 --grid` (tenths: x along the bottom, y down the side).
+5. **Point at things (only if verified).** If a caption names something (a button, an enemy, a key stat), you can add an arrow or ring ONLY if exact coordinates are verified from `C sheet temp/<p>/rec/<id>.mp4 --grid`. If you cannot get the exact target accurately, **avoid circles and rings entirely**. In pro mode or on dense UI, prefer a clean camera zoom (`zoomin:1.15@x,y`), a spotlight, or leaving the UI clean. An off-target floating circle ruins the video.
 6. **Music.** Creator: follow the user's music answer (`music-audio.md` section 00). Pro: keep the scaffold's bed or use the user's licensed track.
 7. **Delete the `todo` list** once each item is done.
 8. **Check.** `C check <plan>`. Fix every line that is not marked soft. Fix soft lines too (`pace:`, `framing:`, `pro note:`) unless you have a reason you can write down.
@@ -106,6 +106,10 @@ After render, `framing` in the result says what auto chose. On the sheet, the th
 
 - Never ship a render you didn't look at (`sheet`).
 - Never write a caption about something that isn't on screen at that moment.
+- Never place unplated `title` or `mid` captions over dense text, paragraphs, or data tables; use `plate`, `box`, or `lower` positioned in clean negative space.
+- Never add a circle or ring overlay unless exact coordinates are verified on the contact sheet and the target is clear. If you cannot get it, avoid circles entirely—use a subtle zoomin, spotlight, or no overlay.
+- Never play transition sounds (`whoosh`, `swoosh`, `whip`) when no transition, cut, or fast camera move happens. Never play whooshes on gentle dissolves, fades, or static footage.
+- Never scatter random clicks, pops, or whooshes simply to fill pacing gaps. Sounds must always accompany a visible on-screen beat.
 - Never use a recording with `!!STILL` or `!!CHOPPY` in `rec list`.
 - Never leave `TODO` text or the `todo` list in a plan you render.
 - Never put a landscape game in a thin strip with bars in a portrait video (`framing:` warns).

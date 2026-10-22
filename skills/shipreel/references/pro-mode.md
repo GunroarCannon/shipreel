@@ -31,13 +31,15 @@ Creator mode makes dev-channel TikToks: memes, meme sounds, chunky captions, jok
 - One preset per video, one accent colour, no outlines thicker than a halo.
 - **Grade**: `"grade": "clean"` (light contrast and saturation; the scaffold's default) for UI and product; `cinematic` for story pieces; `mono` for the "before" side of a comparison; `warm` / `cool` to match a brand. Never `film` on UI (the grain blurs small text).
 - **Framing**: same rules (`framing.md`), with `float` instead of `blurpad`: phone recordings and UI screens become a rounded card with a soft shadow.
-- **Overlays**: `ring`, `box`, `spotlight`, `underline`, straight `arrow`, `progress`, `check`. Hand-drawn `scribble` and `arrow-curved` are creator looks.
+- **Overlays**: Avoid circles and rings unless coordinates are verified with certainty from the contact sheet grid. Floating, misaligned rings look clumsy and broken. If you cannot get the exact target accurately, avoid circles entirely: use a subtle camera zoom (`zoomin:1.15@x,y`), a spotlight, or leave the UI clean and unadorned. Clean `box`, `underline`, and straight `arrow` work well when needed. Hand-drawn `scribble` and `arrow-curved` are creator looks.
 - **Effects**: `zoom`, `zoomin`/`zoomout`, `freeze`, `slowmo`, `speed`, `contrast`, `sat`, `dim`, `vignette`, `fadein`/`fadeout`. Never `glitch`, `vhs`, `shake`, `pixelate`, `mirror`, `reverse`.
 - **Transitions**: hard cuts, `dissolve`, `dip`, `push`, `smooth`, `zoom`. One `whip` at most. Pace sets their length (`pacing.md`).
 
 ## Sound
 
-- SFX: `assets.py find --type sfx --pro`. The originals made for pro (`whoosh-soft`, `swoosh-fast`, `riser`, `impact-soft`, `tick`, `ui-click`, `pop-soft`, `shimmer`) plus the clean library sounds (`whoosh`, `pop`, `ding`, `mouse-click`, `camera-shutter`, `keyboard-typing`). 2 to 4 per video at volume 0.4 to 0.6: `impact-soft` under the title, `pop-soft`/`tick` when a label appears, `whoosh-soft` on a transition, `riser` into a reveal, `shimmer` on the result.
+- SFX: `assets.py find --type sfx --pro`. The originals made for pro (`whoosh-soft`, `swoosh-fast`, `riser`, `impact-soft`, `tick`, `ui-click`, `pop-soft`, `shimmer`) plus the clean library sounds (`whoosh`, `pop`, `ding`, `mouse-click`, `camera-shutter`, `keyboard-typing`).
+- Keep SFX sparse: 2 to 4 per video at volume 0.4 to 0.6. Every sound must tie directly to an on-screen visual event (e.g. `impact-soft` under the title, `ui-click` on a button press, `shimmer` on a finished result).
+- **No phantom transition sounds**: Never play a `whoosh` or `swoosh` when no transition or fast camera move occurs. Never put whooshes on gentle dissolves, fades, or static text.
 - Beds: `assets.py find --type music --pro`: `ambient-pad` (calm, 32 s loop) and `soft-pulse` (96 bpm plucks, 20 s loop) are generated originals, safe everywhere. Library tracks marked `yt:ok`/`yt:credit` pass too (add the credit line). Best: the brand's own licensed track, dropped in `assets/music/` and indexed. Volume 0.10 to 0.14, ducked.
 - Never meme sounds or meme music (`pro:` fails them). Regenerate or add originals with `scripts/synth_sfx.py`.
 

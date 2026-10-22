@@ -2215,6 +2215,7 @@ def cmd_check(a):
                     resolve_asset(o["asset"])
                 except Exception as e:
                     iss.append(str(e)[:80])
+        trans_sound_keywords = ("whoosh", "swoosh", "whip", "swipe")
         for s in v.get("sfx", []):
             try:
                 resolve_asset(s["asset"])
@@ -2222,6 +2223,32 @@ def cmd_check(a):
                 iss.append(str(e)[:80])
             if mode == "pro" and not pro_ok_sound(s.get("asset"), "sfx"):
                 iss.append(f"pro: {s.get('asset')} is a meme sound; pro sounds: assets.py find --type sfx --pro")
+            asset_name = str(s.get("asset", "")).lower()
+            st = float(s.get("t", 0))
+            if any(k in asset_name for k in trans_sound_keywords):
+                near_trans = any(abs(st - st_i) <= 0.4 for st_i in starts[1:])
+                near_camera_move = False
+                for ci, c in enumerate(v.get("clips", [])):
+                    c_start = starts[ci]
+                    c_end = c_start + piece_durs[ci]
+                    if c_start - 0.2 <= st <= c_end + 0.2:
+                        if c.get("track") or any(parse_fx(f)[0] in ("zoomin", "zoomout") for f in c.get("fx", [])):
+                            near_camera_move = True
+                            break
+                if not near_trans and not near_camera_move:
+                    iss.append(f"sfx: '{s.get('asset')}' at {st:.2f}s is a transition sound but no cut, transition, or camera move occurs near this time (avoid transition sounds when no transition happens)")
+                for ci, c in enumerate(v.get("clips", [])):
+                    if ci > 0 and abs(st - starts[ci]) <= 0.35:
+                        tr_name = str(c.get("transition", "")).lower()
+                        if tr_name in ("dissolve", "fade", "none", "cut", ""):
+                            iss.append(f"sfx note: transition sound '{s.get('asset')}' at {st:.2f}s on a gentle '{tr_name or 'cut'}' transition; whooshes belong on whips, pushes, or camera moves")
+                        if c.get("transition_sfx") or tr_name in WHIPS:
+                            iss.append(f"sfx: duplicate transition sound near {starts[ci]:.2f}s (both clip transition_sfx and manual plan sfx)")
+        if mode == "pro" and len(v.get("sfx", [])) > 6:
+            iss.append(f"pro note: video has {len(v.get('sfx', []))} SFX; pro mode recommends 2-4 subtle SFX (title, 1-2 key reveals, outro). Avoid sound clutter.")
+        for c in v.get("captions", []):
+            if is_wide and c.get("style") in ("title", "mid") and "x" not in c and "y" not in c:
+                iss.append(f"caption '{c.get('text', '')[:20]}': unplated '{c.get('style')}' style on wide/UI footage risks text collision with underlying page text; use 'plate', 'box', or 'lower' with clean margin")
         if v.get("music"):
             mref = v["music"]["asset"] if isinstance(v["music"], dict) else v["music"]
             try:
@@ -2316,7 +2343,7 @@ def pace_issues(v, pace, piece_durs, kinds, starts, caps, est):
             out_.append(f"pace: caption '{txt[:22]}' has {n} words; {pace} pace wants <= {P['words']}")
     events = [0.0, est] + list(starts)
     events += [float(c.get("t", 0)) for c in caps]
-    events += [float(s.get("t", 0)) for s in v.get("sfx", [])] + [float(o.get("t", 0)) for o in v.get("overlays", []) if o.get("type") != "progress"]
+    events += [float(o.get("t", 0)) for o in v.get("overlays", []) if o.get("type") not in ("progress", "ring", "circle")]
     for i, c in enumerate(v.get("clips", [])):
         if isinstance(c.get("track"), list):
             events += [starts[i] + float(k.get("t", 0)) for k in c["track"][1:]]
@@ -2343,6 +2370,8 @@ def pro_issues(v, style):
         typ = o.get("type", "sticker")
         if typ == "sticker" and str(o.get("asset", "")).startswith(("meme:", "gif:")):
             out_.append(f"pro: overlays[{i}] is a meme sticker; pro videos keep memes out")
+        if typ in ("ring", "circle"):
+            out_.append(f"pro note: overlays[{i}] '{typ}': avoid circles in pro mode unless coordinates are verified on the contact sheet with --grid. Prefer clean zoomin or leaving the UI clean.")
         if typ in ("scribble", "arrow-curved"):
             out_.append(f"pro note: overlays[{i}] {typ} looks hand-drawn; ring, box, spotlight or a straight arrow read cleaner")
     if v.get("hook_type") == "clickbait":
@@ -2712,7 +2741,7 @@ def cmd_scaffold(a):
         v["chapters"] = [{"t": 0 if k == 0 else round(starts[idx], 1), "title": f"TODO chapter {k + 1}"} for k, idx in enumerate(sections)]
     v["todo"] = ["Write every TODO text. Hook (captions[0]) = the promise in 3-6 words. Each `TODO clips[i] beat` = 2-6 words naming what clips[i] "
                  "shows (open clip.py sheet <rec>). Payoff = the result, the number or the joke. Keep the word count the pace allows (pacing.md)",
-                 "Point at what a caption names: one ring or arrow at x,y from clip.py sheet <rec> --grid (effects-cookbook.md)"]
+                 "Avoid circles/rings unless exact coordinates are verified from a high-res grid and the target is clear. In pro mode or on busy UI, prefer a subtle zoomin or leaving the UI clean. An off-target circle ruins the video."]
     if not pro:
         v["todo"].append("Music decision (music-audio.md section 0): a bed from assets.py find --type music, or \"music\": null with a reason")
     v["todo"].append("After render: read `framing` in the result and open clip.py sheet on the final; the subject must be in frame")

@@ -91,7 +91,8 @@ Use product music, tracks the user puts in `assets/music/` (YouTube Audio Librar
 
 - Find: `assets.py find --type sfx --mood shocked` or `--theme fail` (`assets.py vocab --type sfx` lists moods: happy, shocked, panic, sad, hype, laughing, awkward...; themes: reveal, fail, success, bug, plot-twist, time-skip...). Missing → `sfx.py search "<name>"` → `sfx.py get`.
 - Timing: start 0.05 to 0.1 s before the visual beat. Volume 0.5 to 0.8 (meme SFX are loud; vine-boom ≈ 0.6).
-- Density: TikTok ≤ 1 SFX per 2.5 s, 2 to 5 per video; YouTube more spread out. Not every cut needs a sound. Silence before a punchline is a sound too.
+- Density: TikTok ≤ 1 SFX per 2.5 s, 2 to 5 per video; YouTube more spread out. Pro mode: 2 to 4 subtle sounds per video max. Not every cut needs a sound. Silence before a punchline or outcome is a sound too.
+- **No phantom transition sounds**: Never play `whoosh`, `swoosh`, `whip`, or `swipe` unless an actual transition or fast camera move happens at that exact timestamp. Playing whooshes in the middle of static clips or over gentle crossfades/dissolves sounds sloppy and broken.
 - Pairing: arrow/ring → `ding`/`pop`; reveal → `vine-boom`/`dun-dun-dunnn`; fail → `sad-trombone`/`bruh`/`windows-xp-error`/`metal-pipe`; time skip → `2000-years-later`/`whoosh`; win → `tada`/`minecraft-level-up`/`hallelujah`; awkward → `crickets`; rewind → `record-scratch`.
 - Don't use the same signature SFX in more than 3 of 10 videos in a batch.
 
