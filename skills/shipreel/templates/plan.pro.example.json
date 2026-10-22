@@ -1,0 +1,249 @@
+{
+  "project": "my-app",
+  "pass": 1,
+  "mode": "pro",
+  "videos": [
+    {
+      "id": "t01",
+      "format": "tiktok",
+      "style": "pro",
+      "grade": "clean",
+      "hook_type": "number",
+      "title": "Monthly report in 4 seconds",
+      "tags": [
+        "saas",
+        "productivity",
+        "buildinpublic"
+      ],
+      "description": "The report that used to take an afternoon now builds itself from your data.\n\nTry it: https://my-app.example.com",
+      "clips": [
+        {
+          "src": "rec:report-mobile",
+          "in": 6.2,
+          "out": 8.0
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 1.0,
+          "out": 3.2,
+          "fx": [
+            "zoomin:1.3@0.5,0.35"
+          ]
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 3.4,
+          "out": 5.4,
+          "transition": "push"
+        },
+        {
+          "src": "rec:export-desktop",
+          "in": 2.0,
+          "out": 4.6
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 8.0,
+          "out": 11.0,
+          "transition": "dissolve"
+        }
+      ],
+      "captions": [
+        {
+          "t": 0,
+          "text": "Your monthly report in *4 seconds*",
+          "style": "mid"
+        },
+        {
+          "t": 2.0,
+          "text": "Pick the month"
+        },
+        {
+          "t": 4.0,
+          "text": "Charts fill themselves"
+        },
+        {
+          "t": 6.2,
+          "text": "Same report on desktop"
+        },
+        {
+          "t": 8.8,
+          "text": "my-app.example.com",
+          "style": "chip"
+        }
+      ],
+      "overlays": [
+        {
+          "type": "ring",
+          "t": 2.2,
+          "d": 1.4,
+          "x": 0.5,
+          "y": 0.36,
+          "r": 0.14,
+          "color": "white"
+        }
+      ],
+      "sfx": [
+        {
+          "asset": "sfx:impact-soft",
+          "t": 0,
+          "vol": 0.5
+        },
+        {
+          "asset": "sfx:ui-click",
+          "t": 2.15,
+          "vol": 0.5
+        },
+        {
+          "asset": "sfx:pop-soft",
+          "t": 3.95,
+          "vol": 0.45
+        },
+        {
+          "asset": "sfx:shimmer",
+          "t": 8.7,
+          "vol": 0.45
+        }
+      ],
+      "music": {
+        "asset": "music:soft-pulse",
+        "vol": 0.12,
+        "duck": true
+      }
+    },
+    {
+      "id": "y01",
+      "format": "youtube",
+      "style": "editorial",
+      "grade": "clean",
+      "hook_type": "tutorial",
+      "title": "How the monthly report builds itself (1-minute tour)",
+      "tags": [
+        "saas",
+        "productivity",
+        "tutorial"
+      ],
+      "description": "A walkthrough of the report builder: picking data, the automatic charts, and exporting to PDF.",
+      "clips": [
+        {
+          "src": "rec:report-mobile",
+          "in": 0.0,
+          "out": 9.0,
+          "fx": [
+            "fadein:0.4",
+            "zoomin:1.12"
+          ]
+        },
+        {
+          "src": "rec:export-desktop",
+          "in": 0.0,
+          "out": 14.0,
+          "track": "auto",
+          "transition": "dip"
+        },
+        {
+          "src": "rec:export-desktop",
+          "in": 14.0,
+          "out": 23.0
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 9.0,
+          "out": 18.0,
+          "transition": "push"
+        },
+        {
+          "src": "rec:export-desktop",
+          "in": 23.0,
+          "out": 32.0
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 18.0,
+          "out": 27.0,
+          "transition": "dip"
+        },
+        {
+          "src": "rec:export-desktop",
+          "in": 32.0,
+          "out": 41.0
+        },
+        {
+          "src": "rec:report-mobile",
+          "in": 27.0,
+          "out": 35.0,
+          "fx": [
+            "fadeout:0.6"
+          ]
+        }
+      ],
+      "captions": [
+        {
+          "t": 0.3,
+          "text": "How the monthly report builds itself",
+          "style": "title"
+        },
+        {
+          "t": 8.6,
+          "text": "1. Pick your data",
+          "style": "lower"
+        },
+        {
+          "t": 30.9,
+          "text": "2. Charts, done for you",
+          "style": "lower"
+        },
+        {
+          "t": 48.2,
+          "text": "3. Export and share",
+          "style": "lower"
+        }
+      ],
+      "chapters": [
+        {
+          "t": 0,
+          "title": "What it does"
+        },
+        {
+          "t": 8,
+          "title": "Picking data"
+        },
+        {
+          "t": 30,
+          "title": "Automatic charts"
+        },
+        {
+          "t": 48,
+          "title": "Export"
+        }
+      ],
+      "sfx": [
+        {
+          "asset": "sfx:whoosh-soft",
+          "t": 8.2,
+          "vol": 0.45
+        },
+        {
+          "asset": "sfx:riser",
+          "t": 46.3,
+          "vol": 0.4
+        },
+        {
+          "asset": "sfx:shimmer",
+          "t": 66.5,
+          "vol": 0.4
+        }
+      ],
+      "music": {
+        "asset": "music:ambient-pad",
+        "vol": 0.12,
+        "duck": true
+      },
+      "thumb": {
+        "t": 5,
+        "text": "REPORT IN 4S",
+        "color": "white"
+      }
+    }
+  ]
+}

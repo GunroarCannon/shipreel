@@ -2,6 +2,7 @@
 
   python assets.py find --type sfx --mood shocked --limit 5
   python assets.py find --q "this is fine"          # text search over id/text/themes
+  python assets.py find --type sfx --pro             # sounds that fit pro mode (no meme sounds)
   python assets.py get meme:this-is-fine-dog         # -> absolute path
   python assets.py add C:/x/new.png --type image --name smug-cat --moods smug --themes success
   python assets.py scan                              # files in assets/ not yet indexed (+ assets/inbox/)
@@ -39,6 +40,8 @@ def matches(a, args):
 
 def cmd_find(args):
     rows = [a for a in load_index()["assets"] if matches(a, args)]
+    if getattr(args, "pro", False):
+        rows = [a for a in rows if a.get("pro") or (a["type"] == "music" and a.get("yt") in ("ok", "credit"))]
     if getattr(args, "yt_safe", False):
         rows = [a for a in rows if a.get("yt") in ("ok", "credit")]
     rows = [a for a in rows if os.path.exists(os.path.join(ASSETS, a["path"]))]  # an entry whose file isn't on this machine is not usable
@@ -46,6 +49,8 @@ def cmd_find(args):
         extra = f" | {a['dur']}s" if a.get("dur") else ""
         if a["type"] == "music" and a.get("yt"):
             extra += f" | yt:{a['yt']}"
+        if a.get("pro"):
+            extra += " | pro"
         txt = f" | \"{a['text']}\"" if a.get("text") else ""
         print(f"{a['id']} | {','.join(a.get('moods', []))} | {','.join(a.get('themes', []))}{extra}{txt}")
     if len(rows) > args.limit:
@@ -244,6 +249,7 @@ def main():
         p.add_argument("--q"); p.add_argument("--clean", action="store_true", help="only rating=clean")
         p.add_argument("--all-ratings", action="store_true", help="include nsfw-flagged"); p.add_argument("--limit", type=int, default=12)
         p.add_argument("--yt-safe", action="store_true", help="music only: tracks cleared for YouTube (yt:ok or yt:credit)")
+        p.add_argument("--pro", action="store_true", help="only assets fit for pro mode (no meme sounds; references/pro-mode.md)")
     p = sp.add_parser("find"); filt(p); p.set_defaults(f=cmd_find)
     p = sp.add_parser("get"); p.add_argument("id"); p.set_defaults(f=cmd_get)
     p = sp.add_parser("add"); p.add_argument("file"); p.add_argument("--type", required=True, choices=list(TYPE_DIR))

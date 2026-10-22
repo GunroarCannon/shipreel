@@ -1,6 +1,6 @@
 # Plan JSON
 
-One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ ... ]}`. A single video object at the top level works too. Copy from `templates/plan.example.json`. Times are seconds; positions are fractions of the frame (0 to 1, from the top-left).
+One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "mode": "creator", "videos": [ ... ]}`. A single video object at the top level works too. The fastest correct start is `clip.py scaffold` (it writes a timed skeleton with `TODO` text); otherwise copy from `templates/plan.example.json` (creator) or `templates/plan.pro.example.json` (pro). Times are seconds; positions are fractions of the frame (0 to 1, from the top-left).
 
 ## Video
 
@@ -11,7 +11,12 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 | `title` | str | human title, it becomes the file name. See copy-rules |
 | `tags` | [str] | 3 to 5 niche hashtags without `#`. Also go in the file name |
 | `series` | {name, part} | optional → `name-part-N_title_#tags` |
-| `style` | caption preset | `pop` (default, TikTok Classic look) `bubble` (rounded chunky mid-frame: the game-dev look) `chip` (small grey rounded box) `label` (white box) `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Rotate them |
+| `mode` | `creator` \| `pro` | default `config.mode` (creator). Pro = no memes, clean type, soft sounds: `pro-mode.md` |
+| `pace` | `auto` \| `fast` \| `medium` \| `slow` | default auto: ≤22 s fast, ≤60 s medium, longer slow. Sets shot lengths, reading time, transition length: `pacing.md` |
+| `style` | caption preset | creator: `pop` (default) `bubble` `game` `candy` `pixel` `trendy` `note` `chip` `label` `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Pro: `pro` (default) `minimal` `editorial` `tech` `headline` `condensed` (+ `clean` `label` `cinema`). Rotate them; `clip.py fonts` lists which font each uses |
+| `font` | family name | override the preset's font for the whole video (any family from `clip.py fonts`) |
+| `accent` | colour | override the accent colour for `*starred*` words (pro also reads `config.brand.accent`) |
+| `grade` | `none` `clean` `punchy` `vivid` `warm` `cool` `cinematic` `film` `mono` | one colour look over the whole video, under the overlays |
 | `hook_type` | str | for the ledger: `contrarian`, `before-after`, `number`, `question`, `pov`, `fail`, `flex`, `tutorial`, `clickbait`... |
 | `header` | str or {text, t, until} | persistent white-box text at the top (TikTok's "persistent caption"). Off by default: a project name boxed on every frame reads as a template |
 | `clips` | [clip] | in order. Total length = the sum of clip lengths minus transition overlaps |
@@ -27,6 +32,7 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 | `thumb` | {t, text, sticker, color, from} | thumbnail jpg (1280×720 or 1080×1920) |
 | `sound_note` | str | posting note for in-app sound, written to the .txt and marked as not caption |
 | `fps` | int | default from config (30) |
+| `recipe`, `todo` | written by `scaffold` | `todo` = reminders; `check` warns until you delete it. Any `TODO` text fails `check` |
 
 ## Clip
 
@@ -39,15 +45,17 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 - `in`/`out`: trim of the source. Images and `still` use `dur`.
 - `still: true`: freeze the frame at `in` for `dur`.
 - `card: "text"` + `dur` + `bg`: a full-screen text card on a color. Use sparingly (≤1 per TikTok).
-- `fit`: `cover` (crop to fill, default for video), `contain` (letterbox), `blurpad` (blurred fill behind, default for images), `crop:x,y,w,h` (choose a region, then cover).
-- `focus`: [x, y] for `cover` and zooms: where the crop window sits. Different clips of the same recording can use different `focus` values (a cut to the enemies, a cut to the health bar).
+- `fit`: leave it out (= `auto`: picks by source shape and aims at the action, `framing.md`). Or `cover` (crop to fill), `stack` (portrait: whole shot on top + close-up below), `float[:0.86]` (rounded card with a shadow over a blur), `blurpad[:1.3]` (whole source over its blur; the number enlarges it), `contain` (bars), `crop:x,y,w,h` (choose a region, then cover).
+- `focus`: [x, y] for `cover`, `stack` and zooms: where the crop window sits (0 = left/top, 1 = right/bottom). Leave it out (or `"auto"`) and render aims at the motion; the result's `framing` says where. Different clips of the same recording can use different `focus` values (a cut to the enemies, a cut to the health bar).
+- `track: "auto"`: a follow-cam that glides to where the action moves (needs a source wider or taller than the frame).
 - `track`: a **moving camera** over the source frame: `[{"t":0,"x":0.2,"y":0.6}, {"t":3,"x":0.8,"y":0.3,"move":0.8}, {"t":6,"x":0.9,"y":0.1}]`. The first key is where the camera starts; each later key says "at `t` seconds (as the clip plays) glide to this point over `move` seconds (default 0.6), then hold". x,y = the point to centre on, as fractions of the **source** frame (get them from `clip.py sheet <rec> --grid`). Needs a source bigger than the window (a landscape recording in a portrait video); it replaces `fit`. `zoom` (≥1, default 1) tightens the window for the whole clip.
 - `speed`: 0.25 to 4 (audio pitch kept).
 - `audio`: `keep` | `mute` | a number (gain).
 - `fx`: see effects-cookbook. Syntax `name[:arg][@x,y]`.
 - `caption`: str or {text, t, d, style...}. `t` is relative to when this clip starts to appear (the start of the transition into it). Good for "this clip says this".
-- `transition`: optional, on clips after the first. `none`, `fade`, `dissolve`, `wipeleft`, `wiperight`, `slideup`, `slidedown`. Omitted or `none` is a hard cut. The first clip ignores this field.
-- `transition_dur`: seconds. Omitted uses 0.35. `0` is a hard cut. It has to be shorter than both clips it joins.
+- `transition`: optional, on clips after the first. Omitted, `none` or `cut` is a hard cut. Names: `fade` `dissolve` `dip` (through black) `flash` (through white) `whip` `whipright` `whipup` `whipdown` (fast slide with motion blur and a whoosh) `push` `pushright` `pushup` `pushdown` `zoom` `iris` `irisclose` `blur` `glitch` `squeeze` `reveal` `cover` `smooth` `radial`, or any ffmpeg xfade name (`wipeleft`, `slideup`, `circleopen`...). The first clip ignores this field. When to use which: `effects-cookbook.md`.
+- `transition_dur`: seconds. Omitted = the pace's length (fast 0.22, medium 0.4, slow 0.7; whips, flashes and glitches ≤ 0.22). `0` is a hard cut. It has to be shorter than both clips it joins.
+- `transition_sfx`: `true` (a matching sound: whoosh for whip/push/zoom, shutter or impact for flash), `false`, or an asset (`"sfx:riser"`). Whips default to `true`; the others to `false`.
 - Video-level captions, sfx, overlays and chapters sit on the finished timeline. Each transition shortens the video by its overlap. A caption near a join can sit on the blend. When to use a transition: `effects-cookbook.md`.
 
 ## Caption
@@ -56,8 +64,10 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "videos": [ .
 {"t": 0, "d": 2.2, "text": "it took 3 rewrites", "style": "hook", "words": true, "per": 2}
 ```
 
+- `d`: seconds on screen. Leave it out and render uses the reading time for the pace (`pacing.md`).
+- `font`: a family from `clip.py fonts` for this caption only.
 - `style`: `chip` (small translucent rounded box, dark lowercase text, low in the frame: date tags and deadpan asides, works inside any preset), `box` (black text on a white box, readable on anything), `plate` (white text on a dark plate), `hook` (big, top third), `cap` (default, lower-middle above the UI), `mid` (center), `callout` (yellow, center or `x,y`), `card`, `code` (mono box), `lower` (lower third, YouTube), `title` (big center), `meme-top`, `meme-bottom` (classic impact).
-- Animation: default `pop` for hook/cap/mid/callout, `fade` for others; `"anim": "none"`.
+- Animation: default `pop` for hook/cap/mid/callout (`fade` for pro presets and slow pace), `fade` for others; `"anim": "rise"` (a short tilt-up), `"anim": "none"`.
 - Modes: `words: true` (2 to 3 word groups popping, `per`), `karaoke: true` (line stays, active word highlighted), `type: true` (typewriter).
 - `x`, `y` (position the center), `color`, `upper` (override the preset's uppercase), `hi` (accent colour for `*starred*` words), `contrast: false` (opt out of the auto-fix below).
 - **Accent words and lines**: wrap them in asterisks, `"it took *3 rewrites*"`, or put a second line in the accent colour with `
@@ -88,5 +98,5 @@ All have `t`, `d`.
 ## Audio
 
 - `sfx`: `{"asset": "sfx:vine-boom", "t": 4.4, "vol": 0.7}`, plus `start`/`dur` to trim. Start an SFX 0.05 to 0.1 s **before** the visual beat.
-- `music`: `{"asset": "music:sneaky-snitch", "vol": 0.14, "duck": true}` (find tracks with `assets.py find --type music`). Product audio drives ducking. The final mix is loudnormed to -14 LUFS. It loops and fades by itself.
+- `music`: `{"asset": "music:sneaky-snitch", "vol": 0.14, "duck": true}` (find tracks with `assets.py find --type music`; pro: `--pro`). Product audio drives ducking. The final mix is loudnormed to -14 LUFS. It loops and fades by itself.
 - `product_music`: `"mute"` (default) or `"keep"`. With `music` set, `rec:` clips whose audio looks like music are muted automatically (`product_music_muted` in the render result) so two musics never play. `"keep"` leaves them alone.

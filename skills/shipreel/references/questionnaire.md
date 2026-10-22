@@ -11,18 +11,16 @@ Goal: get the setup answers in one sitting so the run mostly flows, while stayin
    - `single`: no subagents. Use when the session model is already cheap or the batch is tiny.
 2. **Projects** (header "Projects"; free text via Other): the paths to each project, in priority order. If the user points at a parent folder, list the repos it contains and confirm.
 3. **First pass size** (header "Pass 1"): `10 TikToks per project (Recommended)` / `5` / `3 to test the look first`.
-4. **Meme level** (header "Memes"): `medium (Recommended)`: a meme or meme SFX in about 1 in 3 videos / `heavy`: most videos / `light`: rare, clean only.
+4. **Style** (header "Style"): `creator (Recommended for a dev channel)`: memes, meme sounds, chunky captions / `pro`: clean company look, no memes, soft sounds, sentence case (product demos, client work, LinkedIn; `pro-mode.md`) / `both`: creator TikToks plus pro videos where they fit. Maps to `mode` = `"creator"` / `"pro"`; for `both` keep `creator` and give pro videos `"mode": "pro"` per video.
 
-(Add a fifth question in the next round if you have room, otherwise put it in Round 2 and drop "Same channel for all projects?" to the default.)
-
-**How often to ask** (header "Check-ins"): `when I'm unsure or stuck (Recommended)`: asks on blockers, fakes, guesses and unverifiable claims / `often`: also check in at each project's slate, first recording and first video / `rarely`: only when blocked. Maps to `ask.level` = `when_unsure` / `often` / `rarely`. Tell the user they can change it any time by saying "ask me more" or "stop asking".
+**How often to ask** (header "Check-ins"): `when I'm unsure or stuck (Recommended)`: asks on blockers, fakes, guesses and unverifiable claims / `often`: also check in at each project's slate, first recording and first video / `rarely`: only when blocked. Maps to `ask.level` = `when_unsure` / `often` / `rarely`. Ask it in Round 2 if Round 1 is full. Tell the user they can change it any time by saying "ask me more" or "stop asking".
 
 ## Round 2: channel and links
 
 5. **Handles** (header "Accounts"; Other for free text): TikTok, YouTube, X, LinkedIn, GitHub. Used for @mentions and links. "None yet" is fine; then link nothing social.
 6. **Links in descriptions** (header "Links", multiSelect): `GitHub repo if public (Recommended)` / `Live site if it's up (Recommended)` / `X profile` / `LinkedIn`. Only suggest X/LinkedIn if the user posts dev content there.
-7. **Clickbait share** (header "Clickbait"): `about 1 in 5 (Recommended)` / `none` / `about 1 in 3`. Clickbait means a curiosity-gap hook that the video still pays off. It never means a false claim.
-8. **Same channel for all projects?** (header "Channel"): `yes, one dev channel (Recommended)` / `separate per project`. With yes, cross-project references are allowed.
+7. Creator: **Clickbait share** (header "Clickbait"): `about 1 in 5 (Recommended)` / `none` / `about 1 in 3`. Clickbait means a curiosity-gap hook that the video still pays off. It never means a false claim. Pro: **Brand colour** (header "Brand") instead: `calm blue #5AA9FF (Recommended)` / `use my colour` (Other = hex) → `brand.accent`.
+8. Creator: **Meme level** (header "Memes"): `medium (Recommended)`: a meme or meme SFX in about 1 in 3 videos / `heavy`: most videos / `light`: rare, clean only. Pro: skip it (pro has no memes). **Same channel for all projects?** defaults to yes; ask it only if you have room: `yes, one dev channel (Recommended)` / `separate per project`. With yes, cross-project references are allowed.
 
 ## Round 3: permissions (what can run unattended)
 
@@ -45,6 +43,7 @@ Goal: get the setup answers in one sitting so the run mostly flows, while stayin
   "channel": {"same_channel": true, "handles": {"tiktok": "@devbyx", "github": "devbyx"}},
   "models": {"plan": "balanced", "scout": "haiku", "writer": "sonnet", "editor": "haiku", "reviewer": "sonnet"},
   "quota": {"first_pass": {"tiktok": 10}},
+  "mode": "creator",
   "mix": {"clickbait_share": 0.2, "meme_intensity": "medium"},
   "ask": {"level": "when_unsure"},
   "permissions": {"launch_apps": true, "simulate_input": true, "old_commits_via_worktree": true, "edit_project_files": false}

@@ -79,6 +79,10 @@ Use it:
 - **Need a track that isn't in the library**: `python S/scripts/sfx.py search "<name>"`, then `python S/scripts/sfx.py get "<name>" --pick N --kind music --name <slug> --moods <m> --themes <t>`. Without `--kind music` it is filed as an SFX. The myinstants MCP (`.mcp.json`) can *preview* a sound through the speakers for the user, but it can't add files; use `sfx.py` for that. `sfx.py seed-music` re-downloads the starter set.
 - **Copyright**: these are copyrighted songs and themes, not royalty-free. As a quiet bed on TikTok they are common, and the in-app picker is the safer route for reach. On YouTube they risk Content ID claims, which is why `meme_bed` defaults to `"tiktok"`. Don't use them on YouTube unless the user set `meme_bed` to `"all"`.
 
+## 2b. Pro mode: original and cleared sounds only
+
+Pro videos (`pro-mode.md`) skip the meme toolbox. SFX: `assets.py find --type sfx --pro` (soft whooshes, ticks, a riser, a soft impact, UI clicks, a shimmer: generated originals from `scripts/synth_sfx.py`, plus the clean library sounds). Beds: `assets.py find --type music --pro`: `ambient-pad` and `soft-pulse` (originals, safe everywhere), library tracks marked `yt:ok`/`yt:credit`, or the brand's own track. `check` fails meme sounds and meme music in pro videos. Still ask the music question, with pro options: `calm original bed (Recommended)` / `your own licensed track (path)` / `no bed, SFX only`.
+
 ## 3. YouTube: no copyrighted music
 
 Use product music, tracks the user puts in `assets/music/` (YouTube Audio Library, or their own music, with license notes in that README) or nothing. Never download popular songs for YouTube. Meme SFX clips from myinstants are short sound effects; keep each one under about 3 s and use them as effects, not as a soundtrack.

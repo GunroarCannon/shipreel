@@ -4,7 +4,7 @@ You run shipreel commands and fix mechanical problems. You don't change titles, 
 
 **Inputs**: a task list, for example "record these 4 (ids + how)" or "check + render plan X". Paths only.
 
-`C` = `python <skill>/scripts/clip.py`. Before the first recording, read `references/recording-gate.md`. Recipes: `references/pipeline.md`. JSON fields: `references/plan-schema.md`.
+`C` = `python <skill>/scripts/clip.py`. Before the first recording, read `references/recording-gate.md`. If you are a small model, also follow `references/simple-rules.md`. Recipes: `references/pipeline.md`. JSON fields: `references/plan-schema.md`.
 
 Do these steps in order. Stop that item at the first failure.
 
@@ -15,8 +15,8 @@ Do these steps in order. Stop that item at the first failure.
    - `mode` is `screencast`, the JSON warns about capture fps, or the list line has `!!CHOPPY`: the capture was choppy. Retry once. If it is still choppy, `NEEDS_USER`. Do not ship that take.
    - `mode` `virtual` and no fps warn is a normal web capture.
 4. **Sheet and audio.** `C sheet temp/<p>/rec/<id>.mp4 --n 6`, open the jpg, and report `saw:` plus one sentence of what the frames show. Same frame six times, a blocker, a tiny subject, or a secret on screen: fix and re-record (two tries, then `NEEDS_USER`). Run `C probe` on the file. Report `music_likely` and `product audio: none / sfx / music`.
-5. **Check.** `C check <plan>`. Each error line is the fix. Use the field names printed in that line. Do not invent keys. A transition error lists the allowed names: copy one of those names. Duration out of range: change clip `in`/`out`, not the captions. Lines that start with `bare:` or `music:` go back to the writer.
-6. **Render one video at a time.** `C render <plan> --only <id>`. On an ffmpeg error, rerun that video with `SHIPREEL_DEBUG=1` and fix the plan value named in the stderr. Report the output file name and any `warn`, `product_music_muted`, or `contrast_fixed`.
+5. **Check.** `C check <plan>`. Each error line is the fix. `pace!:`, `pro:` and `TODO text` are hard; `pace:`, `framing:` and `pro note:` lines go back to the writer unless the fix is mechanical (trim a clip to the pace's max, raise a caption's `d`). Use the field names printed in that line. Do not invent keys. A transition error lists the allowed names: copy one of those names. Duration out of range: change clip `in`/`out`, not the captions. Lines that start with `bare:` or `music:` go back to the writer.
+6. **Render one video at a time.** `C render <plan> --only <id>`. On an ffmpeg error, rerun that video with `SHIPREEL_DEBUG=1` and fix the plan value named in the stderr. Report the output file name and any `warn`, `framing`, `product_music_muted`, or `contrast_fixed`.
 
 **Never**: edit the user's project, edit skill scripts, print env values, delete recordings.
 

@@ -20,12 +20,13 @@ The expensive part of a run is not rendering. It's an expensive model reading re
 - Run independent subagents in parallel: for example, scout the next project while the current project renders.
 - Do not spawn a subagent for a single command. Run it yourself.
 - Tell a haiku editor to follow `references/roles/editor.md` in order and treat each check error line as the fix.
+- Any haiku subagent gets `references/simple-rules.md` in its prompt (a path, not the text): it turns judgment calls into numbers and if-then rules.
 
 ## Plans
 
 - **balanced** (default): as in the table.
 - **quality**: writer = opus, reviewer = sonnet. Use on YouTube passes or once a channel has traction.
-- **budget**: writer = haiku, then the director rewrites only the titles and first captions (the hook) of each video. That's about 10% of the tokens and most of the value.
+- **budget**: writer = haiku, then the director rewrites only the titles and first captions (the hook) of each video. That's about 10% of the tokens and most of the value. A haiku writer must start every video with `clip.py scaffold` and follow `references/simple-rules.md` step by step: the scaffold fixes timing, framing, pace and sounds, so the small model only writes words.
 - **single**: no subagents; the director does everything. Best when the session model is already Haiku or Sonnet, or for 1 to 3 videos.
 
 ## Token habits (all roles)

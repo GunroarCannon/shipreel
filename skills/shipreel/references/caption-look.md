@@ -9,6 +9,24 @@ Captions that look like TikTok's own text tools get read; heavy, glowing, clashi
 
 Pair them: the big `bubble` line says the thing, the `chip` labels the moment. Footage runs full-bleed under both (SKILL.md, "Frame for portrait, full-bleed").
 
+## Pick the look by footage and mode
+
+| footage / video | preset (font) |
+|---|---|
+| any dev clip, creator | `pop` (TikTok Sans), `label` on busy footage |
+| game clips | `bubble` (Fredoka) or `game` (Lilita One); `candy` (Titan One) for cozy/cute; `pixel` (Press Start 2P) for pixel art; `comic`/`cartoon` for loud action |
+| code, terminals, tools | `dev` (JetBrains Mono); pro: `tech` (Space Grotesk) |
+| trendy creator look | `trendy` (Bricolage Grotesque), `bold` (Poppins) |
+| handwritten aside on top of another preset | caption `"font": "Caveat Bold"` or the `note` preset |
+| pro: product demo, SaaS, client | `pro` (Inter) or `minimal` (Manrope) |
+| pro: story, case study, founder | `editorial` (Instrument Serif) |
+| stats, countdowns, a big claim | `condensed` (Oswald), `headline` (Archivo Black), `hormozi` |
+| trailers, YouTube titles | `cinema` (Bebas Neue) |
+
+One preset per video; change it between videos. Any family can also be set for a whole video (`"font"` on the video) or one caption (`"font"` on the caption): `clip.py fonts` lists them (25 families, all OFL or Apache, `assets/fonts/LICENSES.md`).
+
+The pro presets (`pro-mode.md`) trade the thick outline for a soft dark halo and fade in instead of popping. They read as designed rather than as a meme; auto-contrast adds a dark plate when the footage behind is busy.
+
 ## The rules
 
 1. **Weight and size**: semibold, not black. About 7 to 8% of the frame width (`pop` is 82 px on a 1080 frame). Two lines max, 3 to 7 words per line, centred, balanced lines. If it needs three lines, cut words.
@@ -22,14 +40,17 @@ Pair them: the big `bubble` line says the thing, the `chip` labels the moment. F
 
 ## What shipreel does for you
 
-- `bubble` and `chip` are the game-dev-TikTok looks above; `pop` is the Classic look; `label` is the Background look; `punch` is the old extra-heavy style for a loud moment.
+- `bubble` and `chip` are the game-dev-TikTok looks above; `pop` is the Classic look; `label` is the Background look; `punch` is the old extra-heavy style for a loud moment; `pro` and the other pro presets are the clean company look.
+- In pro mode, `box`, `plate`, `lower`, `header`, `title` and `chip` switch to Inter so the whole video shares one type family.
+- A caption without `d` stays up for its reading time at the video's pace (`pacing.md`).
 - **Auto-contrast** (on by default): at render it samples the real footage behind each `hook`/`cap`/`mid` caption. Busy → dark plate; accent or tinted text that matches the background → white or a colour that doesn't. Look at `contrast_fixed` in the render result: if it fixes a lot, the footage is busy at that spot, so move the caption (`x,y`) or use `label` for the video.
 - It can't judge taste. The reviewer still opens the final's sheet and checks the text is readable at phone size, not under UI, and not fighting the background.
 
 ## Reviewer checklist for captions
 
 - Readable in the sheet thumbnail without squinting?
-- Outline thin and black, not a glow or a thick blob?
+- Outline thin and black, not a glow or a thick blob? (Pro presets: a soft halo is fine, a hard outline isn't.)
+- Does the caption cover the thing it names? Move it (`x`, `y`) or use `hook`.
 - At most one accent colour, and it contrasts with what's behind it?
 - Two lines or fewer, centred, not covering the subject?
 - Anything colourful over a same-colour background? → `label`/`box`, or white text.

@@ -3,7 +3,11 @@
 **Turn your side projects into a faceless dev channel.** An agent skill for Claude Code (and other skill-compatible agents) that records select parts of your software and game projects, then edits them into captioned TikToks/Shorts and YouTube devlogs. It adds memes, SFX, arrows, freeze frames, trending caption fonts and human-sounding titles, descriptions and hashtags.
 
 - **Records without touching your project**: web apps through headless Chrome (scripted clicks, typing, scrolling, a visible cursor), Godot games through Movie Maker with scripted input, anything else via screen capture, and old versions through temporary git worktrees.
-- **Edits with ffmpeg**: 10 caption presets (TikTok Sans, Montserrat, Anton, Bangers…), word-pop, karaoke and typewriter captions, zooms, freeze frames, b&w, shake, glitch and VHS, arrows, rings, scribbles, spotlights, censor blur, meme stickers, a progress bar, SFX, ducked music and loudness at -14 LUFS.
+- **Two modes**: **creator** for a dev channel (memes, meme SFX, chunky game captions, jokes) and **pro** for product demos, launches and client work (clean Inter/Manrope/serif type, soft original sounds, sentence case, no memes; `check` enforces it).
+- **Frames by aspect ratio**: `fit: auto` fills the frame for each source shape (phone → TikTok fills it, a landscape game in a portrait video is cropped *onto the action* by motion-based auto focus, `track: "auto"` follows it like a camera operator, a phone recording in a YouTube video floats as a rounded card over a blur). Plus `stack` (whole shot + close-up) and `float` layouts.
+- **Paces by length**: short videos cut fast, long ones breathe. Shot lengths, caption reading time, transition length and "something new every N seconds" come from the video's length, and `check` flags anything off-pace.
+- **Edits with ffmpeg**: 25 caption presets on 25 fonts (TikTok Sans, Inter, Fredoka, Lilita One, Press Start 2P, Instrument Serif, Bricolage Grotesque…), word-pop, karaoke and typewriter captions, whip pans with motion blur, zoom, flash, iris, dip and push transitions, colour grades, zooms, freeze frames, b&w, shake, glitch and VHS, arrows, rings, scribbles, spotlights, censor blur, meme stickers, a progress bar, SFX, ducked music and loudness at -14 LUFS.
+- **Small-model friendly**: `clip.py moments` finds the best moving spans of a recording, `clip.py scaffold` turns them into a timed plan (clips, transitions, caption slots, sounds) so a cheap model only writes the words, and `references/simple-rules.md` turns every judgment call into a number or an if-then rule.
 - **Writes copy that doesn't sound like AI**: hook archetypes, a title/description/hashtag lint (AI tells, engagement bait, filler tags), and a set clickbait share that never lies.
 - **Saves tokens**: a director/scout/writer/editor/reviewer split routes grunt work to Haiku and copy to Sonnet/Opus. Scripts print one-line JSON, and contact sheets replace frame-by-frame viewing.
 - **Runs unattended**: one questionnaire up front, resumable state, cached recordings and segments. When it needs you, `buzzer.exe` flashes a red border around your screen with a sound, and you pick skip / fix / fake it / paste an env var.
@@ -14,20 +18,20 @@ Default run: **10 TikToks per project**, project after project. Then each later 
 
 ### As a Claude Code plugin (recommended: includes the myinstants MCP)
 ```
-/plugin marketplace add GunroarCannon/clipskill
+/plugin marketplace add GunroarCannon/shipreel
 /plugin install shipreel@shipreel
 ```
 
 ### As a plain skill
 ```
-git clone https://github.com/GunroarCannon/clipskill
+git clone https://github.com/GunroarCannon/shipreel
 # then copy or link skills/shipreel into ~/.claude/skills/ (or your project's .claude/skills/)
 ```
-or `npx skills add GunroarCannon/clipskill`.
+or `npx skills add GunroarCannon/shipreel`.
 
 ### Requirements
 - **ffmpeg** with libass + libx264 (`winget install Gyan.FFmpeg` / `brew install ffmpeg` / `apt install ffmpeg`)
-- **Python 3.9+** (stdlib only)
+- **Python 3.9+** (stdlib only; Pillow is used when present for rounded caption boxes, `float` cards and font checks; numpy only to regenerate the bundled original sounds)
 - **Node 22+** + Chrome/Edge/Brave, for web recording (no npm install; it uses CDP over Node's built-in WebSocket)
 - **Godot 4.x**, for Godot projects (set `GODOT_BIN` or let it search)
 - Windows: the buzzer builds itself with the C# compiler that ships with Windows. macOS/Linux use notifications + a sound.
@@ -62,7 +66,8 @@ Each project gets a `.project-shorthand.txt` (features and how to reach them, de
 
 ## Assets
 - `assets/memes/`: 199 reaction, rage-comic and wojak images, renamed by content and indexed by mood, theme and text (`scripts/assets.py find --mood smug`). Third-party meme images, used as short reaction inserts; their copyright stays with the original owners. Remove anything you're not comfortable publishing.
-- `assets/sfx/`: 38 meme sounds from myinstants.com (`scripts/sfx.py get "<name>"` adds more).
+- `assets/sfx/`: 38 meme sounds from myinstants.com (`scripts/sfx.py get "<name>"` adds more) and 8 soft original sounds for pro mode, generated by `scripts/synth_sfx.py` (MIT).
+- `assets/music/`: 19 meme-music loops (TikTok only) and 2 original beds (`ambient-pad`, `soft-pulse`) that are safe everywhere.
 - `assets/fonts/`: OFL/Apache fonts, see `assets/fonts/LICENSES.md`.
 - `assets/overlays/`: arrows, rings, scribbles, X and check marks (original, MIT).
 - Add your own: drop files in `assets/inbox/` → `assets.py scan` → `assets.py add`.

@@ -79,19 +79,28 @@ Rules: same scene and same driver in every era so the comparison is fair (old in
 
 ## 3. Write the plan
 
-Writer subagent → `temp/<p>/plans/p<pass>_<batch>.json` with ≤5 videos (`plan-schema.md`, `copy-rules.md`, `effects-cookbook.md`, `templates/plan.example.json`). Inputs: shorthand path, `rec list` output, `ledger --titles` output (avoid repeats), slate, pass number, `config.mix`.
+Writer subagent → `temp/<p>/plans/p<pass>_<batch>.json` with ≤5 videos (`plan-schema.md`, `copy-rules.md`, `effects-cookbook.md`, `templates/plan.example.json`). Inputs: shorthand path, `rec list` output, `ledger --titles` output (avoid repeats), slate, pass number, `config.mix`, `config.mode`.
+
+Start each video from the footage, not a blank file:
+```
+C moments <rec-id> --project <p> [--format tiktok] [--pace fast] [--n 6]
+    # best moving spans: in, out, score, peak (the strongest instant), the fit and focus auto will use
+C scaffold <p> --rec <id>[,<id>] --out temp/<p>/plans/p1_a.json --id t01 [--recipe showcase|before-after|tour] [--mode pro] [--format youtube] [--len 15]
+    # a timed skeleton: clips from the best moments (strongest first), transitions, caption slots, sounds, pace, mode
+```
+`scaffold` appends to the plan file (same `--id` replaces). It writes `TODO` text and a `todo` list; `check` fails until both are gone. Recipes: `showcase` (best moment first, second best last), `before-after` (`--rec old,new`: the old side desaturated with a date chip, a flash/smooth into the new side), `tour` (one rec per section, section labels, chapters on long YouTube videos). Mode and pace: `pro-mode.md`, `pacing.md`. The small-model playbook: `simple-rules.md`.
 
 ## 4. Check
 ```
 C check temp/<p>/plans/p1_a.json
 ```
-Fix every hard issue (exit 1). Soft issues (ai-tell in captions, long caption, tag count) → fix unless deliberate.
+Each video line starts with `~est pace/mode`. Fix every hard issue (exit 1): `pace!:`, `pro:`, `TODO text`, bad names. Soft issues (`pace:`, `framing:`, `pro note:`, ai-tell in captions, long caption, tag count, `todo list:`) → fix unless deliberate.
 
 ## 5. Render
 ```
 C render temp/<p>/plans/p1_a.json [--only t03,t04] [--force]
 ```
-Per video: `output/<p>/<name>.mp4` (captioned), `output/<p>/textless/<name>.mp4`, `<name>.txt` description (or an empty extensionless `<name>` file when there's no description), `<name>.jpg` if `thumb`, and a row in `output/<p>/videos.csv`. Unchanged videos are skipped (plan hash), and normalized segments are cached in `temp/<p>/seg/` by content hash, so re-renders after a caption fix skip the segment step. On a low-end laptop a 15 s TikTok takes about 1 to 2 min and a 1-minute YouTube video about 3 to 4 min at the default x264 `medium`. `SHIPREEL_PRESET=veryfast` (or `render.preset` in config) makes them about 2.5× faster with roughly 30% bigger files. Use it for drafts and review rounds, and drop it for the final pass if disk allows.
+The result line has `pace`, `mode` and `framing` (what `fit: auto`, auto focus and auto track chose per clip: check it against the sheet). Per video: `output/<p>/<name>.mp4` (captioned), `output/<p>/textless/<name>.mp4`, `<name>.txt` description (or an empty extensionless `<name>` file when there's no description), `<name>.jpg` if `thumb`, and a row in `output/<p>/videos.csv`. Unchanged videos are skipped (plan hash), and normalized segments are cached in `temp/<p>/seg/` by content hash, so re-renders after a caption fix skip the segment step. On a low-end laptop a 15 s TikTok takes about 1 to 2 min and a 1-minute YouTube video about 3 to 4 min at the default x264 `medium`. `SHIPREEL_PRESET=veryfast` (or `render.preset` in config) makes them about 2.5× faster with roughly 30% bigger files. Use it for drafts and review rounds, and drop it for the final pass if disk allows.
 
 ## 6. Review
 ```

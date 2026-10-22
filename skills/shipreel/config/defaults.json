@@ -1,6 +1,9 @@
 {
-  "_doc": "Defaults. The questionnaire writes overrides to <workspace>/shipreel.config.json (same keys). See references/questionnaire.md.",
+  "_doc": "Defaults. The questionnaire writes overrides to <workspace>/shipreel.config.json (same keys). See references/questionnaire.md. mode: creator | pro (references/pro-mode.md). pace: auto | fast | medium | slow (references/pacing.md).",
   "projects": [],
+  "mode": "creator",
+  "pace": "auto",
+  "brand": { "accent": "", "_doc": "pro mode: your brand colour (#RRGGBB) for *accent* words" },
   "channel": {
     "name": "",
     "same_channel": true,
