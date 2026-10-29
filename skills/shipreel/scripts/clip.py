@@ -43,7 +43,7 @@ PACES = {
     "medium": {"shot": (1.0, 3.0, 5.5), "gap": 4.0, "wps": 3.0, "cap_min": 1.2, "trans": 0.4, "per": 3, "first_cut": 4.5, "words": 8},
     "slow":   {"shot": (1.5, 5.0, 10.0), "gap": 8.0, "wps": 2.5, "cap_min": 1.8, "trans": 0.7, "per": 4, "first_cut": 8.0, "words": 12},
 }
-MODES = ("creator", "pro")
+MODES = ("creator", "pro", "slide")
 
 
 def pace_for(length):
@@ -57,7 +57,8 @@ def resolve_pace(v, length, cfg=None):
 
 
 def resolve_mode(v, plan=None, cfg=None):
-    return str(v.get("mode") or (plan or {}).get("mode") or (cfg or {}).get("mode") or "creator").lower()
+    m = str(v.get("mode") or (plan or {}).get("mode") or (cfg or {}).get("mode") or "creator").lower()
+    return "slide" if m in ("slide", "slideshow") else m
 
 
 def read_time(text, pace):
@@ -198,6 +199,8 @@ def auto_fit(clip, is_img, sw, sh, W, H, mode, rec):
         return "cover"
     r = (sw / sh) / (W / H)
     if 0.8 <= r <= 1.25:
+        return "cover"
+    if mode == "slide" and is_img and sh >= sw:
         return "cover"
     soft = "float" if mode == "pro" else "blurpad"
     if is_img or r < 0.8:
@@ -830,6 +833,7 @@ PRESETS = {
     "note":      {"font": "Caveat Bold", "size": 118, "fill": "white", "outline": "#1B1B1F", "ol": 4, "sh": 3, "upper": False, "hi": "#FFE27A"},
     "trendy":    {"font": "Bricolage Grotesque ExtraBold", "size": 92, "fill": "white", "outline": "black", "ol": 6, "sh": 0, "upper": False,
                   "hi": "#C6FF3D"},
+    "slide":     {"font": "Montserrat Bold", "size": 96, "fill": "white", "outline": "#000000", "ol": 4, "sh": 2, "blur": 3, "upper": False, "hi": "#FFD400", "cap_mv": 0.35},
 }
 # Which preset fits which footage, for `clip.py fonts` and references/caption-look.md
 PRESET_USE = {
@@ -840,7 +844,7 @@ PRESET_USE = {
     "cinema": "trailers, big titles", "pro": "PRO default: product demos, SaaS, client work", "minimal": "PRO: startup/product, very clean",
     "editorial": "PRO: story, documentary, case study (serif)", "tech": "PRO: dev tools, APIs, infra", "headline": "PRO/creator: news-style claims",
     "condensed": "PRO/creator: sports-style stats and countdowns", "game": "game TikToks (Lilita One), bold and friendly",
-    "candy": "cozy/cute games", "pixel": "retro and pixel-art games", "note": "handwritten asides and annotations", "trendy": "modern creator look, lime accent",
+    "candy": "cozy/cute games", "pixel": "retro and pixel-art games", "note": "handwritten asides and annotations", "trendy": "modern creator look, lime accent", "slide": "SLIDE default: viral photo slideshows & swipe carousels (bold, high-legibility sans with dark shadow/halo)",
 }
 EMOJI_RE = re.compile("[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U0000FE0F\U0000200D]+")
 
@@ -905,7 +909,7 @@ def round_rect(w, h, r):
 
 
 def default_style(mode):
-    return "pro" if mode == "pro" else "pop"
+    return "slide" if mode == "slide" else "pro" if mode == "pro" else "pop"
 
 
 def video_preset(v, mode):
@@ -1864,7 +1868,7 @@ def audio_graph(v, total, base_in, n_in, has_product_music):
             lines.append(("".join(keys) + "amix=inputs=2:normalize=0[key];" if len(keys) == 2 else f"{keys[0]}anull[key];") +
                          "[mus0][key]sidechaincompress=threshold=0.05:ratio=3:attack=20:release=500:makeup=1[mus]")
         else:
-            lines.append("".join(keys) + "anullsink;[mus0]anull[mus]")
+            lines.append(";".join(f"{k}anullsink" for k in keys) + ";[mus0]anull[mus]")
         mix.append("[mus]")
         n_in += 1
     lines.append("".join(mix) + f"amix=inputs={len(mix)}:normalize=0:duration=first,alimiter=limit=0.89:attack=4:release=80:level=disabled,aresample=48000[aout]")
@@ -2258,11 +2262,29 @@ def render_video(v, plan, cfg, a):
                                "hook": v.get("hook_type", ""), "style": v.get("style") or default_style(mode), "plan_hash": phash})
     if not a.keep_build:
         shutil.rmtree(vdir, ignore_errors=True)
+    slide_paths = []
+    if mode == "slide" or getattr(a, "slides", False) or v.get("export_slides"):
+        slides_dir = os.path.join(odir, "slides", name)
+        os.makedirs(slides_dir, exist_ok=True)
+        for ci, c in enumerate(built):
+            d = durs[ci]
+            st = starts[ci]
+            t_mid = round(min(total - 0.05, st + min(d * 0.5, 1.2)), 2)
+            slide_fn = os.path.join(slides_dir, f"slide_{ci + 1:02d}.png")
+            try:
+                run(["ffmpeg", "-y", "-v", "error", "-ss", str(t_mid), "-i", final,
+                     "-vframes", "1", "-q:v", "2", slide_fn])
+                if os.path.exists(slide_fn):
+                    slide_paths.append(os.path.relpath(slide_fn, workspace()))
+            except Exception:
+                pass
     lo, hi = LIMITS.get(fmt, (1, 9999))
+    if mode == "slide":
+        lo = 5
     warn = [] if lo <= total <= hi else [f"duration {total}s outside {lo}-{hi}s for {fmt}"]
     return {"id": v["id"], "ok": True, "dur": total, "pace": pace, "mode": mode, "file": os.path.relpath(final, workspace()), "desc": os.path.basename(desc),
             **({"framing": framing} if framing else {}),
-            **({"thumb": os.path.basename(thumb)} if thumb else {}), **({"warn": warn} if warn else {}),
+            **({"thumb": os.path.basename(thumb)} if thumb else {}), **({"slides": slide_paths} if slide_paths else {}), **({"warn": warn} if warn else {}),
             **({"contrast_fixed": contrast_notes} if contrast_notes else {}),
             **({"audio": audio_info} if audio_info else {}),
             **({"highlights": proof_rows} if proof_rows else {}), **({"overlay_notes": ov_notes} if ov_notes else {}),
@@ -2372,7 +2394,7 @@ def src_size(path):
 
 
 SOFT = ("cap ai-tell", "desc ai-tell", "title ai-tell", "cap insider", "title insider", "desc insider", "cap emoji", "long caption", "tags=",
-        "music:", "bare:", "pace:", "framing:", "pro note:", "todo list:", "overlay note:", "sfx note:", "sound:")
+        "music:", "bare:", "pace:", "framing:", "pro note:", "slide note:", "todo list:", "overlay note:", "sfx note:", "sound:")
 
 
 def cmd_check(a):
@@ -2495,6 +2517,8 @@ def cmd_check(a):
             cursor = cursor - td + this
         est = sum(piece_durs) - overlap
         lo, hi = LIMITS.get(fmt, (1, 9999))
+        if mode == "slide":
+            lo = 5
         if not (lo <= est <= hi):
             iss.append(f"est duration {est:.1f}s outside {lo}-{hi}")
         caps_all = list(v.get("captions", []))
@@ -2511,6 +2535,8 @@ def cmd_check(a):
         iss += pace_issues(v, pace, piece_durs, kinds, starts, caps_all, est)
         if mode == "pro":
             iss += pro_issues(v, style)
+        elif mode == "slide":
+            iss += slide_issues(v)
         plain = [c for c in v.get("captions", []) if "x" not in c and c.get("style", "cap") in ("hook", "cap", "mid")]
         for i, c1 in enumerate(plain):
             for c2 in plain[i + 1:]:
@@ -2637,10 +2663,12 @@ def pace_issues(v, pace, piece_durs, kinds, starts, caps, est):
             out_.append(f"pace: clips[{i}] runs {d:.1f}s (> {limit:.1f}s for {pace}); split it, add track/zoomin, or trim")
         elif d < lo and 0 < i < len(piece_durs) - 1:
             out_.append(f"pace: clips[{i}] is {d:.1f}s, a flicker at {pace} pace (min {lo}s)")
+    is_slide = v.get("mode") == "slide" or v.get("style") == "slide"
     c0 = v["clips"][0] if v.get("clips") else {}
     first_moves = bool(c0.get("track")) or any(parse_fx(f)[0] in ("zoomin", "zoomout") for f in c0.get("fx", []))
-    if vids_ and len(piece_durs) > 1 and piece_durs[0] > P["first_cut"] and not first_moves:
+    if not is_slide and vids_ and len(piece_durs) > 1 and piece_durs[0] > P["first_cut"] and not first_moves:
         out_.append(f"pace: first cut at {piece_durs[0]:.1f}s; {pace} videos cut or move the camera by {P['first_cut']}s")
+    max_words = 12 if is_slide else P["words"]
     for c in caps:
         txt = c.get("text", "")
         n = len(txt.replace("*", "").split())
@@ -2652,8 +2680,8 @@ def pace_issues(v, pace, piece_durs, kinds, starts, caps, est):
             out_.append(f"pace!: caption '{txt[:22]}' is up {d:.1f}s but {n} words need {need:.1f}s to read; cut words or raise d")
         elif d < need * 0.9:
             out_.append(f"pace: caption '{txt[:22]}' {d:.1f}s is short for {n} words (needs ~{need:.1f}s)")
-        if n > P["words"]:
-            out_.append(f"pace: caption '{txt[:22]}' has {n} words; {pace} pace wants <= {P['words']}")
+        if n > max_words:
+            out_.append(f"pace: caption '{txt[:22]}' has {n} words; {pace} pace wants <= {max_words}")
     events = [0.0, est] + list(starts)
     events += [float(c.get("t", 0)) for c in caps]
     events += [float(o.get("t", 0)) for o in v.get("overlays", []) if o.get("type") not in ("progress", "ring", "circle")]
@@ -2668,7 +2696,8 @@ def pace_issues(v, pace, piece_durs, kinds, starts, caps, est):
     gaps = [(b - a, a, b) for a, b in zip(events, events[1:])]
     if gaps:
         g, a0, b0 = max(gaps)
-        if g > P["gap"] * 1.15:
+        allowed_gap = 3.6 if is_slide else P["gap"] * 1.15
+        if g > allowed_gap:
             out_.append(f"pace: nothing new from {a0:.1f}s to {b0:.1f}s ({g:.1f}s; {pace} pace wants something every {P['gap']}s): "
                         "add a cut, caption, zoom, sfx or overlay")
     return out_
@@ -2754,6 +2783,65 @@ def pro_issues(v, style):
         out_.append("pro note: title in sentence case (\"Faster exports in 3 clicks\")")
     if EMOJI_RE.search(v.get("description", "") or ""):
         out_.append("pro note: emoji in a pro description; keep it plain")
+
+
+def slide_issues(v):
+    """Slide mode (references/slide-mode.md): photo slideshows / swipe carousels."""
+    out_ = []
+    clips = v.get("clips", [])
+    n_slides = len(clips)
+    if n_slides < 2:
+        out_.append("slide: needs at least 2 slides (recommended 4-7 slides)")
+    elif n_slides > 12:
+        out_.append(f"slide note: {n_slides} slides is long; >12 slides often causes swipe fatigue (sweet spot is 4-7 slides)")
+    hook_text = ""
+    if clips and clips[0].get("caption"):
+        c0 = clips[0]["caption"]
+        hook_text = c0.get("text") if isinstance(c0, dict) else str(c0)
+    if not hook_text:
+        c_first = next((c for c in v.get("captions", []) if float(c.get("t", 0)) < 1.0), None)
+        if c_first:
+            hook_text = c_first.get("text", "")
+    if not hook_text and not v.get("header"):
+        out_.append("slide: slide 1 has no hook text (first slide is the only thing viewers see before deciding to swipe)")
+    else:
+        ht_lower = hook_text.lower()
+        target_callouts = ("for ", "if you", "you ", "pov", "to make for", "sometimes you", "why you", "when you", "lazy", "husband", "wife", "men", "girls", "devs", "solo", "people who", "anyone who", "abs", "leveling")
+        curiosity_triggers = ("sometimes you just gotta", "this is why", "how we", "secret", "never", "nobody", "stop doing", "what happens when", "traumatise", "need this")
+        if not (any(k in ht_lower for k in target_callouts) or any(k in ht_lower for k in curiosity_triggers)):
+            out_.append("slide note: slide 1 hook should call out exactly who it's for (e.g. '[X] for [target audience]') or create a curiosity gap that forces the swipe (e.g. 'what happens when [twist]'). Adapt to project genre; never copy case-study phrases.")
+    last_slide_cta = False
+    if clips:
+        last_clip = clips[-1]
+        last_c = last_clip.get("caption")
+        last_text = (last_c.get("text") if isinstance(last_c, dict) else str(last_c or "")) + " " + str(last_clip.get("card", ""))
+        cta_keywords = ("app", "download", "try", "link", "get it", "available on", "join", "install", "testflight", "play it", "store", "repo", "wishlist", "site", "web")
+        if any(k in last_text.lower() for k in cta_keywords):
+            last_slide_cta = True
+    if not last_slide_cta:
+        for c in v.get("captions", []):
+            if any(k in str(c.get("text", "")).lower() for k in ("app", "download", "try", "link", "get it", "bio", "install", "wishlist", "play it")):
+                last_slide_cta = True
+                break
+    if not last_slide_cta:
+        out_.append("slide: last slide should showcase your app/product with a clear CTA (convert swipers to downloads/users)")
+    desc = v.get("description", "").lower()
+    proj = str(v.get("project", "")).lower()
+    if desc and proj and proj not in desc and not any(k in desc for k in ("app", "link", "download", "try")):
+        out_.append("slide note: description should include the full app name for App Store / search discoverability")
+    if not v.get("music") and not v.get("sound_note"):
+        out_.append("slide: missing sound_note or music; audio is a 10x retention multiplier for slideshows (recommend a trending/repeatable niche track)")
+    proj_tags = (str(v.get("project", "")) + " " + " ".join(v.get("tags", []))).lower()
+    is_cooking = any(k in proj_tags for k in ("recipe", "cook", "food", "dinner", "kitchen", "bake", "meal"))
+    is_dating = any(k in proj_tags for k in ("dating", "pure", "tinder", "relationship"))
+    title_hook = (v.get("title", "") + " " + hook_text).lower()
+    if not is_cooking and "lazy ass" in title_hook:
+        out_.append("slide: blind case-study mimicry detected ('lazy ass'); adapt the hook to this project's actual niche and player/user fantasy instead of copying the cooking case study.")
+    if not is_dating and "traumatise" in title_hook:
+        out_.append("slide: blind case-study mimicry detected ('traumatise'); adapt the hook to this project's niche instead of copying the dating app case study.")
+    sound_txt = (str(v.get("sound_note", "")) + " " + str(v.get("music", ""))).lower()
+    if not is_cooking and any(k in sound_txt for k in ("glenn miller", "in the mood", "dinner is served")):
+        out_.append("slide: blind case-study mimicry in audio ('in the mood' / 'dinner is served'); 1940s swing was an outlier for a cooking page. Pick audio native to this project's genre (gaming: chiptune/phonk/OST; SaaS: lofi/clean tech).")
     return out_
 
 
@@ -3023,6 +3111,23 @@ def cmd_scaffold(a):
                 sec[0]["transition"] = "dip" if pro else "whip"
             sections.append(len(clips))
             clips += sec
+    elif recipe == "slide" or mode == "slide":
+        slide_dur = 2.8
+        pool = []
+        for k in range(max(len(s["m"]) for s in sources)):
+            for s in sources:
+                if k < len(s["m"]):
+                    pool.append((s, s["m"][k]))
+        n_slides = min(max(4, int(L / slide_dur)), max(4, len(pool)))
+        for i in range(n_slides):
+            s, mo = pool[i % len(pool)]
+            c = clip_of(s, mo)
+            c["out"] = round(c["in"] + slide_dur, 2)
+            if i > 0:
+                c["transition"] = "push"
+                c["transition_dur"] = 0.22
+            clips.append(c)
+        sections = [0]
     else:  # showcase: best moment first (the hook), second best last (the payoff), the rest in story order
         pool = []
         for k in range(max(len(s["m"]) for s in sources)):
@@ -3095,20 +3200,39 @@ def cmd_scaffold(a):
     if not pro and est >= 20 and not wide:
         overlays.append({"type": "progress", "color": "white"})
     v = {"id": a.id, "format": fmt, "mode": mode, "pace": pace, "recipe": recipe,
-         "style": ("pro" if pro else ("clean" if wide else "bubble")), "hook_type": "TODO",
+         "style": ("slide" if mode == "slide" else "pro" if pro else ("clean" if wide else "bubble")), "hook_type": "TODO",
          "title": "TODO title", "tags": ["TODO"], "description": "TODO description (or delete the field for none)",
          "clips": clips, "captions": caps, "sfx": sfx, "overlays": overlays}
     if pro:
         v["grade"] = "clean"
         v["music"] = {"asset": "music:ambient-pad" if pace == "slow" else "music:soft-pulse", "vol": 0.12, "duck": True}
-    if wide and fmt == "youtube" and est >= 60 and len(sections) >= 3:
-        v["chapters"] = [{"t": 0 if k == 0 else round(starts[idx], 1), "title": f"TODO chapter {k + 1}"} for k, idx in enumerate(sections)]
-    v["todo"] = ["Write every TODO text. Hook (captions[0]) = the promise in 3-6 words. Each `TODO clips[i] beat` = 2-6 words naming what clips[i] "
-                 "shows (open clip.py sheet <rec>). Payoff = the result, the number or the joke. Keep the word count the pace allows (pacing.md)",
-                 "Pointers: anchor them to the source (`target` from record-web, or `box` read off `clip.py sheet <rec> --grid`) with a `what`, pick the type for the target, and open the `proof` sheet after rendering (references/highlighting.md). No exact target = no highlight."]
-    if not pro:
-        v["todo"].append("Music decision (music-audio.md section 0): a bed from assets.py find --type music, or \"music\": null with a reason")
-    v["todo"].append("After render: read `framing`, `overlay_notes` and `audio` in the result; open clip.py sheet on the final and the `proof` sheet: the subject must be in frame and every highlight on its target")
+    if mode == "slide":
+        v["style"] = "slide"
+        v["hook_type"] = "target-callout"
+        v["title"] = f"TODO: [Niche-specific hook for {a.project}]"
+        v["sound_note"] = f"TODO: Trending audio in {a.project}'s niche (gaming: chiptune/phonk/game OST; dev: lofi/ambient; SaaS: clean synth; NEVER copy case-study tracks blindly)"
+        v["description"] = f"TODO: What {a.project} does in 1-2 lines. Link in bio to try it!\n\nfull app: {a.project}"
+        slide_caps = [{"t": 0, "d": 2.8, "text": f"TODO: Hook calling out audience or curiosity gap tailored to {a.project} (never copy case study phrases)", "style": "slide"}]
+        for i in range(1, len(clips) - 1):
+            slide_caps.append({"t": starts[i], "d": 2.8, "text": f"TODO: Slide {i + 1} feature / step / value", "style": "slide"})
+        slide_caps.append({"t": starts[-1], "d": 2.8, "text": f"TODO: Try {a.project} today (link in bio)", "style": "slide"})
+        v["captions"] = slide_caps
+        v["todo"] = [
+            f"Slide 1 Hook: Tailor to {a.project}'s genre and user fantasy. DO NOT blindly copy case study phrases ('lazy ass', 'traumatise').",
+            f"Niche Sound: Choose an audio track native to {a.project}'s niche (gaming: chiptune/phonk/game OST; SaaS: lofi/synth). Never default to Glenn Miller.",
+            "Feed Consistency: Keep 1 character, 1 theme, or 1 template structure across all posts so profile visits convert to followers.",
+            "Last Slide CTA: Showcase the app and a clear CTA (link in bio, download).",
+            "Full App Name: Make sure the description includes the full app name for search ranking."
+        ]
+    else:
+        if wide and fmt == "youtube" and est >= 60 and len(sections) >= 3:
+            v["chapters"] = [{"t": 0 if k == 0 else round(starts[idx], 1), "title": f"TODO chapter {k + 1}"} for k, idx in enumerate(sections)]
+        v["todo"] = ["Write every TODO text. Hook (captions[0]) = the promise in 3-6 words. Each `TODO clips[i] beat` = 2-6 words naming what clips[i] "
+                     "shows (open clip.py sheet <rec>). Payoff = the result, the number or the joke. Keep the word count the pace allows (pacing.md)",
+                     "Pointers: anchor them to the source (`target` from record-web, or `box` read off `clip.py sheet <rec> --grid`) with a `what`, pick the type for the target, and open the `proof` sheet after rendering (references/highlighting.md). No exact target = no highlight."]
+        if not pro:
+            v["todo"].append("Music decision (music-audio.md section 0): a bed from assets.py find --type music, or \"music\": null with a reason")
+        v["todo"].append("After render: read `framing`, `overlay_notes` and `audio` in the result; open clip.py sheet on the final and the `proof` sheet: the subject must be in frame and every highlight on its target")
     plan = {"project": a.project, "pass": a.pass_no, "videos": []}
     if os.path.exists(a.out):
         try:
@@ -3162,10 +3286,10 @@ def main():
     p = sp.add_parser("scaffold"); p.add_argument("project"); p.add_argument("--rec", required=True, help="rec ids, comma separated (before-after: old,new)")
     p.add_argument("--out", required=True); p.add_argument("--id", default="t01"); p.add_argument("--format", default="tiktok", choices=sorted(FORMATS))
     p.add_argument("--mode", choices=MODES); p.add_argument("--pace", choices=sorted(PACES)); p.add_argument("--len", type=float)
-    p.add_argument("--recipe", default="showcase", choices=["showcase", "before-after", "tour"]); p.add_argument("--pass", dest="pass_no", type=int, default=1)
+    p.add_argument("--recipe", default="showcase", choices=["showcase", "before-after", "tour", "slide"]); p.add_argument("--pass", dest="pass_no", type=int, default=1)
     p.set_defaults(f=cmd_scaffold)
     p = sp.add_parser("render"); p.add_argument("plan"); p.add_argument("--only"); p.add_argument("--force", action="store_true")
-    p.add_argument("--no-captioned", action="store_true"); p.add_argument("--keep-build", action="store_true"); p.set_defaults(f=cmd_render)
+    p.add_argument("--slides", action="store_true"); p.add_argument("--no-captioned", action="store_true"); p.add_argument("--keep-build", action="store_true"); p.set_defaults(f=cmd_render)
     p = sp.add_parser("thumb"); p.add_argument("src"); p.add_argument("--t", type=float, default=1.0); p.add_argument("--text", default="")
     p.add_argument("--sticker"); p.add_argument("--out", required=True); p.add_argument("--size", default="1280x720"); p.add_argument("--color", default="yellow"); p.set_defaults(f=cmd_thumb)
     p = sp.add_parser("name"); p.add_argument("title"); p.add_argument("--tags"); p.add_argument("--series"); p.add_argument("--part"); p.set_defaults(f=cmd_name)

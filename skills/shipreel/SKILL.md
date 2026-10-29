@@ -1,6 +1,6 @@
 ---
 name: shipreel
-description: "Turn the user's software and game projects into faceless, voiceless short-form and long-form videos: records select parts of each project (web apps through headless Chrome, Godot games through Movie Maker, anything through screen capture, old versions through git worktrees), then edits them with ffmpeg into captioned TikToks/Shorts (10-30s portrait), YouTube videos (1-5 min landscape) and X.com (Twitter) devlog clips. Creator mode (memes, meme SFX, chunky game captions) or pro mode (clean type, soft original sounds, no memes) for product demos and client work; aspect-aware auto framing that aims at the action, pacing that follows length, 25 caption fonts, whip/zoom/flash/dissolve transitions, colour grades and human-sounding titles, write-ups and hashtags. Use when the user wants devlog/showcase content, TikToks, YouTube or X.com videos of their projects, a content batch for a dev channel, or asks to continue a shipreel run."
+description: "Turn the user's software and game projects into faceless, voiceless short-form and long-form videos: records select parts of each project (web apps through headless Chrome, Godot games through Movie Maker, anything through screen capture, old versions through git worktrees), then edits them with ffmpeg into captioned TikToks/Shorts (10-30s portrait), YouTube videos (1-5 min landscape), X.com (Twitter) devlog clips, and viral photo slideshows / swipe carousels. Creator mode (memes, meme SFX, chunky game captions), pro mode (clean type, soft original sounds, no memes) for product demos and client work, or slide mode for viral photo slideshows and carousels (target callout hooks on slide 1, feed consistency, value slides, app CTA on last slide, trending audio); aspect-aware auto framing that aims at the action, pacing that follows length, 25 caption fonts, whip/zoom/flash/dissolve transitions, colour grades and human-sounding titles, write-ups and hashtags. Use when the user wants devlog/showcase content, TikToks, YouTube or X.com videos of their projects, a content batch for a dev channel, or asks to continue a shipreel run."
 license: MIT
 ---
 
@@ -15,6 +15,7 @@ You are the **director**. You plan, delegate cheap work to cheaper models, and c
 1. `clip.py doctor`. Any `warn` → fix or tell the user (low disk: suggest `SHIPREEL_HOME` on another drive).
 2. No `shipreel.config.json` in the workspace → run the **questionnaire** (`references/questionnaire.md`). It picks the model plan, projects, handles, permissions and how often to be asked. Ask the setup up front, but that doesn't mean "never ask again": mid-run questions are expected (see "Ask, don't guess").
 3. `clip.py state show`. If a run is in progress, resume from it; don't redo work the ledger already has.
+4. When planning in **slide mode** or starting a slideshow session: **always buzz first and start with a question**: ask the user for 1 to 3 winning reference accounts in their niche (`python S/scripts/buzz.py "shipreel: what winning page in your niche should we model?" -t 2`). Give them good research tools (ViewTrack for post views/formats/sounds, TikTok Creative Center / Trend Discovery, TokCount, Exolyt, Apify scrapers). Identify the top 3 outlier formats, winning hook structures, and top-performing sound multipliers before writing.
 
 ## The loop
 
@@ -52,7 +53,7 @@ Plans, the reasons behind them, and when to skip subagents: `references/model-ro
 
 ## Hard rules
 
-- **Pick the mode first.** `creator` (default) for the dev channel: memes, meme sounds, chunky captions, jokes. `pro` for anything a company would post (product demos, launches, client work, LinkedIn): clean presets (`pro`, `minimal`, `editorial`, `tech`), soft original sounds, sentence case, no memes. `config.mode`, or `mode` on a plan or a video. `check` fails meme assets in pro videos. `references/pro-mode.md`.
+- **Pick the mode first.** `creator` (default) for the dev channel: memes, meme sounds, chunky captions, jokes. `pro` for anything a company would post (product demos, launches, client work, LinkedIn): clean presets (`pro`, `minimal`, `editorial`, `tech`), soft original sounds, sentence case, no memes. `slide` for viral photo slideshows and swipe carousels: bold legible type (`slide` preset), 4 to 7 slides, strong target callout hook on slide 1, consistent feed theme/character across all posts, value slides, app CTA on the final slide, full app name in the caption, and repeatable high-retention audio (`references/slide-mode.md`). **NEVER blindly copy case-study examples into user projects** (e.g. "for your lazy ass", "traumatise these men back", "In the Mood" - Glenn Miller); that research illustrated *principles*, not a universal script. You MUST deduce the user fantasy, pain point, and trending audio native to the project's exact niche (e.g. physics games get phonk/chiptune/game OST and ragdoll chaos hooks; SaaS gets lofi/synth and workflow hooks). Config `mode`, or `mode` on a plan or a video. `check` enforces mode-specific rules. `references/pro-mode.md`, `references/slide-mode.md`.
 - **Pace follows length.** ≤ 22 s = fast (shots 0.6 to 3.2 s, something new every 2.5 s, 2 to 6 word captions), ≤ 60 s = medium, longer = slow (shots up to 10 s, sections, dissolves). `pace: auto` picks it; captions without `d` stay up their reading time; transitions take the pace's length. `check` prints `pace:` lines (and fails `pace!:`). `references/pacing.md`.
 - **Standalone videos.** Each one makes sense to a viewer who saw nothing else. Use series (`-part-N`) only when a story really needs it, and still stand alone.
 - **Faceless and voiceless.** No webcam, no TTS voice. On-screen text carries the story. Avoid low-effort and reused-content flags: `references/channel-rules.md`.
@@ -94,6 +95,7 @@ The ledger (`output/<p>/videos.csv`), the recordings cache (`temp/<p>/data.json`
 - `references/pacing.md`: fast/medium/slow by length: shot lengths, reading time, what `check` enforces
 - `references/framing.md`: which `fit` for which source shape, auto focus and auto track, `stack`/`float`
 - `references/pro-mode.md`: the pro look, sounds, voice and structure
+- `references/slide-mode.md`: viral photo slideshows, swipe carousels, target callout hooks, feed consistency, sound selection and app conversion rules
 - `references/questionnaire.md`: first-run questions → `shipreel.config.json`
 - `references/recording-gate.md`: **before recording**: blockers, drivers, framing, the post-record checklist, symptom table
 - `references/pipeline.md`: commands per step, recording recipes (web, Godot, screen, worktree)
@@ -108,7 +110,7 @@ The ledger (`output/<p>/videos.csv`), the recordings cache (`temp/<p>/data.json`
 - `references/channel-rules.md`: faceless channel, avoiding low-effort and reused-content flags
 - `references/naming-and-files.md`: file names, folders, description files
 - `references/failure-protocol.md`: buzz + options, env vars, effort estimates
-- `templates/plan.example.json` (creator) and `templates/plan.pro.example.json` (pro): working plans to copy from. Faster: `clip.py scaffold`
+- `templates/plan.example.json` (creator), `templates/plan.pro.example.json` (pro), and `templates/plan.slide.example.json` (slide mode): working plans to copy from. Faster: `clip.py scaffold`
 
 ## Assets
 

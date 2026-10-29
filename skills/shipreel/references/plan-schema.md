@@ -11,9 +11,9 @@ One file = one batch (≤5 videos). `{"project": "...", "pass": 1, "mode": "crea
 | `title` | str | human title, it becomes the file name. See copy-rules |
 | `tags` | [str] | 3 to 5 niche hashtags without `#`. Also go in the file name |
 | `series` | {name, part} | optional → `name-part-N_title_#tags` |
-| `mode` | `creator` \| `pro` | default `config.mode` (creator). Pro = no memes, clean type, soft sounds: `pro-mode.md` |
+| `mode` | `creator` \| `pro` \| `slide` | default `config.mode` (creator). Pro = clean type, soft sounds (`pro-mode.md`). Slide = viral photo slideshows & swipe carousels (`slide-mode.md`) |
 | `pace` | `auto` \| `fast` \| `medium` \| `slow` | default auto: ≤22 s fast, ≤60 s medium, longer slow. Sets shot lengths, reading time, transition length: `pacing.md` |
-| `style` | caption preset | creator: `pop` (default) `bubble` `game` `candy` `pixel` `trendy` `note` `chip` `label` `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Pro: `pro` (default) `minimal` `editorial` `tech` `headline` `condensed` (+ `clean` `label` `cinema`). Rotate them; `clip.py fonts` lists which font each uses |
+| `style` | caption preset | creator: `pop` (default) `bubble` `game` `candy` `pixel` `trendy` `note` `chip` `label` `punch` `hormozi` `clean` `meme` `comic` `dev` `marker` `bold` `cinema` `cartoon`. Pro: `pro` (default) `minimal` `editorial` `tech` `headline` `condensed`. Slide: `slide` (default). Rotate them; `clip.py fonts` lists which font each uses |
 | `font` | family name | override the preset's font for the whole video (any family from `clip.py fonts`) |
 | `accent` | colour | override the accent colour for `*starred*` words (pro also reads `config.brand.accent`) |
 | `grade` | `none` `clean` `punchy` `vivid` `warm` `cool` `cinematic` `film` `mono` | one colour look over the whole video, under the overlays |

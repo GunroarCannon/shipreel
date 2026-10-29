@@ -1,5 +1,5 @@
 {
-  "_doc": "Defaults. The questionnaire writes overrides to <workspace>/shipreel.config.json (same keys). See references/questionnaire.md. mode: creator | pro (references/pro-mode.md). pace: auto | fast | medium | slow (references/pacing.md).",
+  "_doc": "Defaults. The questionnaire writes overrides to <workspace>/shipreel.config.json (same keys). See references/questionnaire.md. mode: creator | pro | slide (references/pro-mode.md, references/slide-mode.md). pace: auto | fast | medium | slow (references/pacing.md).",
   "projects": [],
   "mode": "creator",
   "pace": "auto",

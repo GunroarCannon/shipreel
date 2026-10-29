@@ -1,0 +1,64 @@
+{
+  "project": "stickbox",
+  "pass": 1,
+  "mode": "slide",
+  "videos": [
+    {
+      "id": "s01",
+      "format": "tiktok",
+      "style": "slide",
+      "hook_type": "target-callout",
+      "title": "what happens when you give 500 stickmen real 3D physics",
+      "tags": [
+        "gamedev",
+        "indiegame",
+        "godotengine",
+        "ragdoll",
+        "gaming"
+      ],
+      "sound_note": "High-energy gaming phonk or chiptune battle OST (e.g. Megalovania / Kordhell style)",
+      "music": {
+        "asset": "music:crab-rave",
+        "vol": 0.16,
+        "duck": false
+      },
+      "description": "500 stickmen vs real Godot 3D physics engine. Play Stickbox free on itch.io!\n\nfull app: Stickbox 3D Game",
+      "clips": [
+        {
+          "card": "what happens when you give 500 stickmen\nreal 3D ragdoll physics",
+          "dur": 2.8,
+          "bg": "#141416",
+          "caption": "what happens when you give 500 stickmen\nreal 3D ragdoll physics"
+        },
+        {
+          "card": "1. full momentum transfer on impact",
+          "dur": 2.6,
+          "bg": "#18181C",
+          "transition": "push",
+          "caption": "1. full momentum transfer on impact"
+        },
+        {
+          "card": "2. explosive blast radius with cartoon gore dial",
+          "dur": 2.6,
+          "bg": "#1C1818",
+          "transition": "push",
+          "caption": "2. explosive blast radius with cartoon gore dial"
+        },
+        {
+          "card": "3. procedural horde AI swarming giant bosses",
+          "dur": 2.6,
+          "bg": "#161A18",
+          "transition": "push",
+          "caption": "3. procedural horde AI swarming giant bosses"
+        },
+        {
+          "card": "Play Stickbox free on itch.io\nLink in bio (download today)",
+          "dur": 3.0,
+          "bg": "#121820",
+          "transition": "push",
+          "caption": "play Stickbox free on itch.io\n*link in bio (download today)*"
+        }
+      ]
+    }
+  ]
+}

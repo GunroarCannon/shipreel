@@ -24,6 +24,7 @@ Write like a dev texting a friend about their project. Not like a brand, not lik
 - Hype without proof: "insane", "mind-blowing", "you won't believe" (vague tease).
 - Greetings, intros, "welcome back", logo stings.
 - Emoji in burned-in text (stripped anyway). In descriptions: 0 to 2.
+- **Case-Study Mimicry**: Blindly copying case-study copy or song names across unrelated domains (e.g. putting *"for your lazy ass"* or *"traumatise these men back"* on a game dev project, or using 1940s Glenn Miller swing for an action physics game). Every project must derive its hook and audio from its own target audience and cultural niche. `clip.py check` will reject case-study mimicry.
 
 ## Would a stranger care? (the first test for every line)
 
@@ -48,6 +49,8 @@ Archetypes. Rotate across a batch; label each video's `hook_type`:
 - **question**: "why does this only crash on Tuesdays"
 - **flex (earned)**: "I made this in 48 hours". Only if it's true.
 - **process / tutorial**: "how I made the water shader"
+- **target-callout** (slide default): calls out exactly who it's for or the specific user pain point. Derive from the project's niche (gaming: "what happens when you give 500 stickmen real 3D ragdoll physics"; dev: "5 terminal tools for devs who hate clicking"; food: "5 weeknight dinners for your lazy ass"). DO NOT copy phrases across niches.
+- **forced-swipe** (slide mode): creates an irresistible curiosity gap forcing a swipe to slide 2 (gaming: "3 physics bugs that became accidental features"; dating: "sometimes you just gotta traumatise these men back"; dev: "the 1 git mistake senior engineers still make"). Tailor strictly to domain.
 - **middle-of-action**: no text setup, the clip starts mid-explosion and the header carries the context
 - **clickbait** (≤ `config.mix.clickbait_share`): a curiosity gap that the video pays off: "this bug made my game better". Clickbait means withholding the answer, never making a false claim. Same rule for thumbnails.
 
@@ -59,6 +62,12 @@ Bad hooks: setup sentences ("so I've been working on..."), vague teases, brand-f
 - 2 to 6 words per caption beat, ≤9 words max. One beat per 1.5 to 2.5 s. Text that sits longer than it takes to read → cut it.
 - Don't repeat the header in the first caption. Don't narrate what the viewer can see ("here is the menu"). Add what they can't see: the why, the struggle, the number, the joke.
 - Last beat: loop-back line, a payoff or a single soft CTA ("full devlog on my channel" on YouTube-linked accounts). No "thanks for watching".
+- **Slide mode rules (`references/slide-mode.md`)**:
+  - Slide 1 Hook: Must call out who it's for or force the swipe.
+  - Slides 2..N-1: Value points, recipes, or chat screenshots. High contrast, 1 idea per slide.
+  - Final Slide: MUST showcase the app/product with a clear CTA (link in bio, download).
+  - Description: MUST include the full app name for App Store / TikTok search ranking.
+  - Audio: Always include `sound_note` with a repeatable, high-retention audio track (e.g. "In the Mood", 12M view outlier).
 
 ## Titles = file names
 

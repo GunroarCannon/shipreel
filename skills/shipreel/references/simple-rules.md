@@ -6,7 +6,7 @@ This file is for every model on the run, and written so the smallest one can fol
 
 ## Build one video in 10 steps
 
-1. **Mode.** `config.mode`, or the plan's `mode`. `pro` = client work, product demos, launches, LinkedIn, anything a company posts. `creator` = the dev channel: memes allowed. Don't mix inside one video.
+1. **Mode.** `config.mode`, or the plan's `mode`. `pro` = client work, product demos, launches, LinkedIn, anything a company posts. `creator` = the dev channel: memes allowed. `slide` = viral photo slideshows & swipe carousels (target callout hooks on slide 1, consistent feed theme/character, value slides, app CTA on final slide; `slide-mode.md`). Don't mix inside one video.
 2. **Find the moments.** For each recording you'll use: `C moments <rec-id> --project <p> --format tiktok`. It returns the best moving spans (`in`, `out`) and where the action is. `moments[0]` is the strongest: the video opens on it.
 3. **Scaffold.** `C scaffold <p> --rec <id>[,<id>] --out temp/<p>/plans/p1_a.json --id t01 [--recipe ...] [--mode pro] [--format youtube]`. It writes clips, transitions, caption slots, sounds and pace for you. Pick the recipe from the table below.
 4. **Write the words.** Replace every `TODO` (title, tags, description, hook_type, captions). Rules: "Captions" below and `copy-rules.md`. Don't move the times unless `check` asks.
@@ -26,6 +26,7 @@ This file is for every model on the run, and written so the smallest one can fol
 | a bug, a fail | `showcase`, then put the fail clip first | fail | tiktok |
 | a walkthrough, devlog, product tour | `tour` (one rec per section) | tutorial, process | youtube, or tiktok 30-45 s |
 | pro product launch | `showcase --mode pro` | number, before-after | tiktok + youtube |
+| photo slideshow / swipe carousel | `slide` (or `--mode slide`) | target-callout, forced-swipe | tiktok |
 
 ## Numbers (pace)
 
